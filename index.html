@@ -211,8 +211,8 @@
         AUTO WX
       </button>
 
-      <!-- Headlights Toggle -->
-      <button id="btn-lights" class="gt-btn active rounded-lg sm:rounded-xl px-2 py-1 sm:px-2.5 sm:py-1.5 text-xs font-medium flex items-center gap-1" title="Toggle Headlights [L]">
+      <!-- Headlights Status (Always On) -->
+      <button id="btn-lights" class="gt-btn active rounded-lg sm:rounded-xl px-2 py-1 sm:px-2.5 sm:py-1.5 text-xs font-medium flex items-center gap-1" title="Bi-LED Headlights Always Active">
         <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
         </svg>
@@ -365,9 +365,9 @@
       <div>
         <div class="flex justify-between text-[11px] mb-1">
           <span class="text-neutral-400">STEERING SENSITIVITY</span>
-          <span id="label-steer-sens" class="font-mono-tech text-white">100%</span>
+          <span id="label-steer-sens" class="font-mono-tech text-white">85%</span>
         </div>
-        <input id="slider-steer-sens" type="range" min="60" max="150" value="100" class="w-full accent-white bg-white/10 h-1.5 rounded-lg cursor-pointer" />
+        <input id="slider-steer-sens" type="range" min="60" max="150" value="85" class="w-full accent-white bg-white/10 h-1.5 rounded-lg cursor-pointer" />
       </div>
     </div>
 
@@ -522,17 +522,17 @@
         trackSamples: 440,
         gravity: 9.81,
         idleRPM: 950,
-        redlineRPM: 8500,
-        maxRPM: 9000,
-        maxSpeedKMH: 265,
-        maxSpeedMS: 265 / 3.6,
-        // Tuned 6-speed close-ratio PDK gearbox so gears shift briskly 1 -> 2 -> 3 -> 4 -> 5 -> 6!
-        gearSpeedTargetsKMH: [0, 46, 82, 122, 166, 214, 265],
-        gearRatios: [0, 3.85, 2.52, 1.82, 1.38, 1.09, 0.88],
-        reverseRatio: 3.15,
-        finalDrive: 3.75,
-        ShiftUpRPM: 7550,
-        ShiftDownRPM: 4100
+        redlineRPM: 8200,
+        maxRPM: 8800,
+        maxSpeedKMH: 268,
+        maxSpeedMS: 268 / 3.6,
+        // Logical, progressive 6-speed GT3 gearbox ratios & top speeds per gear (no rapid-fire shifting)
+        gearSpeedTargetsKMH: [0, 68, 112, 154, 196, 234, 268],
+        gearRatios: [0, 3.15, 2.12, 1.58, 1.24, 1.00, 0.84],
+        reverseRatio: 2.95,
+        finalDrive: 3.44,
+        ShiftUpRPM: 7850,
+        ShiftDownRPM: 3650
       };
 
       const STATE = {
@@ -558,7 +558,7 @@
         transmission: 'auto',
         handlingMode: 'grip',
         rideHeightOffset: 0,
-        steerSensitivity: 1.0,
+        steerSensitivity: 0.85,
         pitchAngle: 0,
         rollAngle: 0,
         heaveOffset: 0,
@@ -583,7 +583,7 @@
         autoWeather: true,
         weatherBlend: 0,
         headlightsOn: true,
-        // Default quality set to 0 ('PERFORMANCE') for smooth frame rates out of the box
+        // Default quality set to 0 ('PERFORMANCE') with real-time shadows enabled
         qualityIndex: 0,
         qualityNames: ['PERFORMANCE', 'BALANCED', 'ULTRA'],
         lapStartTime: performance.now(),
@@ -614,9 +614,9 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(1.0);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.08;
+      renderer.toneMappingExposure = 0.92;
       renderer.outputEncoding = THREE.sRGBEncoding;
-      renderer.shadowMap.enabled = false;
+      renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       container.appendChild(renderer.domElement);
 
@@ -626,29 +626,30 @@
       const camera = new THREE.PerspectiveCamera(56, window.innerWidth / window.innerHeight, 0.25, 950);
       camera.position.set(0, 3.2, -7.5);
 
-      const hemiLight = new THREE.HemisphereLight(0xdbe6f5, 0x25282e, 0.72);
+      const hemiLight = new THREE.HemisphereLight(0xdbe6f5, 0x25282e, 0.52);
       scene.add(hemiLight);
 
-      const dirLight = new THREE.DirectionalLight(0xfff8ed, 2.1);
+      const dirLight = new THREE.DirectionalLight(0xfff8ed, 1.15);
       dirLight.position.set(85, 130, 65);
       dirLight.castShadow = true;
       dirLight.shadow.mapSize.width = 2048;
       dirLight.shadow.mapSize.height = 2048;
       dirLight.shadow.camera.near = 10;
-      dirLight.shadow.camera.far = 360;
-      const dCam = 95;
+      dirLight.shadow.camera.far = 240;
+      const dCam = 44;
       dirLight.shadow.camera.left = -dCam;
       dirLight.shadow.camera.right = dCam;
       dirLight.shadow.camera.top = dCam;
       dirLight.shadow.camera.bottom = -dCam;
-      dirLight.shadow.bias = -0.0005;
+      dirLight.shadow.bias = -0.00012;
+      dirLight.shadow.normalBias = 0.018;
       scene.add(dirLight);
       scene.add(dirLight.target);
 
       const pmremGenerator = new THREE.PMREMGenerator(renderer);
       pmremGenerator.compileEquirectangularShader();
 
-      // 6 Rich Atmospheric Weather & Lighting Presets
+      // 7 Balanced Atmospheric Weather & Lighting Presets (Calibrated so textures never wash out to white)
       const ENV_PRESETS = [
         {
           name: 'STUDIO',
@@ -659,13 +660,13 @@
           fogColor: 0x4c5666,
           fogDensity: 0.0022,
           sunColor: 0xf6f9ff,
-          sunIntensity: 1.95,
+          sunIntensity: 1.05,
           hemiSky: 0xd0ddec,
           hemiGround: 0x1e2229,
-          hemiIntensity: 0.85,
+          hemiIntensity: 0.50,
           sunElevation: 115,
           sunAzimuth: 45,
-          exposure: 1.08,
+          exposure: 0.90,
           wetness: 0.08,
           rainRate: 0.0,
           nightFactor: 0.0,
@@ -675,18 +676,18 @@
           name: 'NOON',
           badge: 'HIGH NOON CLEAR',
           skyTop: '#0d2b52',
-          skyHorizon: '#87b2d9',
+          skyHorizon: '#7ca5cc',
           ground: '#1c2026',
-          fogColor: 0x82a8cc,
+          fogColor: 0x769bbf,
           fogDensity: 0.0011,
-          sunColor: 0xffffff,
-          sunIntensity: 2.65,
-          hemiSky: 0xe3f2ff,
-          hemiGround: 0x2c3038,
-          hemiIntensity: 0.92,
-          sunElevation: 145,
-          sunAzimuth: 20,
-          exposure: 1.14,
+          sunColor: 0xfffaf0,
+          sunIntensity: 1.25,
+          hemiSky: 0xdbeeff,
+          hemiGround: 0x242830,
+          hemiIntensity: 0.54,
+          sunElevation: 135,
+          sunAzimuth: 25,
+          exposure: 0.92,
           wetness: 0.0,
           rainRate: 0.0,
           nightFactor: 0.0,
@@ -701,13 +702,13 @@
           fogColor: 0x8a5240,
           fogDensity: 0.0028,
           sunColor: 0xffa866,
-          sunIntensity: 2.35,
+          sunIntensity: 1.15,
           hemiSky: 0xffcda8,
           hemiGround: 0x24191c,
-          hemiIntensity: 0.72,
-          sunElevation: 38,
-          sunAzimuth: 12,
-          exposure: 1.05,
+          hemiIntensity: 0.45,
+          sunElevation: 42,
+          sunAzimuth: 14,
+          exposure: 0.90,
           wetness: 0.04,
           rainRate: 0.0,
           nightFactor: 0.35,
@@ -722,13 +723,13 @@
           fogColor: 0x1c2842,
           fogDensity: 0.0036,
           sunColor: 0x7aa2f7,
-          sunIntensity: 0.95,
+          sunIntensity: 0.68,
           hemiSky: 0x486299,
           hemiGround: 0x0d1017,
-          hemiIntensity: 0.52,
-          sunElevation: 24,
+          hemiIntensity: 0.38,
+          sunElevation: 32,
           sunAzimuth: -18,
-          exposure: 0.96,
+          exposure: 0.88,
           wetness: 0.22,
           rainRate: 0.0,
           nightFactor: 0.85,
@@ -743,13 +744,13 @@
           fogColor: 0x0b1120,
           fogDensity: 0.0032,
           sunColor: 0x64748b,
-          sunIntensity: 0.42,
+          sunIntensity: 0.35,
           hemiSky: 0x1e293b,
           hemiGround: 0x07090e,
-          hemiIntensity: 0.36,
+          hemiIntensity: 0.28,
           sunElevation: 68,
           sunAzimuth: -35,
-          exposure: 0.92,
+          exposure: 0.86,
           wetness: 0.18,
           rainRate: 0.0,
           nightFactor: 1.0,
@@ -764,13 +765,13 @@
           fogColor: 0x4b5666,
           fogDensity: 0.0048,
           sunColor: 0xcbd5e1,
-          sunIntensity: 1.25,
+          sunIntensity: 0.82,
           hemiSky: 0x94a3b8,
           hemiGround: 0x181c22,
-          hemiIntensity: 0.75,
+          hemiIntensity: 0.46,
           sunElevation: 88,
           sunAzimuth: 50,
-          exposure: 1.02,
+          exposure: 0.88,
           wetness: 0.68,
           rainRate: 0.45,
           nightFactor: 0.65,
@@ -785,13 +786,13 @@
           fogColor: 0x262f3b,
           fogDensity: 0.0062,
           sunColor: 0x94a3b8,
-          sunIntensity: 0.82,
+          sunIntensity: 0.58,
           hemiSky: 0x64748b,
           hemiGround: 0x0f1318,
-          hemiIntensity: 0.58,
+          hemiIntensity: 0.38,
           sunElevation: 72,
           sunAzimuth: 80,
-          exposure: 0.95,
+          exposure: 0.86,
           wetness: 0.96,
           rainRate: 1.0,
           nightFactor: 0.92,
@@ -996,35 +997,48 @@
         renderer.toneMappingExposure = liveWeather.exposure;
 
         if (roadMaterial) {
-          roadMaterial.roughness = THREE.MathUtils.lerp(0.68, 0.16, liveWeather.wetness);
-          roadMaterial.metalness = THREE.MathUtils.lerp(0.08, 0.38, liveWeather.wetness);
-          roadMaterial.envMapIntensity = THREE.MathUtils.lerp(0.55, 1.85, liveWeather.wetness);
+          roadMaterial.roughness = THREE.MathUtils.lerp(0.76, 0.28, liveWeather.wetness);
+          roadMaterial.metalness = THREE.MathUtils.lerp(0.06, 0.24, liveWeather.wetness);
+          roadMaterial.envMapIntensity = THREE.MathUtils.lerp(0.38, 0.95, liveWeather.wetness);
         }
         if (curbMaterial) {
-          curbMaterial.roughness = THREE.MathUtils.lerp(0.48, 0.18, liveWeather.wetness);
+          curbMaterial.roughness = THREE.MathUtils.lerp(0.58, 0.28, liveWeather.wetness);
+          curbMaterial.envMapIntensity = 0.35;
         }
         if (terrainMaterial) {
-          terrainMaterial.roughness = THREE.MathUtils.lerp(0.92, 0.65, liveWeather.wetness);
+          terrainMaterial.roughness = THREE.MathUtils.lerp(0.94, 0.75, liveWeather.wetness);
+          terrainMaterial.envMapIntensity = 0.22;
+        }
+        if (lakeWaterMaterial) {
+          lakeWaterMaterial.roughness = THREE.MathUtils.lerp(0.06, 0.16, liveWeather.rainRate);
+          lakeWaterMaterial.envMapIntensity = THREE.MathUtils.lerp(1.65, 1.15, liveWeather.rainRate);
         }
 
-        // Streetlamps, Volumetric Lamp Cones & Building Windows automatically turn ON in Night, Twilight & Storm!
-        const lampPower = THREE.MathUtils.smoothstep(liveWeather.nightFactor, 0.25, 0.75);
+        // Streetlamps, Tyndall Volumetric Haze, Ground Light Pools & Building Windows
+        const lampPower = THREE.MathUtils.smoothstep(liveWeather.nightFactor, 0.12, 0.65);
+        const tyndallFactor = THREE.MathUtils.clamp(lampPower * (0.62 + liveWeather.wetness * 0.38 + liveWeather.fogDensity * 65), 0, 1);
         emissiveWindowMaterials.forEach((mat) => {
-          mat.emissiveIntensity = THREE.MathUtils.lerp(0.22, 1.85, lampPower);
+          mat.emissiveIntensity = THREE.MathUtils.lerp(0.22, 1.55, lampPower);
         });
         streetLampBulbMaterials.forEach((mat) => {
-          mat.emissiveIntensity = THREE.MathUtils.lerp(0.15, 4.2, lampPower);
+          mat.emissiveIntensity = THREE.MathUtils.lerp(0.25, 3.2, lampPower);
         });
         streetLampConeMaterials.forEach((mat) => {
-          mat.opacity = THREE.MathUtils.lerp(0.0, 0.22, lampPower);
+          const maxOp = mat.userData && mat.userData.isTyndall ? 0.34 : 0.46;
+          mat.opacity = THREE.MathUtils.lerp(0.0, maxOp, tyndallFactor);
         });
 
         const activeIdx = t < 0.5 ? (index % ENV_PRESETS.length) : ((index + 1) % ENV_PRESETS.length);
         const activePreset = ENV_PRESETS[activeIdx];
+        const nextPreset = ENV_PRESETS[(index + 1) % ENV_PRESETS.length];
         const envLabel = document.getElementById('label-env');
         if (envLabel) envLabel.textContent = activePreset.name;
         const wxBadge = document.getElementById('hud-weather-badge');
-        if (wxBadge) wxBadge.textContent = activePreset.badge;
+        if (wxBadge) {
+          wxBadge.textContent = STATE.autoWeather && rawT > 0.15 && rawT < 0.85
+            ? `${ curr.name } ➔ ${ nextPreset.name }`
+            : activePreset.badge;
+        }
       }
 
       // -----------------------------------------------------------------------
@@ -1527,14 +1541,73 @@
         return new THREE.CanvasTexture(canvas);
       }
 
-      // 3D Celestial Sky Group (Visible Sun, Solar Corona Halo, Moon & Endless World Ground)
+      function createLampGroundPoolTexture() {
+        const size = 128;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const grad = ctx.createRadialGradient(64, 64, 4, 64, 64, 60);
+        grad.addColorStop(0.0, 'rgba(255, 226, 175, 0.75)');
+        grad.addColorStop(0.45, 'rgba(255, 210, 145, 0.28)');
+        grad.addColorStop(1.0, 'rgba(255, 200, 120, 0.0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, size, size);
+        return new THREE.CanvasTexture(canvas);
+      }
+
+      // Soft Gaussian Volumetric Tyndall Effect Texture (No hard triangle edges!)
+      function createTyndallBeamTexture() {
+        const w = 128;
+        const h = 256;
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        const imgData = ctx.createImageData(w, h);
+        const d = imgData.data;
+
+        for (let y = 0; y < h; y++) {
+          const v = y / h; // 0 at top lamp head, 1 at ground
+          const halfSpread = 0.10 + v * 0.40;
+          // Smooth vertical fade: soft entry at fixture, atmospheric Tyndall glow in middle, zero at bottom
+          const vertAlpha = Math.pow(Math.sin(v * Math.PI), 0.85) * Math.pow(1.0 - v, 0.55);
+
+          for (let x = 0; x < w; x++) {
+            const u = (x / w) - 0.5;
+            const normX = Math.abs(u) / halfSpread;
+            let horizAlpha = 0;
+            if (normX < 1.0) {
+              horizAlpha = Math.pow(0.5 + 0.5 * Math.cos(normX * Math.PI), 1.6);
+            }
+            const alpha = vertAlpha * horizAlpha;
+            const idx = (y * w + x) * 4;
+            d[idx] = 255;
+            d[idx + 1] = 232;
+            d[idx + 2] = 185;
+            d[idx + 3] = Math.floor(THREE.MathUtils.clamp(alpha * 225, 0, 255));
+          }
+        }
+        ctx.putImageData(imgData, 0, 0);
+        return new THREE.CanvasTexture(canvas);
+      }
+
+      const sharedLampPoolTex = createLampGroundPoolTexture();
+      const sharedTyndallTex = createTyndallBeamTexture();
+
+      // 3D Celestial Sky Group (Single Unified Sun + Solar Corona Halo, Night Moon & Endless World Ground)
       const skyGroup = new THREE.Group();
       scene.add(skyGroup);
 
       function buildCelestialSkyAndGround() {
-        // 1. Visible Sun Disc + Corona Glow Sprite
-        const sunGeo = new THREE.SphereGeometry(22, 24, 24);
-        const sunMat = new THREE.MeshBasicMaterial({ color: 0xfffbeb, fog: false });
+        // 1. Unified Sun Disc + Soft Multi-Layered Corona Glow Sprite (Never produces two suns!)
+        const sunGeo = new THREE.SphereGeometry(14, 24, 24);
+        const sunMat = new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.95,
+          fog: false
+        });
         sunDiscMesh = new THREE.Mesh(sunGeo, sunMat);
         skyGroup.add(sunDiscMesh);
 
@@ -1547,11 +1620,11 @@
           fog: false
         });
         sunHaloSprite = new THREE.Sprite(haloMat);
-        sunHaloSprite.scale.set(190, 190, 1);
+        sunHaloSprite.scale.set(210, 210, 1);
         sunDiscMesh.add(sunHaloSprite);
 
-        // 2. Visible Moon Disc for Twilight & Night
-        const moonGeo = new THREE.SphereGeometry(14, 20, 20);
+        // 2. Moon Disc strictly for deep Night (positioned opposite the sun so two suns never appear)
+        const moonGeo = new THREE.SphereGeometry(11, 20, 20);
         const moonMat = new THREE.MeshBasicMaterial({
           color: 0xe0f2fe,
           transparent: true,
@@ -1582,10 +1655,9 @@
       function updateCelestialSky() {
         skyGroup.position.set(STATE.pos.x, 0, STATE.pos.z);
 
-        // Place visible Sun in front/side of the horizon according to weather preset elevation & azimuth
         const skyRadius = 560;
         const azRad = (liveWeather.sunAzimuth * Math.PI) / 180;
-        const elevY = Math.max(28, liveWeather.sunElevation * 2.5);
+        const elevY = Math.max(32, liveWeather.sunElevation * 2.4);
         const horizDist = Math.sqrt(Math.max(100, skyRadius * skyRadius - elevY * elevY));
 
         if (sunDiscMesh && sunHaloSprite) {
@@ -1594,32 +1666,35 @@
             elevY,
             Math.cos(azRad) * horizDist
           );
-          const sunVis = THREE.MathUtils.clamp(1.0 - liveWeather.nightFactor * 0.95 - liveWeather.rainRate * 0.75, 0.08, 1.0);
-          sunDiscMesh.visible = sunVis > 0.1;
+          // Fade sun out completely when nightFactor > 0.65 so Sun and Moon never overlap
+          const dayStrength = THREE.MathUtils.clamp(1.0 - THREE.MathUtils.smoothstep(liveWeather.nightFactor, 0.45, 0.72), 0.0, 1.0);
+          const sunVis = dayStrength * (1.0 - liveWeather.rainRate * 0.78);
+          sunDiscMesh.visible = sunVis > 0.04;
+          sunDiscMesh.material.opacity = sunVis;
           sunHaloSprite.material.color.copy(liveWeather.sunColor);
           sunHaloSprite.material.opacity = sunVis * 0.92;
         }
 
         if (moonDiscMesh) {
-          const moonAz = azRad + 0.55;
+          // Place Moon only in deep twilight/night on the opposite side of the sky
+          const moonAz = azRad + Math.PI * 0.85;
           moonDiscMesh.position.set(
             Math.sin(moonAz) * 480,
-            195,
+            210,
             Math.cos(moonAz) * 480
           );
-          const moonAlpha = THREE.MathUtils.clamp(liveWeather.nightFactor * (1.0 - liveWeather.rainRate * 0.7), 0, 0.95);
+          const nightStrength = THREE.MathUtils.smoothstep(liveWeather.nightFactor, 0.72, 0.95);
+          const moonAlpha = nightStrength * (1.0 - liveWeather.rainRate * 0.75);
           moonDiscMesh.material.opacity = moonAlpha;
           moonDiscMesh.visible = moonAlpha > 0.05;
         }
 
-        // Keep the seamless ground plane centered near the player with world-locked texture coordinates
         if (worldGroundMesh) {
           const snapSize = 15.0;
           const gx = Math.round(STATE.pos.x / snapSize) * snapSize;
           const gz = Math.round(STATE.pos.z / snapSize) * snapSize;
           worldGroundMesh.position.x = gx;
           worldGroundMesh.position.z = gz;
-          // Hide global ground plane directly under the recessed bridge river gorge so the lagoon pond at y=-0.65m is clear
           const currSample = trackSamples[STATE.lastTrackIndex];
           const inBridgeGorge = currSample && (currSample.biomeType === 1 || currSample.biomeType === 2);
           worldGroundMesh.position.y = inBridgeGorge ? -2.65 : -0.06;
@@ -1634,15 +1709,15 @@
       const activeChunks = new Map();
       const trackSamples = [];
 
-      // Shared materials initialized once
+      // Shared materials initialized once (Balanced envMapIntensity so road textures stay crisp & dark)
       const sharedAsphaltTex = createAsphaltTextures();
       roadMaterial = new THREE.MeshStandardMaterial({
         map: sharedAsphaltTex.map,
         bumpMap: sharedAsphaltTex.bumpMap,
-        bumpScale: 0.018,
-        roughness: 0.56,
-        metalness: 0.14,
-        envMapIntensity: 0.92
+        bumpScale: 0.022,
+        roughness: 0.76,
+        metalness: 0.06,
+        envMapIntensity: 0.42
       });
 
       const sharedCurbTex = createCurbTexture();
@@ -1650,8 +1725,9 @@
         map: sharedCurbTex,
         bumpMap: sharedCurbTex,
         bumpScale: 0.02,
-        roughness: 0.44,
-        metalness: 0.08
+        roughness: 0.56,
+        metalness: 0.05,
+        envMapIntensity: 0.35
       });
 
       const grassTex = createGrassTerrainTexture();
@@ -1660,8 +1736,9 @@
         map: grassTex,
         bumpMap: grassTex,
         bumpScale: 0.04,
-        roughness: 0.88,
-        metalness: 0.04
+        roughness: 0.92,
+        metalness: 0.02,
+        envMapIntensity: 0.22
       });
 
       waterNormalTex = createWaterNormalTexture();
@@ -1669,9 +1746,9 @@
         color: 0x072c42,
         normalMap: waterNormalTex,
         normalScale: new THREE.Vector2(0.42, 0.42),
-        roughness: 0.05,
-        metalness: 0.88,
-        envMapIntensity: 2.65
+        roughness: 0.08,
+        metalness: 0.82,
+        envMapIntensity: 1.65
       });
 
       const sharedBarrierTex = createConcreteBarrierTexture();
@@ -1897,6 +1974,25 @@
         return { y, slope };
       }
 
+      // Compute exact terrain embankment ground Y at any lateral distance from road centerline so NO props ever float!
+      const TERRAIN_EMBANKMENT_WIDTH = 22.0;
+      const CURB_WIDTH = 1.25;
+      function getTerrainHeightAtOffset(sample, absLatOffset) {
+        if (!sample) return 0;
+        const elev = sample.pt.y;
+        const innerEdge = sample.halfWidth + CURB_WIDTH - 0.1;
+        let innerGroundY = elev + 0.01;
+        let outerGroundY = -0.05;
+        if (sample.isBridge) {
+          const gorgeCarve = THREE.MathUtils.smoothstep(elev, 0.8, 5.5);
+          innerGroundY = THREE.MathUtils.lerp(elev, -2.5, gorgeCarve);
+          outerGroundY = THREE.MathUtils.lerp(-0.05, -2.5, gorgeCarve);
+        }
+        if (absLatOffset <= innerEdge) return elev;
+        const t = THREE.MathUtils.clamp((absLatOffset - innerEdge) / TERRAIN_EMBANKMENT_WIDTH, 0, 1);
+        return THREE.MathUtils.lerp(innerGroundY, outerGroundY, t);
+      }
+
       function buildChunkGroup(chunkIdx) {
         const startIdx = chunkIdx * SAMPLES_PER_CHUNK;
         const endIdx = startIdx + SAMPLES_PER_CHUNK;
@@ -2047,6 +2143,7 @@
         if (biomeType === 0) {
           addGantryToChunk(chunkGroup, trackSamples[startIdx + 10], colliders);
           addPitGrandstandToChunk(chunkGroup, trackSamples[startIdx + 42], colliders);
+          addSpeedTrapCameraToChunk(chunkGroup, trackSamples[startIdx + 74]);
         } else if (biomeType === 1 || biomeType === 2) {
           addLongDividedBridgeAndDramaticPond(chunkGroup, startIdx, endIdx, colliders, biomeType);
         } else if (biomeType === 3) {
@@ -2055,6 +2152,7 @@
         } else if (biomeType === 4) {
           addPedestrianOverpassToChunk(chunkGroup, trackSamples[startIdx + 25], colliders);
           addScenicInfieldOasisToChunk(chunkGroup, trackSamples[startIdx + 60], colliders);
+          addSpeedTrapCameraToChunk(chunkGroup, trackSamples[startIdx + 80]);
         }
 
         // Add rare Speed Breakers in this chunk
@@ -2144,7 +2242,20 @@
         });
         streetLampBulbMaterials.push(medianLightMat);
 
-        const lampConeMat = new THREE.MeshBasicMaterial({
+        const lampPoolMat = new THREE.MeshBasicMaterial({
+          map: sharedLampPoolTex,
+          color: 0xffdfa8,
+          transparent: true,
+          opacity: 0.0,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending
+        });
+        lampPoolMat.userData = { isTyndall: false };
+        streetLampConeMaterials.push(lampPoolMat);
+
+        // Volumetric Tyndall Scattering Haze Material under Streetlights
+        const tyndallBeamMat = new THREE.MeshBasicMaterial({
+          map: sharedTyndallTex,
           color: 0xffe4b5,
           transparent: true,
           opacity: 0.0,
@@ -2152,17 +2263,23 @@
           side: THREE.DoubleSide,
           blending: THREE.AdditiveBlending
         });
-        streetLampConeMaterials.push(lampConeMat);
+        tyndallBeamMat.userData = { isTyndall: true };
+        streetLampConeMaterials.push(tyndallBeamMat);
+
+        const lampPoolGeo = new THREE.PlaneGeometry(8.2, 8.2);
+        lampPoolGeo.rotateX(-Math.PI / 2);
+
+        const tyndallPlaneGeo = new THREE.PlaneGeometry(3.8, 6.1);
 
         const reflectorRedMat = new THREE.MeshStandardMaterial({
           color: 0xff2222,
           emissive: 0xef4444,
-          emissiveIntensity: 1.5
+          emissiveIntensity: 1.2
         });
         const reflectorWhiteMat = new THREE.MeshStandardMaterial({
           color: 0xffffff,
           emissive: 0xe2e8f0,
-          emissiveIntensity: 1.5
+          emissiveIntensity: 1.2
         });
 
         for (let i = startIdx; i < endIdx; i += 2) {
@@ -2178,90 +2295,134 @@
             divGroup.rotation.y = yaw;
 
             const divW = s.dividerHalfWidth * 2;
-            const medianCurb = new THREE.Mesh(new THREE.BoxGeometry(divW, 0.24, segLen), curbMaterial);
-            medianCurb.position.set(0, 0.12, 0);
+            const medianCurb = new THREE.Mesh(new THREE.BoxGeometry(divW, 0.28, segLen), curbMaterial);
+            medianCurb.position.set(0, 0.11, 0);
             medianCurb.rotation.x = -s.slope;
+            medianCurb.receiveShadow = true;
             divGroup.add(medianCurb);
 
             if (!s.isBridge && divW > 1.4) {
               const hedge = new THREE.Mesh(new THREE.BoxGeometry(divW * 0.45, 0.68, segLen * 0.92), hedgeMat);
-              hedge.position.set(0, 0.52, 0);
+              hedge.position.set(0, 0.50, 0);
               hedge.rotation.x = -s.slope;
+              hedge.castShadow = true;
               divGroup.add(hedge);
             } else {
               const medianRail = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.68, segLen), darkSteelMat);
-              medianRail.position.set(0, 0.44, 0);
+              medianRail.position.set(0, 0.42, 0);
               medianRail.rotation.x = -s.slope;
+              medianRail.castShadow = true;
               divGroup.add(medianRail);
             }
 
-            // Dual-arm highway LED streetlamps along the median that illuminate at Night & Twilight!
+            // Dual-arm curved highway LED streetlamps with soft Tyndall Volumetric Haze & Ground Pool
             if (i % 12 === 0) {
-              const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.14, 6.2, 8), darkSteelMat);
-              pole.position.set(0, 3.1, 0);
+              const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.14, 6.5, 8), darkSteelMat);
+              pole.position.set(0, 3.15, 0);
+              pole.castShadow = true;
               divGroup.add(pole);
 
-              const crossArm = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.14, 0.22), darkSteelMat);
-              crossArm.position.set(0, 6.1, 0);
-              divGroup.add(crossArm);
+              [-1, 1].forEach((dirSign) => {
+                const arm = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.10, 0.16), darkSteelMat);
+                arm.position.set(dirSign * 1.25, 6.25, 0);
+                arm.rotation.z = dirSign * 0.08;
+                divGroup.add(arm);
 
-              const lampHead = new THREE.Mesh(new THREE.BoxGeometry(6.0, 0.12, 0.38), medianLightMat);
-              lampHead.position.set(0, 5.98, 0);
-              divGroup.add(lampHead);
+                const hood = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.12, 0.42), darkSteelMat);
+                hood.position.set(dirSign * 2.45, 6.32, 0);
+                divGroup.add(hood);
 
-              // Volumetric downward light cones for Night/Twilight realism
-              [-2.2, 2.2].forEach((lx) => {
-                const cone = new THREE.Mesh(new THREE.ConeGeometry(3.4, 5.9, 12, 1, true), lampConeMat);
-                cone.position.set(lx, 2.98, 0);
-                divGroup.add(cone);
+                const ledLens = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.06, 0.34), medianLightMat);
+                ledLens.position.set(dirSign * 2.45, 6.24, 0);
+                divGroup.add(ledLens);
+
+                // Crossed soft-gradient Tyndall scattering planes under each luminaire
+                const tBeam1 = new THREE.Mesh(tyndallPlaneGeo, tyndallBeamMat);
+                tBeam1.position.set(dirSign * 2.65, 3.15, 0);
+                tBeam1.rotation.z = -dirSign * 0.08;
+                divGroup.add(tBeam1);
+
+                const tBeam2 = new THREE.Mesh(tyndallPlaneGeo, tyndallBeamMat);
+                tBeam2.position.set(dirSign * 2.65, 3.15, 0);
+                tBeam2.rotation.y = Math.PI / 2;
+                tBeam2.rotation.x = dirSign * 0.08;
+                divGroup.add(tBeam2);
+
+                const groundPool = new THREE.Mesh(lampPoolGeo, lampPoolMat);
+                groundPool.position.set(dirSign * 3.0, 0.04, 0);
+                groundPool.rotation.x = -s.slope;
+                divGroup.add(groundPool);
               });
             }
 
             parentGroup.add(divGroup);
           } else if (i % 16 === 0) {
-            // Roadside Cobra-Head Streetlamps on single-carriageway sections so Night is always illuminated!
+            // Roadside Cobra-Head Streetlamps anchored accurately to embankment slope
             const lampGroup = new THREE.Group();
             lampGroup.position.copy(s.pt);
             lampGroup.rotation.y = yaw;
             const sideSign = (i % 32 === 0) ? 1 : -1;
-            const poleX = sideSign * (s.halfWidth + 2.2);
+            const latDist = s.halfWidth + 2.2;
+            const poleX = sideSign * latDist;
+            const localGroundDrop = getTerrainHeightAtOffset(s, latDist) - s.pt.y;
 
-            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.14, 6.4, 8), darkSteelMat);
-            pole.position.set(poleX, 3.2, 0);
+            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.14, 6.8, 8), darkSteelMat);
+            pole.position.set(poleX, 3.1 + localGroundDrop, 0);
+            pole.castShadow = true;
             lampGroup.add(pole);
 
-            const arm = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.12, 0.18), darkSteelMat);
-            arm.position.set(poleX - sideSign * 1.3, 6.3, 0);
+            const topY = 6.25 + localGroundDrop;
+            const arm = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.10, 0.16), darkSteelMat);
+            arm.position.set(poleX - sideSign * 1.3, topY, 0);
+            arm.rotation.z = -sideSign * 0.08;
             lampGroup.add(arm);
 
-            const bulb = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.10, 0.36), medianLightMat);
-            bulb.position.set(poleX - sideSign * 2.2, 6.2, 0);
+            const hood = new THREE.Mesh(new THREE.BoxGeometry(0.98, 0.12, 0.42), darkSteelMat);
+            hood.position.set(poleX - sideSign * 2.4, topY + 0.07, 0);
+            lampGroup.add(hood);
+
+            const bulb = new THREE.Mesh(new THREE.BoxGeometry(0.84, 0.06, 0.34), medianLightMat);
+            bulb.position.set(poleX - sideSign * 2.4, topY - 0.01, 0);
             lampGroup.add(bulb);
 
-            const cone = new THREE.Mesh(new THREE.ConeGeometry(3.5, 6.1, 12, 1, true), lampConeMat);
-            cone.position.set(poleX - sideSign * 2.2, 3.1, 0);
-            lampGroup.add(cone);
+            // Soft Tyndall scattering light haze under roadside lamp
+            const tBeam1 = new THREE.Mesh(tyndallPlaneGeo, tyndallBeamMat);
+            tBeam1.position.set(poleX - sideSign * 2.55, topY * 0.5, 0);
+            tBeam1.rotation.z = sideSign * 0.06;
+            lampGroup.add(tBeam1);
+
+            const tBeam2 = new THREE.Mesh(tyndallPlaneGeo, tyndallBeamMat);
+            tBeam2.position.set(poleX - sideSign * 2.55, topY * 0.5, 0);
+            tBeam2.rotation.y = Math.PI / 2;
+            lampGroup.add(tBeam2);
+
+            const groundPool = new THREE.Mesh(lampPoolGeo, lampPoolMat);
+            groundPool.position.set(poleX - sideSign * 3.1, 0.04, 0);
+            groundPool.rotation.x = -s.slope;
+            lampGroup.add(groundPool);
 
             parentGroup.add(lampGroup);
           }
 
-          // 2. Roadside Reflector Delineator Posts every 8 samples on non-bridge roads
+          // 2. Roadside Reflector Delineator Posts anchored into the embankment surface
           if (!s.isBridge && i % 8 === 0) {
             const delinGroup = new THREE.Group();
             delinGroup.position.copy(s.pt);
             delinGroup.rotation.y = yaw;
             const postOffset = s.halfWidth + 1.55;
+            const postGroundDrop = getTerrainHeightAtOffset(s, postOffset) - s.pt.y;
 
             [-postOffset, postOffset].forEach((xSide, idx) => {
-              const post = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.82, 0.06), darkSteelMat);
-              post.position.set(xSide, 0.41, 0);
+              const post = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.90, 0.06), darkSteelMat);
+              post.position.set(xSide, 0.36 + postGroundDrop, 0);
+              post.castShadow = true;
               delinGroup.add(post);
 
               const catEye = new THREE.Mesh(
                 new THREE.BoxGeometry(0.12, 0.16, 0.08),
                 idx === 0 ? reflectorWhiteMat : reflectorRedMat
               );
-              catEye.position.set(xSide, 0.68, 0);
+              catEye.position.set(xSide, 0.66 + postGroundDrop, 0);
               delinGroup.add(catEye);
             });
             parentGroup.add(delinGroup);
@@ -2350,6 +2511,7 @@
           [-pylonSideOffset, pylonSideOffset].forEach((xSide) => {
             const leg = new THREE.Mesh(new THREE.BoxGeometry(1.85, towerH, 2.4), concreteMat);
             leg.position.set(xSide, towerH * 0.5 - 12.0, 0);
+            leg.castShadow = true;
             pylonGroup.add(leg);
           });
 
@@ -2513,8 +2675,10 @@
 
       function addPitGrandstandToChunk(parentGroup, sample, colliders) {
         const pitGroup = new THREE.Group();
-        const pos = sample.pt.clone().addScaledVector(sample.right, -(sample.halfWidth + 16.5));
-        pitGroup.position.copy(pos);
+        const latOffset = sample.halfWidth + 16.5;
+        const pos = sample.pt.clone().addScaledVector(sample.right, -latOffset);
+        const groundY = getTerrainHeightAtOffset(sample, latOffset);
+        pitGroup.position.set(pos.x, groundY - 0.15, pos.z);
         pitGroup.rotation.y = Math.atan2(sample.tangent.x, sample.tangent.z);
 
         const structMat = sharedBuildingMat;
@@ -2665,6 +2829,7 @@
         const towerShaftMat = new THREE.MeshStandardMaterial({ color: 0x2a303a, metalness: 0.5, roughness: 0.35 });
         const shaft = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 3.0, 28, 12), towerShaftMat);
         shaft.position.set(0, 14, -34);
+        shaft.castShadow = true;
         oasisGroup.add(shaft);
 
         const podMat = new THREE.MeshStandardMaterial({
@@ -2682,12 +2847,49 @@
         parentGroup.add(oasisGroup);
       }
 
+      // Roadside High-Speed Radar Camera Trap + Overhead Electronic VMS Sign
+      function addSpeedTrapCameraToChunk(parentGroup, sample) {
+        if (!sample) return;
+        const trapGroup = new THREE.Group();
+        trapGroup.position.copy(sample.pt);
+        trapGroup.rotation.y = Math.atan2(sample.tangent.x, sample.tangent.z);
+
+        const xSide = sample.halfWidth + 2.4;
+        const groundDrop = getTerrainHeightAtOffset(sample, xSide) - sample.pt.y;
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 3.6, 8), sharedBrushedSteelMat);
+        post.position.set(xSide, 1.65 + groundDrop, 0);
+        post.castShadow = true;
+        trapGroup.add(post);
+
+        const housing = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.88, 0.52), sharedBuildingMat);
+        housing.position.set(xSide, 3.35 + groundDrop, 0);
+        housing.rotation.y = -0.25;
+        housing.castShadow = true;
+        trapGroup.add(housing);
+
+        const radarLensMat = new THREE.MeshStandardMaterial({
+          color: 0xf59e0b,
+          emissive: 0xf59e0b,
+          emissiveIntensity: 1.4
+        });
+        const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.56, 12), radarLensMat);
+        lens.rotation.x = Math.PI / 2;
+        lens.position.set(xSide - 0.05, 3.40 + groundDrop, 0.02);
+        lens.rotation.z = 0.25;
+        trapGroup.add(lens);
+
+        sample.isSpeedTrap = true;
+        parentGroup.add(trapGroup);
+      }
+
       function populateChunkScenery(parentGroup, chunkIdx, startIdx, endIdx, colliders) {
         const dummy = new THREE.Object3D();
 
-        // 1. Precast Concrete Roadside Barriers (Only on non-bridge sections, well clear of driving lanes)
-        const barrierGeo = new THREE.BoxGeometry(0.6, 0.95, 3.8);
+        // 1. Precast Concrete Roadside Barriers anchored flush into the terrain embankment slope (Never floating!)
+        const barrierGeo = new THREE.BoxGeometry(0.65, 1.08, 3.8);
         const barrierInst = new THREE.InstancedMesh(barrierGeo, sharedBarrierMat, 24);
+        barrierInst.castShadow = true;
+        barrierInst.receiveShadow = true;
         let bCount = 0;
         for (let i = startIdx + 4; i < endIdx - 4 && bCount < 24; i += 6) {
           const s = trackSamples[i];
@@ -2695,51 +2897,55 @@
           const side = (i % 12 === 0) ? 1 : -1;
           const offset = s.halfWidth + 5.6;
           const p = s.pt.clone().addScaledVector(s.right, side * offset);
+          const groundY = getTerrainHeightAtOffset(s, offset);
           const yaw = Math.atan2(s.tangent.x, s.tangent.z);
-          dummy.position.set(p.x, p.y + 0.475, p.z);
-          dummy.rotation.set(0, yaw, 0);
+          // Embed 0.12m into the sloping embankment and match road pitch so both ends sit solidly in the ground
+          dummy.position.set(p.x, groundY + 0.42, p.z);
+          dummy.rotation.set(-s.slope, yaw, 0);
           dummy.scale.set(1, 1, 1);
           dummy.updateMatrix();
           barrierInst.setMatrixAt(bCount++, dummy.matrix);
 
-          colliders.push({ x: p.x, z: p.z, r: 1.1, minY: p.y - 0.5, maxY: p.y + 2.2 });
+          colliders.push({ x: p.x, z: p.z, r: 1.1, minY: groundY - 0.5, maxY: groundY + 2.2 });
         }
         barrierInst.count = bCount;
         parentGroup.add(barrierInst);
 
-        // 2. Procedural Pine Forest Flanking the Chunk
+        // 2. Procedural Pine Forest Flanking the Chunk (Anchored into terrain height)
         const treeCount = 46;
         const treeGeo = new THREE.ConeGeometry(2.6, 8.2, 7);
-        const trunkGeo = new THREE.CylinderGeometry(0.35, 0.48, 2.2, 6);
+        const trunkGeo = new THREE.CylinderGeometry(0.35, 0.48, 2.5, 6);
         const treeInst = new THREE.InstancedMesh(treeGeo, sharedTreeMat, treeCount);
         const trunkInst = new THREE.InstancedMesh(trunkGeo, sharedTrunkMat, treeCount);
+        treeInst.castShadow = true;
+        trunkInst.castShadow = true;
 
         let tPlaced = 0;
         for (let t = 0; t < treeCount; t++) {
           const seedBase = chunkIdx * 1000 + t * 17;
           const sampleOffset = Math.floor(seededRandom(seedBase + 1) * SAMPLES_PER_CHUNK);
           const s = trackSamples[startIdx + sampleOffset];
-          // Avoid placing trees inside the dramatic bridge pond
           if ((s.biomeType === 1 || s.biomeType === 2) && sampleOffset > 6 && sampleOffset < 84) continue;
 
           const side = seededRandom(seedBase + 2) > 0.5 ? 1 : -1;
           const latDist = s.halfWidth + 18 + seededRandom(seedBase + 3) * 95;
           const p = s.pt.clone().addScaledVector(s.right, side * latDist);
+          const groundY = getTerrainHeightAtOffset(s, latDist);
           const scale = 0.75 + seededRandom(seedBase + 4) * 0.9;
           const rotY = seededRandom(seedBase + 5) * Math.PI * 2;
 
-          dummy.position.set(p.x, 4.8 * scale, p.z);
+          dummy.position.set(p.x, groundY + 4.65 * scale, p.z);
           dummy.scale.set(scale, scale, scale);
           dummy.rotation.set(0, rotY, 0);
           dummy.updateMatrix();
           treeInst.setMatrixAt(tPlaced, dummy.matrix);
 
-          dummy.position.set(p.x, 1.1 * scale, p.z);
+          dummy.position.set(p.x, groundY + 0.95 * scale, p.z);
           dummy.updateMatrix();
           trunkInst.setMatrixAt(tPlaced, dummy.matrix);
 
           if (latDist < s.halfWidth + 36) {
-            colliders.push({ x: p.x, z: p.z, r: 0.65 * scale, minY: -1, maxY: 9 });
+            colliders.push({ x: p.x, z: p.z, r: 0.65 * scale, minY: groundY - 1, maxY: groundY + 9 });
           }
           tPlaced++;
         }
@@ -2778,11 +2984,11 @@
 
       const paintMaterial = new THREE.MeshPhysicalMaterial({
         color: new THREE.Color('#C8CDD2'),
-        metalness: 0.90,
-        roughness: 0.12,
+        metalness: 0.85,
+        roughness: 0.16,
         clearcoat: 1.0,
-        clearcoatRoughness: 0.03,
-        envMapIntensity: 2.35
+        clearcoatRoughness: 0.04,
+        envMapIntensity: 1.45
       });
 
       const carbonMaterial = new THREE.MeshStandardMaterial({
@@ -2790,18 +2996,19 @@
         map: sharedCarbonTex,
         bumpMap: sharedCarbonTex,
         bumpScale: 0.008,
-        metalness: 0.42,
-        roughness: 0.32
+        metalness: 0.38,
+        roughness: 0.36,
+        envMapIntensity: 0.85
       });
 
       const glassMaterial = new THREE.MeshPhysicalMaterial({
         color: 0x0a0d12,
         metalness: 0.1,
-        roughness: 0.05,
+        roughness: 0.06,
         transmission: 0.35,
         transparent: true,
         opacity: 0.88,
-        envMapIntensity: 1.8
+        envMapIntensity: 1.25
       });
 
       const rimMaterial = new THREE.MeshStandardMaterial({
@@ -2962,15 +3169,16 @@
           chassisGroup.add(hl);
         });
 
-        headLightLeft = new THREE.SpotLight(0xeef6ff, 2.6, 65, Math.PI / 5.5, 0.45, 1.2);
+        // Balanced Bi-LED Headlights (Always ON, gentle intensity + soft penumbra so road & barrier textures NEVER wash out to white!)
+        headLightLeft = new THREE.SpotLight(0xeef6ff, 0.52, 48, Math.PI / 4.2, 0.88, 1.6);
         headLightLeft.position.set(-0.7, 0.58, 2.2);
-        headLightLeft.target.position.set(-0.7, 0.1, 18);
+        headLightLeft.target.position.set(-0.7, 0.0, 20);
         chassisGroup.add(headLightLeft);
         chassisGroup.add(headLightLeft.target);
 
-        headLightRight = new THREE.SpotLight(0xeef6ff, 2.6, 65, Math.PI / 5.5, 0.45, 1.2);
+        headLightRight = new THREE.SpotLight(0xeef6ff, 0.52, 48, Math.PI / 4.2, 0.88, 1.6);
         headLightRight.position.set(0.7, 0.58, 2.2);
-        headLightRight.target.position.set(0.7, 0.1, 18);
+        headLightRight.target.position.set(0.7, 0.0, 20);
         chassisGroup.add(headLightRight);
         chassisGroup.add(headLightRight.target);
 
@@ -3218,6 +3426,139 @@
       }
 
       // -----------------------------------------------------------------------
+      // 7A. RARE ALPINE WIND BREEZES & SUBTLE FLOATING LEAVES / DUST MOTES
+      // -----------------------------------------------------------------------
+      const WIND_LEAF_COUNT = 32;
+      const WIND_DUST_COUNT = 36;
+      const windLeaves = [];
+      const windDustMeshes = [];
+      const windGroup = new THREE.Group();
+      scene.add(windGroup);
+      let windCycleTimer = 14.0;
+      let windGustStrength = 0.25;
+      let windGustTarget = 0.25;
+      let windAngle = 0.65;
+
+      function buildWindLeavesAndDust() {
+        const leafColors = [0xd97706, 0xb45309, 0x65a30d, 0xca8a04, 0x92400e];
+        const leafGeo = new THREE.PlaneGeometry(0.18, 0.11);
+
+        for (let i = 0; i < WIND_LEAF_COUNT; i++) {
+          const leafMat = new THREE.MeshStandardMaterial({
+            color: leafColors[i % leafColors.length],
+            roughness: 0.75,
+            side: THREE.DoubleSide
+          });
+          const mesh = new THREE.Mesh(leafGeo, leafMat);
+          windGroup.add(mesh);
+          windLeaves.push({
+            mesh,
+            ox: (Math.random() - 0.5) * 44,
+            oy: 0.25 + Math.random() * 5.5,
+            oz: (Math.random() - 0.5) * 44,
+            vx: 2.2 + Math.random() * 2.5,
+            vy: -0.35 - Math.random() * 0.4,
+            vz: (Math.random() - 0.5) * 1.8,
+            rotSpeedX: (Math.random() - 0.5) * 5.0,
+            rotSpeedY: (Math.random() - 0.5) * 5.0,
+            rotSpeedZ: (Math.random() - 0.5) * 4.0,
+            phase: Math.random() * Math.PI * 2
+          });
+        }
+
+        const dustGeo = new THREE.PlaneGeometry(0.065, 0.065);
+        const dustMat = new THREE.MeshBasicMaterial({
+          color: 0xfef3c7,
+          transparent: true,
+          opacity: 0.35,
+          depthWrite: false,
+          side: THREE.DoubleSide
+        });
+
+        for (let i = 0; i < WIND_DUST_COUNT; i++) {
+          const mesh = new THREE.Mesh(dustGeo, dustMat);
+          windGroup.add(mesh);
+          windDustMeshes.push({
+            mesh,
+            ox: (Math.random() - 0.5) * 36,
+            oy: 0.2 + Math.random() * 4.2,
+            oz: (Math.random() - 0.5) * 36,
+            speed: 1.2 + Math.random() * 1.8,
+            phase: Math.random() * Math.PI * 2
+          });
+        }
+      }
+
+      function updateWindLeavesAndDust(dt, nowSec) {
+        // Rare, natural alpine breeze swells (calm most of the time, periodic gentle mountain gusts)
+        windCycleTimer -= dt;
+        if (windCycleTimer <= 0) {
+          const isGust = Math.random() < 0.42;
+          windGustTarget = isGust ? (0.65 + Math.random() * 0.35) : (0.15 + Math.random() * 0.18);
+          windCycleTimer = isGust ? (14 + Math.random() * 10) : (22 + Math.random() * 18);
+          windAngle += (Math.random() - 0.5) * 0.6;
+        }
+        windGustStrength += (windGustTarget - windGustStrength) * Math.min(1, dt * 0.45);
+        STATE.windGustStrength = windGustStrength;
+
+        const windDirX = Math.cos(windAngle);
+        const windDirZ = Math.sin(windAngle);
+        const activeLeavesCount = Math.floor(THREE.MathUtils.lerp(6, WIND_LEAF_COUNT, windGustStrength));
+
+        for (let i = 0; i < WIND_LEAF_COUNT; i++) {
+          const lf = windLeaves[i];
+          lf.mesh.visible = i < activeLeavesCount && liveWeather.rainRate < 0.7;
+          if (!lf.mesh.visible) continue;
+
+          const gustSpeed = 1.5 + windGustStrength * 7.5;
+          lf.ox += (windDirX * gustSpeed + lf.vx * 0.4) * dt;
+          lf.oz += (windDirZ * gustSpeed + lf.vz * 0.4) * dt;
+          lf.oy += (lf.vy + Math.sin(nowSec * 2.4 + lf.phase) * 0.55 * windGustStrength) * dt;
+
+          if (lf.oy < 0.08) {
+            lf.oy = 4.2 + Math.random() * 3.0;
+          }
+          if (lf.ox > 24) lf.ox -= 48;
+          if (lf.ox < -24) lf.ox += 48;
+          if (lf.oz > 24) lf.oz -= 48;
+          if (lf.oz < -24) lf.oz += 48;
+
+          lf.mesh.position.set(
+            STATE.pos.x + lf.ox,
+            STATE.pos.y + lf.oy,
+            STATE.pos.z + lf.oz
+          );
+          lf.mesh.rotation.x += lf.rotSpeedX * dt;
+          lf.mesh.rotation.y += lf.rotSpeedY * dt;
+          lf.mesh.rotation.z += lf.rotSpeedZ * dt;
+        }
+
+        const activeDustCount = Math.floor(THREE.MathUtils.lerp(10, WIND_DUST_COUNT, windGustStrength));
+        for (let i = 0; i < WIND_DUST_COUNT; i++) {
+          const dm = windDustMeshes[i];
+          dm.mesh.visible = i < activeDustCount && liveWeather.rainRate < 0.4;
+          if (!dm.mesh.visible) continue;
+
+          const dSpeed = dm.speed * (0.8 + windGustStrength * 3.2);
+          dm.ox += windDirX * dSpeed * dt;
+          dm.oz += windDirZ * dSpeed * dt;
+          dm.oy += Math.sin(nowSec * 1.8 + dm.phase) * 0.22 * dt;
+
+          if (dm.ox > 18) dm.ox -= 36;
+          if (dm.ox < -18) dm.ox += 36;
+          if (dm.oz > 18) dm.oz -= 36;
+          if (dm.oz < -18) dm.oz += 36;
+
+          dm.mesh.position.set(
+            STATE.pos.x + dm.ox,
+            STATE.pos.y + dm.oy,
+            STATE.pos.z + dm.oz
+          );
+          dm.mesh.lookAt(camera.position);
+        }
+      }
+
+      // -----------------------------------------------------------------------
       // 7B. AI HIGHWAY PACE / TRAFFIC CARS & NEAR-MISS OVERTAKE SYSTEM
       // -----------------------------------------------------------------------
       const AI_CAR_COUNT = 6;
@@ -3239,18 +3580,21 @@
           const group = new THREE.Group();
           const mat = new THREE.MeshPhysicalMaterial({
             color: aiCarColors[i % aiCarColors.length],
-            metalness: 0.78,
-            roughness: 0.16,
-            clearcoat: 1.0,
-            envMapIntensity: 2.0
+            metalness: 0.72,
+            roughness: 0.20,
+            clearcoat: 0.9,
+            envMapIntensity: 1.25
           });
 
           const body = new THREE.Mesh(bodyGeo, mat);
           body.position.y = 0.46;
+          body.castShadow = true;
+          body.receiveShadow = true;
           group.add(body);
 
           const cabin = new THREE.Mesh(cabinGeo, glassMaterial);
           cabin.position.set(0, 0.84, -0.15);
+          cabin.castShadow = true;
           group.add(cabin);
 
           const tail = new THREE.Mesh(tailGeo, aiTailMat);
@@ -3261,32 +3605,39 @@
           head.position.set(0, 0.50, 2.14);
           group.add(head);
 
+          const wheels = [];
           [[-0.88, 0.32, 1.28], [0.88, 0.32, 1.28], [-0.88, 0.32, -1.28], [0.88, 0.32, -1.28]].forEach(([wx, wy, wz]) => {
             const w = new THREE.Mesh(wheelGeo, tireMaterial);
             w.position.set(wx, wy, wz);
             group.add(w);
+            wheels.push(w);
           });
 
           scene.add(group);
           aiCars.push({
             group,
-            sampleFloat: 28 + i * 38,
+            wheels,
+            sampleFloat: 36 + i * 42,
             laneSign: i % 2 === 0 ? 1 : -1,
-            speedMS: 22 + (i % 3) * 5.5,
+            currentLaneOffset: (i % 2 === 0 ? 1 : -1) * 3.8,
+            smoothedYaw: 0,
+            baseSpeedMS: 24 + (i % 3) * 4.5,
+            speedMS: 24 + (i % 3) * 4.5,
             overtaken: false
           });
         }
       }
 
       let overtakeBannerTimer = 0;
-      function triggerOvertakeBanner() {
-        STATE.overtakeCount++;
+      function triggerOvertakeBanner(customTitle, customSub) {
+        if (!customTitle) STATE.overtakeCount++;
         const banner = document.getElementById('overtake-banner');
         const text = document.getElementById('overtake-text');
         if (banner && text) {
-          text.textContent = `PASS #${STATE.overtakeCount} // ${Math.round(STATE.speedMS * 3.6)} KM/H`;
+          banner.firstElementChild.textContent = customTitle || 'HIGH SPEED PASS';
+          text.textContent = customSub || `PASS #${STATE.overtakeCount} // ${Math.round(STATE.speedMS * 3.6)} KM/H`;
           banner.classList.remove('opacity-0', '-translate-x-4');
-          overtakeBannerTimer = 2.2;
+          overtakeBannerTimer = 2.4;
         }
       }
 
@@ -3303,15 +3654,14 @@
 
         for (let i = 0; i < aiCars.length; i++) {
           const ai = aiCars[i];
-          ai.sampleFloat += (ai.speedMS / SAMPLE_STRIDE) * dt;
 
-          // Keep AI traffic cars circulating ahead and around the player on the infinite highway
-          if (ai.sampleFloat < STATE.lastTrackIndex - 32) {
-            ai.sampleFloat = STATE.lastTrackIndex + 75 + (i * 26);
-            ai.laneSign = (Math.random() > 0.5) ? 1 : -1;
+          // Recycle NPC cars smoothly well outside camera view so they never pop or behave weirdly
+          if (ai.sampleFloat < STATE.lastTrackIndex - 55) {
+            ai.sampleFloat = STATE.lastTrackIndex + 115 + (i * 32);
+            ai.laneSign = (i % 2 === 0) ? 1 : -1;
             ai.overtaken = false;
-          } else if (ai.sampleFloat > STATE.lastTrackIndex + 240) {
-            ai.sampleFloat = STATE.lastTrackIndex + 45 + (i * 22);
+          } else if (ai.sampleFloat > STATE.lastTrackIndex + 280) {
+            ai.sampleFloat = STATE.lastTrackIndex + 85 + (i * 28);
             ai.overtaken = false;
           }
 
@@ -3321,18 +3671,62 @@
           const sB = trackSamples[idxA + 1];
           if (!sA || !sB) continue;
 
-          const laneOffset = sA.dividerHalfWidth > 0.2
-            ? ai.laneSign * (sA.dividerHalfWidth + (sA.halfWidth - sA.dividerHalfWidth) * 0.52)
-            : ai.laneSign * (sA.halfWidth * 0.46);
+          // Smoothly interpolate spline center, tangent, right vector, and road width
+          const cx = THREE.MathUtils.lerp(sA.pt.x, sB.pt.x, frac);
+          const cy = THREE.MathUtils.lerp(sA.pt.y, sB.pt.y, frac);
+          const cz = THREE.MathUtils.lerp(sA.pt.z, sB.pt.z, frac);
 
-          const wx = THREE.MathUtils.lerp(sA.pt.x, sB.pt.x, frac) + sA.right.x * laneOffset;
-          const wy = THREE.MathUtils.lerp(sA.pt.y, sB.pt.y, frac);
-          const wz = THREE.MathUtils.lerp(sA.pt.z, sB.pt.z, frac) + sA.right.z * laneOffset;
+          const tx = THREE.MathUtils.lerp(sA.tangent.x, sB.tangent.x, frac);
+          const tz = THREE.MathUtils.lerp(sA.tangent.z, sB.tangent.z, frac);
+          const tLen = Math.hypot(tx, tz) || 1;
+          const normTx = tx / tLen;
+          const normTz = tz / tLen;
+          const rightX = -normTz;
+          const rightZ = normTx;
+
+          const divHW = THREE.MathUtils.lerp(sA.dividerHalfWidth, sB.dividerHalfWidth, frac);
+          const roadHW = THREE.MathUtils.lerp(sA.halfWidth, sB.halfWidth, frac);
+
+          const targetLaneOffset = divHW > 0.15
+            ? ai.laneSign * (divHW + (roadHW - divHW) * 0.52)
+            : ai.laneSign * (roadHW * 0.48);
+
+          // Smooth lateral lane tracking so NPC cars never snap sideways when entering/exiting divided roads
+          ai.currentLaneOffset += (targetLaneOffset - ai.currentLaneOffset) * Math.min(1, dt * 3.5);
+
+          // Intelligent spacing: slow down gently if player is directly ahead in the same lane
+          const sampleDiff = STATE.lastTrackIndex - ai.sampleFloat;
+          let targetAISpeed = ai.baseSpeedMS;
+          if (sampleDiff > 0 && sampleDiff < 12) {
+            const playerDx = STATE.pos.x - (cx + rightX * ai.currentLaneOffset);
+            const playerDz = STATE.pos.z - (cz + rightZ * ai.currentLaneOffset);
+            if (playerDx * playerDx + playerDz * playerDz < 16) {
+              targetAISpeed = Math.min(ai.baseSpeedMS, STATE.speedMS * 0.85);
+            }
+          }
+          ai.speedMS += (targetAISpeed - ai.speedMS) * Math.min(1, dt * 4.0);
+          ai.sampleFloat += (ai.speedMS / SAMPLE_STRIDE) * dt;
+
+          const wx = cx + rightX * ai.currentLaneOffset;
+          const wy = cy;
+          const wz = cz + rightZ * ai.currentLaneOffset;
+
+          const targetYaw = Math.atan2(normTx, normTz);
+          let yawDiff = targetYaw - ai.smoothedYaw;
+          while (yawDiff > Math.PI) yawDiff -= Math.PI * 2;
+          while (yawDiff < -Math.PI) yawDiff += Math.PI * 2;
+          ai.smoothedYaw += yawDiff * Math.min(1, dt * 12.0);
 
           ai.group.position.set(wx, wy, wz);
           ai.group.rotation.order = 'YXZ';
-          ai.group.rotation.y = Math.atan2(sA.tangent.x, sA.tangent.z);
+          ai.group.rotation.y = ai.smoothedYaw;
           ai.group.rotation.x = -THREE.MathUtils.lerp(sA.slope, sB.slope, frac);
+
+          // Spin NPC car wheels logically
+          const wheelSpin = (ai.speedMS / 0.32) * dt;
+          for (let w = 0; w < ai.wheels.length; w++) {
+            ai.wheels[w].rotation.x += wheelSpin;
+          }
 
           // Check player collision or high-speed overtake
           const dx = STATE.pos.x - wx;
@@ -3347,7 +3741,7 @@
             STATE.pos.z += nz * push;
             STATE.forwardSpeed *= 0.85;
             AudioEngine.triggerCollisionImpact(12);
-          } else if (!ai.overtaken && STATE.lastTrackIndex > idxA && distSq < 9.5 * 9.5 && STATE.speedMS > ai.speedMS + 4) {
+          } else if (!ai.overtaken && STATE.lastTrackIndex > idxA && distSq < 10.5 * 10.5 && STATE.speedMS > ai.speedMS + 3.5) {
             ai.overtaken = true;
             triggerOvertakeBanner();
           }
@@ -3817,8 +4211,9 @@
           this.curbOsc.frequency.setTargetAtTime(32 + speedMS * 1.6, now, 0.02);
           this.curbGain.gain.setTargetAtTime(curbLevel, now, 0.03);
 
-          const windLevel = Math.pow(speedRatio, 1.8) * 0.14;
-          this.windFilter.frequency.setTargetAtTime(180 + speedRatio * 520, now, 0.08);
+          const ambientBreeze = (STATE.windGustStrength || 0.2) * 0.038;
+          const windLevel = Math.pow(speedRatio, 1.8) * 0.14 + ambientBreeze;
+          this.windFilter.frequency.setTargetAtTime(180 + speedRatio * 520 + (STATE.windGustStrength || 0) * 140, now, 0.08);
           this.windGain.gain.setTargetAtTime(windLevel, now, 0.08);
 
           const rainAudioLevel = liveWeather.rainRate * 0.09 + liveWeather.wetness * speedRatio * 0.08;
@@ -3872,8 +4267,8 @@
 
       function stepDynamicWeather(dt) {
         if (!STATE.autoWeather) return;
-        // Ultra-calm, slow progression (~3.2 minutes per weather preset, zero sudden changes)
-        STATE.weatherBlend += dt * 0.0052;
+        // Very calm, realistic natural weather progression (~3 minutes per weather cycle, never rapid or sudden)
+        STATE.weatherBlend += dt * 0.0055;
         if (STATE.weatherBlend >= 1.0) {
           STATE.weatherBlend -= 1.0;
           STATE.envIndex = (STATE.envIndex + 1) % ENV_PRESETS.length;
@@ -3967,7 +4362,7 @@
 
         STATE.onCurb = onMedianCurb || (distFromCenter > (halfTrack - 0.6) && distFromCenter < (halfTrack + 1.45));
         STATE.offTrack = !closestSample.isBridge && distFromCenter >= (halfTrack + 1.45);
-        // Detect Proving Ground Speed Breakers & Bridge Expansion Joints
+        // Detect Proving Ground Speed Breakers, Speed Radar Traps & Bridge Expansion Joints
         let hittingBreaker = false;
         if (!STATE.offTrack && closestSample.isSpeedBreaker && minDistSq < 2.5 * 2.5) {
           hittingBreaker = true;
@@ -3979,12 +4374,10 @@
             STATE.pitchAngle -= jolt * 0.028;
             AudioEngine.triggerSpeedBreakerThump(STATE.speedMS);
           }
-        } else if (!STATE.offTrack && closestSample.isExpansionJoint && minDistSq < 2.2 * 2.2) {
-          const nowMs = performance.now();
-          if (nowMs - STATE.lastBreakerHitTime > 260 && STATE.speedMS > 6.0) {
-            STATE.lastBreakerHitTime = nowMs;
-            STATE.breakerSpringVel += 0.28;
-            AudioEngine.triggerSpeedBreakerThump(STATE.speedMS * 0.35);
+        } else if (!STATE.offTrack && closestSample.isSpeedTrap && minDistSq < 6.5 * 6.5 && STATE.speedMS > 28) {
+          if (!closestSample.trapTriggered) {
+            closestSample.trapTriggered = true;
+            triggerOvertakeBanner('SPEED RADAR CLOCKED', `${Math.round(STATE.speedMS * 3.6)} KM/H // SECTOR TRAP`);
           }
         }
         STATE.onSpeedBreaker = hittingBreaker;
@@ -4019,54 +4412,65 @@
         STATE.forwardSpeed = STATE.vel.x * fwdX + STATE.vel.z * fwdZ;
         STATE.lateralSpeed = STATE.vel.x * rightX + STATE.vel.z * rightZ;
 
-        // Calibrated 6-Speed PDK RPM & Shift Curve so gears climb briskly 1 -> 2 -> 3 -> 4 -> 5 -> 6 up to 265 KM/H!
+        // Logical Drivetrain & 6-Speed Gearbox Model:
+        // RPM is physically coupled to wheel angular velocity * gearRatio * finalDrive (with low-speed clutch engagement)
         const currentKmh = Math.abs(STATE.forwardSpeed) * 3.6;
         const currentRatio = STATE.gear === -1 ? CONFIG.reverseRatio : CONFIG.gearRatios[STATE.gear];
         const gearTopKmh = STATE.gear === -1 ? 58 : CONFIG.gearSpeedTargetsKMH[STATE.gear];
-        const gearMinKmh = STATE.gear <= 1 ? 0 : CONFIG.gearSpeedTargetsKMH[STATE.gear - 1] * 0.72;
+        const gearFloorKmh = STATE.gear <= 1 ? 0 : CONFIG.gearSpeedTargetsKMH[STATE.gear - 1] * 0.46;
 
-        const gearProgress = THREE.MathUtils.clamp(
-          (currentKmh - gearMinKmh) / Math.max(12, gearTopKmh - gearMinKmh),
+        // Direct mechanical wheel-to-crankshaft RPM ratio across each gear's speed band
+        const bandFraction = THREE.MathUtils.clamp(
+          (currentKmh - gearFloorKmh) / Math.max(18, gearTopKmh - gearFloorKmh),
           0,
-          1.06
+          1.05
         );
-        const targetRPM = Math.max(
-          CONFIG.idleRPM,
-          Math.min(
-            CONFIG.maxRPM,
-            CONFIG.idleRPM + gearProgress * (CONFIG.ShiftUpRPM - CONFIG.idleRPM + 450) + STATE.throttleSmoothed * 520 + STATE.slipRatio * 650
-          )
-        );
-        STATE.rpm += (targetRPM - STATE.rpm) * Math.min(1, dt * 16);
-
-        const targetBoost = (STATE.rpm > 2400 && STATE.throttleSmoothed > 0.25)
-          ? Math.min(1.0, ((STATE.rpm - 2400) / 4200) * STATE.throttleSmoothed + (STATE.drsActive ? 0.35 : 0))
+        const mechanicalRPM = CONFIG.idleRPM + bandFraction * (CONFIG.redlineRPM - CONFIG.idleRPM);
+        // Clutch slip only at launch (< 22 km/h in 1st or Reverse)
+        const launchClutchRPM = (STATE.gear <= 1 && currentKmh < 22)
+          ? STATE.throttleSmoothed * 1450 * (1.0 - currentKmh / 22)
           : 0;
-        STATE.boostBar += (targetBoost - STATE.boostBar) * Math.min(1, dt * 6);
+        const wheelSlipRPM = STATE.slipRatio * 380 * STATE.throttleSmoothed;
 
+        const targetRPM = THREE.MathUtils.clamp(
+          mechanicalRPM + launchClutchRPM + wheelSlipRPM,
+          CONFIG.idleRPM,
+          CONFIG.maxRPM
+        );
+        STATE.rpm += (targetRPM - STATE.rpm) * Math.min(1, dt * 11.0);
+
+        const targetBoost = (STATE.rpm > 2600 && STATE.throttleSmoothed > 0.25)
+          ? Math.min(1.0, ((STATE.rpm - 2600) / 4500) * STATE.throttleSmoothed + (STATE.drsActive ? 0.35 : 0))
+          : 0;
+        STATE.boostBar += (targetBoost - STATE.boostBar) * Math.min(1, dt * 5.0);
+
+        // Logical Automatic PDK Shifting: waits until near the top of each gear's speed & RPM band with a natural 0.65s cooldown
         if (STATE.transmission === 'auto' && STATE.gear > 0 && STATE.shiftCooldown <= 0) {
-          const shiftUpKmh = CONFIG.gearSpeedTargetsKMH[STATE.gear] * 0.94;
-          const shiftDownKmh = STATE.gear > 1 ? CONFIG.gearSpeedTargetsKMH[STATE.gear - 1] * 0.78 : 0;
+          const shiftUpKmh = CONFIG.gearSpeedTargetsKMH[STATE.gear] * 0.96;
+          const shiftDownKmh = STATE.gear > 1 ? CONFIG.gearSpeedTargetsKMH[STATE.gear - 1] * 0.72 : 0;
 
-          if ((currentKmh >= shiftUpKmh || STATE.rpm > CONFIG.ShiftUpRPM) && STATE.gear < 6 && STATE.throttle > 0.2) {
+          if (currentKmh >= shiftUpKmh && STATE.rpm >= CONFIG.ShiftUpRPM && STATE.gear < 6 && STATE.throttle > 0.25) {
             shiftUp();
-            STATE.shiftCooldown = 0.26;
-            STATE.rpm = 4400;
+            STATE.shiftCooldown = 0.65;
+            // Logical RPM drop matching the next taller gear ratio
+            const nextRatio = CONFIG.gearRatios[STATE.gear];
+            STATE.rpm = Math.max(3800, STATE.rpm * (nextRatio / currentRatio));
             if (exhaustFlameLeft && exhaustFlameRight) {
-              exhaustFlameLeft.material.opacity = 0.9;
-              exhaustFlameRight.material.opacity = 0.9;
+              exhaustFlameLeft.material.opacity = 0.85;
+              exhaustFlameRight.material.opacity = 0.85;
             }
           } else if (currentKmh < shiftDownKmh && STATE.gear > 1) {
             shiftDown();
-            STATE.shiftCooldown = 0.22;
-            STATE.rpm = 6200;
+            STATE.shiftCooldown = 0.50;
+            const prevRatio = CONFIG.gearRatios[STATE.gear];
+            STATE.rpm = Math.min(7200, STATE.rpm * (prevRatio / currentRatio));
           }
         }
 
-        if (STATE.rpm > 4500 && STATE.throttle < 0.05 && STATE.forwardSpeed > 12) {
+        if (STATE.rpm > 4800 && STATE.throttle < 0.05 && STATE.forwardSpeed > 14) {
           STATE.exhaustPopTimer -= dt;
           if (STATE.exhaustPopTimer <= 0) {
-            STATE.exhaustPopTimer = 0.09 + Math.random() * 0.18;
+            STATE.exhaustPopTimer = 0.12 + Math.random() * 0.22;
             AudioEngine.triggerExhaustPop();
             if (exhaustFlameLeft && exhaustFlameRight) {
               exhaustFlameLeft.material.opacity = 0.85;
@@ -4079,16 +4483,18 @@
           exhaustFlameRight.material.opacity = exhaustFlameLeft.material.opacity;
         }
 
-        const normRPM = STATE.rpm / CONFIG.maxRPM;
-        const torqueCurve = 0.78 + 0.34 * Math.sin(normRPM * Math.PI);
-        const drsMultiplier = STATE.drsActive ? 1.28 : 1.0;
-        const peakEngineForce = 15400 * drsMultiplier;
+        // Logical Engine Torque Curve & Gear Multiplication so gears pull progressively instead of instantly maxing out
+        const normRPM = (STATE.rpm - CONFIG.idleRPM) / (CONFIG.maxRPM - CONFIG.idleRPM);
+        const torqueCurve = 0.68 + 0.36 * Math.sin(THREE.MathUtils.clamp(normRPM, 0.05, 0.98) * Math.PI);
+        const drsMultiplier = STATE.drsActive ? 1.24 : 1.0;
+        const baseWheelForce = 9600 * drsMultiplier;
 
         const gearDir = STATE.gear === -1 ? -1 : 1;
-        const gearTorqueScale = 1.15 - (Math.max(1, STATE.gear) - 1) * 0.08;
-        let driveAccel = (STATE.throttleSmoothed * peakEngineForce * torqueCurve * gearTorqueScale) / 1380 * gearDir;
+        const gearMultiplier = currentRatio / CONFIG.gearRatios[3]; // Normalized around 3rd gear
+        const tractionCap = Math.min(1.38, 0.62 + gearMultiplier * 0.34);
+        let driveAccel = (STATE.throttleSmoothed * baseWheelForce * torqueCurve * tractionCap) / 1420 * gearDir;
         if (STATE.gear === 1 && STATE.forwardSpeed < 0 && STATE.throttleSmoothed > 0.05) {
-          driveAccel += 26.0 * STATE.throttleSmoothed;
+          driveAccel += 24.0 * STATE.throttleSmoothed;
         }
 
         const motionSign = Math.abs(STATE.forwardSpeed) > 0.04 ? Math.sign(STATE.forwardSpeed) : 0;
@@ -4343,11 +4749,12 @@
         });
 
         const sunRadius = 115;
-        const az = STATE.EnvAzimuthRad || (liveWeather.sunAzimuth * Math.PI / 180);
+        const azRad = (liveWeather.sunAzimuth * Math.PI) / 180;
+        // Align directional shadow caster with the exact 3D Sun direction so shadows match the visible Sun!
         dirLight.position.set(
-          STATE.pos.x + Math.cos(az) * sunRadius,
-          liveWeather.sunElevation,
-          STATE.pos.z + Math.sin(az) * sunRadius
+          STATE.pos.x + Math.sin(azRad) * sunRadius,
+          Math.max(36, liveWeather.sunElevation * 1.15),
+          STATE.pos.z + Math.cos(azRad) * sunRadius
         );
         dirLight.target.position.copy(STATE.pos);
 
@@ -4790,13 +5197,14 @@
       }
 
       function toggleHeadlights() {
-        STATE.headlightsOn = !STATE.headlightsOn;
+        // Car Headlights are permanently active as requested
+        STATE.headlightsOn = true;
         if (headLightLeft && headLightRight) {
-          headLightLeft.visible = STATE.headlightsOn;
-          headLightRight.visible = STATE.headlightsOn;
+          headLightLeft.visible = true;
+          headLightRight.visible = true;
         }
-        headLightMaterial.emissiveIntensity = STATE.headlightsOn ? 2.2 : 0.1;
-        document.getElementById('btn-lights').classList.toggle('active', STATE.headlightsOn);
+        headLightMaterial.emissiveIntensity = 2.2;
+        document.getElementById('btn-lights').classList.add('active');
       }
 
       document.getElementById('btn-camera').addEventListener('click', cycleCamera);
@@ -4881,15 +5289,20 @@
       document.getElementById('btn-quality').addEventListener('click', (e) => {
         STATE.qualityIndex = (STATE.qualityIndex + 1) % STATE.qualityNames.length;
         e.target.textContent = STATE.qualityNames[STATE.qualityIndex];
+        renderer.shadowMap.enabled = true;
         if (STATE.qualityIndex === 0) {
           renderer.setPixelRatio(1.0);
-          renderer.shadowMap.enabled = false;
+          dirLight.shadow.mapSize.set(1024, 1024);
         } else if (STATE.qualityIndex === 1) {
           renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-          renderer.shadowMap.enabled = true;
+          dirLight.shadow.mapSize.set(2048, 2048);
         } else {
           renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
-          renderer.shadowMap.enabled = true;
+          dirLight.shadow.mapSize.set(2048, 2048);
+        }
+        if (dirLight.shadow.map) {
+          dirLight.shadow.map.dispose();
+          dirLight.shadow.map = null;
         }
       });
 
@@ -4917,12 +5330,13 @@
         stepDynamicWeather(dt);
         stepVehiclePhysics(dt);
         updateCelestialSky();
+        updateWindLeavesAndDust(dt, now * 0.001);
         updateAICars(dt);
         updateSmokePool(dt);
         updateRainSystem(dt);
         for (const [, chunkData] of activeChunks.entries()) {
           chunkData.turbines.forEach((wt) => {
-            wt.hub.rotation.z += wt.speed * dt;
+            wt.hub.rotation.z += (wt.speed + (STATE.windGustStrength || 0) * 0.6) * dt;
           });
         }
         updateCamera(dt);
@@ -4933,6 +5347,7 @@
 
       window.onload = function () {
         buildCelestialSkyAndGround();
+        buildWindLeavesAndDust();
         ensureSamplesUpTo(SAMPLES_PER_CHUNK * 4);
         updateStreamingWorld();
         buildGTCar();

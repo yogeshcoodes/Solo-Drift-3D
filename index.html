@@ -19,6 +19,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
   <style>
     :root {
       --bg-obsidian: rgba(12, 13, 16, 0.78);
@@ -149,12 +150,247 @@
         border-radius: 18px !important;
       }
     }
+
+    /* Upper HUD dims after inactivity and restores on hover/focus. */
+    header > .gt-panel {
+      opacity: 1;
+      transition: opacity 380ms ease, background-color 160ms ease;
+    }
+    body.ui-idle header > .gt-panel { opacity: 0.52; }
+    body.ui-idle header > .gt-panel:hover,
+    body.ui-idle header > .gt-panel:focus-within { opacity: 1; }
+
+    #touch-controls button {
+      touch-action: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    @media (max-width: 640px) {
+      /* Scroll instead of clipping the last row / START DRIVE on short phones. */
+      #main-menu {
+        overflow-y: auto !important;
+        overscroll-behavior: contain;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+        padding: max(12px, env(safe-area-inset-top)) 12px max(16px, env(safe-area-inset-bottom)) !important;
+      }
+      #main-menu > div:first-child {
+        flex: 0 0 auto;
+        margin-top: 2px !important;
+      }
+      #main-menu > .grid {
+        flex: 0 0 auto;
+        width: 100%;
+        margin: 0 auto !important;
+        gap: 8px !important;
+      }
+      #main-menu .menu-wx-card {
+        min-height: 90px;
+        padding: 10px !important;
+      }
+      #main-menu > div:last-child {
+        position: sticky;
+        z-index: 5;
+        bottom: 0;
+        flex: 0 0 auto;
+        width: 100%;
+        margin: 0 !important;
+        padding: 10px 0 max(4px, env(safe-area-inset-bottom));
+        display: flex;
+        justify-content: center;
+        background: linear-gradient(to bottom, rgba(9,10,13,0), rgba(9,10,13,0.96) 26%);
+      }
+      #btn-start-drive {
+        display: block;
+        width: min(100%, 340px);
+        min-height: 54px;
+        padding: 14px 18px !important;
+        white-space: nowrap;
+        line-height: 1.2;
+        transform: none !important;
+      }
+
+      /* Keep steering and pedals above the footer, with larger steering targets. */
+      #touch-controls {
+        bottom: calc(108px + env(safe-area-inset-bottom)) !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100%;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+        gap: 4px !important;
+        align-items: flex-end !important;
+      }
+      #touch-controls > div:first-child {
+        flex: 0 0 auto;
+        gap: 6px !important;
+      }
+      #touch-steer-pad {
+        width: 122px !important;
+        min-height: 30px;
+        padding: 5px 8px !important;
+      }
+      #touch-steer-thumb {
+        width: 20px !important;
+        height: 3px !important;
+      }
+      #touch-controls #touch-left,
+      #touch-controls #touch-right {
+        width: 56px !important;
+        height: 56px !important;
+        min-width: 56px;
+        min-height: 56px;
+        border-radius: 17px !important;
+      }
+      #touch-controls #touch-left svg,
+      #touch-controls #touch-right svg {
+        width: 25px !important;
+        height: 25px !important;
+      }
+      #touch-controls > div:last-child {
+        flex: 0 1 auto;
+        gap: 4px !important;
+      }
+      #touch-controls #touch-boost,
+      #touch-controls #touch-ebrake {
+        width: 34px !important;
+        height: 44px !important;
+        min-width: 34px;
+      }
+      #touch-controls #touch-brake {
+        width: 40px !important;
+        height: 58px !important;
+        min-width: 40px;
+      }
+      #touch-controls #touch-gas {
+        width: 40px !important;
+        height: 64px !important;
+        min-width: 40px;
+      }
+      footer {
+        bottom: max(5px, env(safe-area-inset-bottom)) !important;
+      }
+      footer .gt-panel-elevated {
+        max-width: calc(100vw - 14px);
+      }
+    }
+
+    @media (max-width: 380px) {
+      #touch-controls {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+      }
+      #touch-controls #touch-left,
+      #touch-controls #touch-right {
+        width: 52px !important;
+        height: 54px !important;
+        min-width: 52px;
+      }
+      #touch-controls #touch-boost,
+      #touch-controls #touch-ebrake {
+        width: 30px !important;
+        min-width: 30px;
+      }
+      #touch-controls #touch-brake,
+      #touch-controls #touch-gas {
+        width: 36px !important;
+        min-width: 36px;
+      }
+    }
   </style>
 </head>
 <body class="relative select-none overflow-hidden">
 
   <!-- 3D WebGL Viewport -->
   <div id="canvas-container"></div>
+
+  <!-- Weather and 360-degree environment selection -->
+  <div id="main-menu" class="fixed inset-0 z-50 bg-[#090A0D]/92 backdrop-blur-2xl flex flex-col items-center justify-between p-4 sm:p-10 transition-opacity duration-700">
+    <div class="text-center mt-2 sm:mt-6">
+      <div class="text-[9px] sm:text-xs tracking-[0.35em] text-sky-400 font-mono-tech uppercase mb-1">GT PROVING GROUND // 3D SIMULATOR</div>
+      <h1 class="text-2xl sm:text-5xl font-extrabold tracking-tight text-white">AUTODROMO ALPINE</h1>
+      <p class="text-xs sm:text-sm text-neutral-400 mt-1">Select your atmospheric environment and press start to drive.</p>
+    </div>
+
+    <!-- Weather Selection Grid (Using your 360 panoramic previews) -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-4xl w-full my-auto px-2">
+      <button data-wx="0" class="menu-wx-card gt-panel rounded-2xl p-3 text-left transition-all duration-200 border-2 border-white/20 hover:border-white active:scale-95 group relative overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center opacity-35 group-hover:opacity-50 transition-opacity" style="background-image: url('./assets/Stormy%20Alpine%20Runway%20Panorama.png');"></div>
+        <div class="relative z-10">
+          <div class="text-[9px] font-mono-tech text-neutral-400">PRESET 01</div>
+          <div class="text-sm font-bold text-white mt-1">Overcast Studio</div>
+          <div class="text-[10px] text-neutral-300 mt-2">Soft diffused softbox reflections</div>
+        </div>
+      </button>
+
+      <button data-wx="1" class="menu-wx-card gt-panel rounded-2xl p-3 text-left transition-all duration-200 border-2 border-white/10 hover:border-white active:scale-95 group relative overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center opacity-35 group-hover:opacity-50 transition-opacity" style="background-image: url('./assets/Snowy%20Mountain%20Panorama%20Over%20Open%20Tarmac.png');"></div>
+        <div class="relative z-10">
+          <div class="text-[9px] font-mono-tech text-neutral-400">PRESET 02</div>
+          <div class="text-sm font-bold text-white mt-1">High Noon Clear</div>
+          <div class="text-[10px] text-neutral-300 mt-2">Crisp blue sky & sharp shadows</div>
+        </div>
+      </button>
+
+      <button data-wx="2" class="menu-wx-card gt-panel rounded-2xl p-3 text-left transition-all duration-200 border-2 border-white/10 hover:border-white active:scale-95 group relative overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center opacity-35 group-hover:opacity-50 transition-opacity" style="background-image: url('./assets/Sunset%20Mountains%20Over%20Empty%20Runway.png');"></div>
+        <div class="relative z-10">
+          <div class="text-[9px] font-mono-tech text-neutral-400">PRESET 03</div>
+          <div class="text-sm font-bold text-white mt-1">Golden Hour Sunset</div>
+          <div class="text-[10px] text-neutral-300 mt-2">Warm amber sunset glow</div>
+        </div>
+      </button>
+
+      <button data-wx="3" class="menu-wx-card gt-panel rounded-2xl p-3 text-left transition-all duration-200 border-2 border-white/10 hover:border-white active:scale-95 group relative overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center opacity-35 group-hover:opacity-50 transition-opacity" style="background-image: url('./assets/Twilight%20Alpine%20Runway%20Panorama.png');"></div>
+        <div class="relative z-10">
+          <div class="text-[9px] font-mono-tech text-neutral-400">PRESET 04</div>
+          <div class="text-sm font-bold text-white mt-1">Alpine Twilight</div>
+          <div class="text-[10px] text-neutral-300 mt-2">Blue hour dusk & streetlamps</div>
+        </div>
+      </button>
+
+      <button data-wx="4" class="menu-wx-card gt-panel rounded-2xl p-3 text-left transition-all duration-200 border-2 border-white/10 hover:border-white active:scale-95 group relative overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center opacity-35 group-hover:opacity-50 transition-opacity" style="background-image: url('./assets/Milky%20Way%20Over%20Mountain%20Tarmac.png');"></div>
+        <div class="relative z-10">
+          <div class="text-[9px] font-mono-tech text-neutral-400">PRESET 05</div>
+          <div class="text-sm font-bold text-white mt-1">Alpine Night</div>
+          <div class="text-[10px] text-neutral-300 mt-2">Starlight, moon & full lights</div>
+        </div>
+      </button>
+
+      <button data-wx="5" class="menu-wx-card gt-panel rounded-2xl p-3 text-left transition-all duration-200 border-2 border-white/10 hover:border-white active:scale-95 group relative overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center opacity-35 group-hover:opacity-50 transition-opacity" style="background-image: url('./assets/Misty%20Mountains%20Beyond%20the%20Wet%20Tarmac.png');"></div>
+        <div class="relative z-10">
+          <div class="text-[9px] font-mono-tech text-neutral-400">PRESET 06</div>
+          <div class="text-sm font-bold text-white mt-1">Misty Drizzle</div>
+          <div class="text-[10px] text-neutral-300 mt-2">Damp wet road & mountain fog</div>
+        </div>
+      </button>
+
+      <button data-wx="6" class="menu-wx-card gt-panel rounded-2xl p-3 text-left transition-all duration-200 border-2 border-white/10 hover:border-white active:scale-95 group relative overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center opacity-35 group-hover:opacity-50 transition-opacity" style="background-image: url('./assets/Stormy%20Alpine%20Runway%20Panorama.png');"></div>
+        <div class="relative z-10">
+          <div class="text-[9px] font-mono-tech text-neutral-400">PRESET 07</div>
+          <div class="text-sm font-bold text-white mt-1">Heavy Rainstorm</div>
+          <div class="text-[10px] text-neutral-300 mt-2">Storm clouds & 3D rain</div>
+        </div>
+      </button>
+
+      <button id="menu-auto-wx" class="gt-panel rounded-2xl p-3 text-left transition-all duration-200 border-2 border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 group">
+        <div class="text-[9px] font-mono-tech text-emerald-400">DYNAMIC</div>
+        <div class="text-sm font-bold text-white mt-1">Auto Weather Cycle</div>
+        <div class="text-[10px] text-neutral-300 mt-2">Smoothly evolves over time</div>
+      </button>
+    </div>
+
+    <div class="mb-2 sm:mb-6">
+      <button id="btn-start-drive" class="gt-btn gt-pill-active px-8 py-3.5 rounded-2xl text-sm font-bold tracking-wider uppercase shadow-[0_0_25px_rgba(255,255,255,0.35)] hover:scale-105 active:scale-95 transition-transform">
+        START DRIVE ➔
+      </button>
+    </div>
+  </div>
 
   <!-- ===================================================================== -->
   <!-- TOP NAVIGATION & TELEMETRY HEADER (SONY GT7 / SAMSUNG ONE UI)         -->
@@ -570,8 +806,11 @@
         offTrack: false,
         onSpeedBreaker: false,
         lastBreakerHitTime: 0,
+        lastBreakerSampleIdx: -1,
         breakerSpringPos: 0,
         breakerSpringVel: 0,
+        breakerPitchKick: 0,
+        breakerRoadLift: 0,
         trackSlope: 0,
         lastCollisionTime: 0,
         overtakeCount: 0,
@@ -634,15 +873,17 @@
       dirLight.castShadow = true;
       dirLight.shadow.mapSize.width = 2048;
       dirLight.shadow.mapSize.height = 2048;
-      dirLight.shadow.camera.near = 10;
-      dirLight.shadow.camera.far = 240;
-      const dCam = 44;
+      dirLight.shadow.camera.near = 1;
+      dirLight.shadow.camera.far = 320;
+      const dCam = 66;
       dirLight.shadow.camera.left = -dCam;
       dirLight.shadow.camera.right = dCam;
       dirLight.shadow.camera.top = dCam;
       dirLight.shadow.camera.bottom = -dCam;
       dirLight.shadow.bias = -0.00012;
-      dirLight.shadow.normalBias = 0.018;
+      dirLight.shadow.normalBias = 0.012;
+      dirLight.shadow.camera.updateProjectionMatrix();
+      dirLight.shadow.autoUpdate = true;
       scene.add(dirLight);
       scene.add(dirLight.target);
 
@@ -653,6 +894,8 @@
       const ENV_PRESETS = [
         {
           name: 'STUDIO',
+          asset: './assets/Stormy%20Alpine%20Runway%20Panorama.png',
+          fallbackUrl: 'https://res.cloudinary.com/mibvywuu/image/upload/v1793359496/Stormy_Alpine_Runway_Panorama_ethg9s.png',
           badge: 'OVERCAST STUDIO',
           skyTop: '#161b24',
           skyHorizon: '#637082',
@@ -674,6 +917,8 @@
         },
         {
           name: 'NOON',
+          asset: './assets/Snowy%20Mountain%20Panorama%20Over%20Open%20Tarmac.png',
+          fallbackUrl: 'https://res.cloudinary.com/mibvywuu/image/upload/v1793359496/Snowy_Mountain_Panorama_Over_Open_Tarmac_zo0ilj.png',
           badge: 'HIGH NOON CLEAR',
           skyTop: '#0d2b52',
           skyHorizon: '#7ca5cc',
@@ -695,6 +940,8 @@
         },
         {
           name: 'GOLDEN',
+          asset: './assets/Sunset%20Mountains%20Over%20Empty%20Runway.png',
+          fallbackUrl: 'https://res.cloudinary.com/mibvywuu/image/upload/v1793359466/Sunset_Mountains_Over_Empty_Runway_chlwqx.png',
           badge: 'GOLDEN HOUR',
           skyTop: '#18142c',
           skyHorizon: '#d97746',
@@ -716,6 +963,8 @@
         },
         {
           name: 'TWILIGHT',
+          asset: './assets/Twilight%20Alpine%20Runway%20Panorama.png',
+          fallbackUrl: 'https://res.cloudinary.com/mibvywuu/image/upload/v1793359487/Twilight_Alpine_Runway_Panorama_q2jpdv.png',
           badge: 'ALPINE TWILIGHT',
           skyTop: '#070b16',
           skyHorizon: '#2a385c',
@@ -737,6 +986,8 @@
         },
         {
           name: 'NIGHT',
+          asset: './assets/Milky%20Way%20Over%20Mountain%20Tarmac.png',
+          fallbackUrl: 'https://res.cloudinary.com/mibvywuu/image/upload/v1793359477/Milky_Way_Over_Mountain_Tarmac_scrh14.png',
           badge: 'ALPINE NIGHT',
           skyTop: '#03050a',
           skyHorizon: '#0f172a',
@@ -758,6 +1009,8 @@
         },
         {
           name: 'DRIZZLE',
+          asset: './assets/Misty%20Mountains%20Beyond%20the%20Wet%20Tarmac.png',
+          fallbackUrl: 'https://res.cloudinary.com/mibvywuu/image/upload/v1793359487/Misty_Mountains_Beyond_the_Wet_Tarmac_oygjih.png',
           badge: 'MISTY DRIZZLE',
           skyTop: '#1a2029',
           skyHorizon: '#525e6e',
@@ -779,6 +1032,8 @@
         },
         {
           name: 'STORM',
+          asset: './assets/Stormy%20Alpine%20Runway%20Panorama.png',
+          fallbackUrl: 'https://res.cloudinary.com/mibvywuu/image/upload/v1793359496/Stormy_Alpine_Runway_Panorama_ethg9s.png',
           badge: 'HEAVY RAINSTORM',
           skyTop: '#0c1017',
           skyHorizon: '#2e3744',
@@ -799,6 +1054,211 @@
           stripColor: '#cbd5e1'
         }
       ];
+
+
+      // -----------------------------------------------------------------------
+      // 2A. LOCAL 360 PANORAMAS + PERSISTENT CACHE (NON-BLOCKING)
+      // -----------------------------------------------------------------------
+      const cachedPanoramaTextures = new Array(ENV_PRESETS.length).fill(null);
+      const panoramaFogTextures = new Array(ENV_PRESETS.length).fill(null);
+      const panoramaFogCanvases = new Array(ENV_PRESETS.length).fill(null);
+      const panoramaBlurCanvases = new Array(ENV_PRESETS.length).fill(null);
+      const panoramaCanvasSafe = new Array(ENV_PRESETS.length).fill(false);
+      const panoramaLoadPromises = new Array(ENV_PRESETS.length).fill(null);
+      const panoramaObjectUrls = new Array(ENV_PRESETS.length).fill(null);
+      let lastPanoramaFogUpdate = -Infinity;
+      const panoramaLoader = new THREE.TextureLoader();
+      panoramaLoader.setCrossOrigin('anonymous');
+      let activePanoramaIndex = -1;
+      let panoramaDBPromise = null;
+
+      function openPanoramaDB() {
+        if (!('indexedDB' in window)) return Promise.resolve(null);
+        if (panoramaDBPromise) return panoramaDBPromise;
+
+        panoramaDBPromise = new Promise((resolve) => {
+          let request;
+          try {
+            request = indexedDB.open('gt-proving-ground-assets', 1);
+          } catch (error) {
+            resolve(null);
+            return;
+          }
+          request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains('panoramas')) {
+              db.createObjectStore('panoramas');
+            }
+          };
+          request.onsuccess = () => {
+            const db = request.result;
+            db.onversionchange = () => db.close();
+            resolve(db);
+          };
+          request.onerror = () => resolve(null);
+          request.onblocked = () => resolve(null);
+        });
+        return panoramaDBPromise;
+      }
+
+      async function getCachedPanoramaBlob(key) {
+        const db = await openPanoramaDB();
+        if (!db) return null;
+        return new Promise((resolve) => {
+          try {
+            const request = db.transaction('panoramas', 'readonly').objectStore('panoramas').get(key);
+            request.onsuccess = () => resolve(request.result instanceof Blob ? request.result : null);
+            request.onerror = () => resolve(null);
+          } catch (error) {
+            resolve(null);
+          }
+        });
+      }
+
+      async function saveCachedPanoramaBlob(key, blob) {
+        if (!(blob instanceof Blob) || !blob.size) return;
+        const db = await openPanoramaDB();
+        if (!db) return;
+        try {
+          const tx = db.transaction('panoramas', 'readwrite');
+          tx.objectStore('panoramas').put(blob, key);
+        } catch (error) {
+          // Cache is optional; the local asset and normal browser cache still work.
+        }
+      }
+
+      function textureFromPanoramaBlob(blob) {
+        return new Promise((resolve, reject) => {
+          const objectUrl = URL.createObjectURL(blob);
+          panoramaLoader.load(objectUrl, (texture) => {
+            panoramaObjectUrls.push(objectUrl);
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            texture.encoding = THREE.sRGBEncoding;
+            texture.generateMipmaps = true;
+            texture.minFilter = THREE.LinearMipmapLinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+            resolve(texture);
+          }, undefined, (error) => {
+            URL.revokeObjectURL(objectUrl);
+            reject(error);
+          });
+        });
+      }
+
+      async function fetchPanoramaBlob(url) {
+        const response = await fetch(url, { cache: 'force-cache' });
+        if (!response.ok) throw new Error(`HTTP ${response.status} while loading ${url}`);
+        return await response.blob();
+      }
+
+      function textureFromDirectURL(url) {
+        return new Promise((resolve, reject) => {
+          panoramaLoader.load(url, (texture) => {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            texture.encoding = THREE.sRGBEncoding;
+            texture.generateMipmaps = true;
+            texture.minFilter = THREE.LinearMipmapLinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+            resolve(texture);
+          }, undefined, reject);
+        });
+      }
+
+      async function loadPanoramaAsset(index) {
+        const preset = ENV_PRESETS[index];
+        const cacheKey = `local-v1:${preset.asset}`;
+
+        // First: reuse a persistent browser copy from an earlier visit.
+        const savedBlob = await getCachedPanoramaBlob(cacheKey);
+        if (savedBlob) {
+          try {
+            const cachedTexture = await textureFromPanoramaBlob(savedBlob);
+            panoramaCanvasSafe[index] = true;
+            return cachedTexture;
+          } catch (error) {
+            console.warn('[GT Proving Ground] Cached panorama was invalid; reloading local asset.', error);
+          }
+        }
+
+        // Second: the local /assets file is the primary source.
+        try {
+          const localBlob = await fetchPanoramaBlob(preset.asset);
+          saveCachedPanoramaBlob(cacheKey, localBlob);
+          const localTexture = await textureFromPanoramaBlob(localBlob);
+          panoramaCanvasSafe[index] = true;
+          return localTexture;
+        } catch (localError) {
+          console.warn(`[GT Proving Ground] Local asset failed for ${preset.name}; trying Cloudinary fallback.`, localError);
+        }
+
+        // Third: contact Cloudinary only when the local asset failed.
+        try {
+          const remoteBlob = await fetchPanoramaBlob(preset.fallbackUrl);
+          saveCachedPanoramaBlob(cacheKey, remoteBlob);
+          const remoteTexture = await textureFromPanoramaBlob(remoteBlob);
+          panoramaCanvasSafe[index] = true;
+          return remoteTexture;
+        } catch (remoteFetchError) {
+          // Last-resort display path for remote images that allow WebGL texture loading
+          // but disallow fetch() due to cross-origin policy.
+          return await textureFromDirectURL(preset.fallbackUrl);
+        }
+      }
+
+      function setPanoramaBackground(index) {
+        const idx = ((index % ENV_PRESETS.length) + ENV_PRESETS.length) % ENV_PRESETS.length;
+        activePanoramaIndex = idx;
+
+        if (cachedPanoramaTextures[idx]) {
+          const preferredTexture = panoramaFogTextures[idx] || cachedPanoramaTextures[idx];
+          if (scene.background !== preferredTexture) scene.background = preferredTexture;
+          try {
+            updatePanoramaFog(false);
+          } catch (fogError) {
+            console.warn('[GT Proving Ground] Optional panorama fog skipped; original 360 image remains visible.', fogError);
+            scene.background = cachedPanoramaTextures[idx];
+          }
+          return;
+        }
+        if (panoramaLoadPromises[idx]) return;
+
+        // Do not await this from the simulation; rendering and physics start immediately.
+        panoramaLoadPromises[idx] = loadPanoramaAsset(idx).then((texture) => {
+          cachedPanoramaTextures[idx] = texture;
+          if (activePanoramaIndex === idx) {
+            scene.background = texture;
+            try {
+              updatePanoramaFog(true);
+            } catch (fogError) {
+              console.warn('[GT Proving Ground] Optional panorama fog skipped; original 360 image remains visible.', fogError);
+              scene.background = texture;
+            }
+          }
+          console.info(`[GT Proving Ground] 360 panorama ready: ${ENV_PRESETS[idx].name}`);
+          return texture;
+        }).catch((error) => {
+          console.error(`[GT Proving Ground] Could not load ${ENV_PRESETS[idx].name} panorama.`, error);
+          if (activePanoramaIndex === idx) {
+            scene.background = liveWeather.fogColor;
+          }
+          return null;
+        });
+      }
+
+      // Ask for durable storage where the browser supports it; failure is harmless.
+      try {
+        if (navigator.storage && typeof navigator.storage.persist === 'function') {
+          const persistenceRequest = navigator.storage.persist();
+          if (persistenceRequest && typeof persistenceRequest.catch === 'function') {
+            persistenceRequest.catch(() => {});
+          }
+        }
+      } catch (error) {
+        // Persistent storage is an enhancement, never a startup requirement.
+      }
+
 
       const cachedEnvMaps = [];
 
@@ -871,6 +1331,189 @@
       ENV_PRESETS.forEach((p) => {
         cachedEnvMaps.push(buildHDRTextureForPreset(p));
       });
+
+      // V20 restores the original equirectangular panorama placement.
+      // The image horizon returns to its authored 50% vertical position.
+      function drawPanoramaShifted(ctx, image, width, height) {
+        ctx.drawImage(image, 0, 0, width, height);
+      }
+
+      function updatePanoramaFog(force = false) {
+        const idx = activePanoramaIndex;
+        const sourceTexture = cachedPanoramaTextures[idx];
+        if (idx < 0 || !sourceTexture || !panoramaCanvasSafe[idx]) return;
+
+        const now = performance.now();
+        if (!force && now - lastPanoramaFogUpdate < 950) return;
+
+        const image = sourceTexture.image;
+        const sourceWidth = image.naturalWidth || image.videoWidth || image.width;
+        const sourceHeight = image.naturalHeight || image.videoHeight || image.height;
+        if (!sourceWidth || !sourceHeight) return;
+
+        let canvas = panoramaFogCanvases[idx];
+        if (!canvas) {
+          canvas = document.createElement('canvas');
+          panoramaFogCanvases[idx] = canvas;
+        }
+        if (canvas.width !== sourceWidth || canvas.height !== sourceHeight) {
+          canvas.width = sourceWidth;
+          canvas.height = sourceHeight;
+        }
+
+        const ctx = canvas.getContext('2d', { alpha: false });
+        if (!ctx) return;
+
+        const fogHex = liveWeather.fogColor.getHexString();
+        const fogR = parseInt(fogHex.slice(0, 2), 16);
+        const fogG = parseInt(fogHex.slice(2, 4), 16);
+        const fogB = parseInt(fogHex.slice(4, 6), 16);
+        const density = THREE.MathUtils.clamp(liveWeather.fogDensity * 100, 0, 0.8);
+        const rain = THREE.MathUtils.clamp(liveWeather.rainRate, 0, 1);
+        const wet = THREE.MathUtils.clamp(liveWeather.wetness, 0, 1);
+        const night = THREE.MathUtils.clamp(liveWeather.nightFactor || 0, 0, 1);
+
+        // A stronger but restrained air-perspective baseline across every map.
+        // Rain/storm increase fog density; night keeps the star field from whitening.
+        const hazeStrength = THREE.MathUtils.clamp(
+          (0.43 + density * 0.22 + rain * 0.20 + wet * 0.045) * 0.94,
+          0.404,
+          0.714
+        );
+        const globalTint = THREE.MathUtils.clamp(
+          (0.055 + density * 0.035 + rain * 0.035 + wet * 0.012) * 0.94,
+          0.052,
+          0.099
+        );
+
+        ctx.clearRect(0, 0, sourceWidth, sourceHeight);
+
+        // Match the panorama's photographic colour philosophy to the game:
+        // slightly lower saturation/contrast, cooler air in storm/mist,
+        // warm amber air in sunset, blue-violet air at night.
+        const saturation = THREE.MathUtils.clamp(0.88 - rain * 0.08 - density * 0.055, 0.72, 0.88);
+        const contrast = THREE.MathUtils.clamp(0.95 - hazeStrength * 0.12, 0.84, 0.90);
+        const brightness = THREE.MathUtils.clamp(0.985 - night * 0.035 + rain * 0.012, 0.94, 1.0);
+        ctx.filter = `saturate(${saturation}) contrast(${contrast}) brightness(${brightness})`;
+        drawPanoramaShifted(ctx, image, sourceWidth, sourceHeight);
+        ctx.filter = 'none';
+
+        // Global colour integration; low opacity prevents the source photo
+        // from looking like a flat tinted overlay while unifying it with 3D lighting.
+        ctx.fillStyle = `rgba(${fogR}, ${fogG}, ${fogB}, ${globalTint})`;
+        ctx.fillRect(0, 0, sourceWidth, sourceHeight);
+
+        // Slightly blur only the far mountain band. Sky texture and stars stay crisp.
+        let blurCanvas = panoramaBlurCanvases[idx];
+        if (!blurCanvas) {
+          blurCanvas = document.createElement('canvas');
+          panoramaBlurCanvases[idx] = blurCanvas;
+        }
+        if (blurCanvas.width !== sourceWidth || blurCanvas.height !== sourceHeight) {
+          blurCanvas.width = sourceWidth;
+          blurCanvas.height = sourceHeight;
+        }
+        const blurCtx = blurCanvas.getContext('2d');
+        if (blurCtx) {
+          blurCtx.clearRect(0, 0, sourceWidth, sourceHeight);
+          blurCtx.filter = `blur(${2.2 + hazeStrength * 3.0}px) saturate(${Math.max(0.56, saturation - 0.12)}) contrast(${Math.max(0.72, contrast - 0.07)})`;
+          drawPanoramaShifted(blurCtx, image, sourceWidth, sourceHeight);
+          blurCtx.filter = 'none';
+          blurCtx.globalCompositeOperation = 'destination-in';
+
+          const mountainMask = blurCtx.createLinearGradient(
+            0, sourceHeight * 0.36,
+            0, sourceHeight * 0.61
+          );
+          mountainMask.addColorStop(0.00, 'rgba(255,255,255,0)');
+          mountainMask.addColorStop(0.20, 'rgba(255,255,255,0.20)');
+          mountainMask.addColorStop(0.43, 'rgba(255,255,255,0.82)');
+          mountainMask.addColorStop(0.66, 'rgba(255,255,255,0.72)');
+          mountainMask.addColorStop(1.00, 'rgba(255,255,255,0)');
+          blurCtx.fillStyle = mountainMask;
+          blurCtx.fillRect(0, 0, sourceWidth, sourceHeight);
+          blurCtx.globalCompositeOperation = 'source-over';
+
+          ctx.save();
+          ctx.globalAlpha = (0.19 + hazeStrength * 0.20) * 0.94;
+          ctx.drawImage(blurCanvas, 0, 0);
+          ctx.restore();
+        }
+
+        // Main vertical atmospheric gradient: light at the zenith, progressively
+        // denser toward the 50% horizon, strongest exactly where sky meets mountains.
+        const upperAtmosphere = ctx.createLinearGradient(
+          0, 0,
+          0, sourceHeight * 0.505
+        );
+        upperAtmosphere.addColorStop(0.00, `rgba(${fogR}, ${fogG}, ${fogB}, ${0.018 + night * 0.012})`);
+        upperAtmosphere.addColorStop(0.16, `rgba(${fogR}, ${fogG}, ${fogB}, ${hazeStrength * 0.10})`);
+        upperAtmosphere.addColorStop(0.34, `rgba(${fogR}, ${fogG}, ${fogB}, ${hazeStrength * 0.26})`);
+        upperAtmosphere.addColorStop(0.56, `rgba(${fogR}, ${fogG}, ${fogB}, ${hazeStrength * 0.52})`);
+        upperAtmosphere.addColorStop(0.80, `rgba(${fogR}, ${fogG}, ${fogB}, ${hazeStrength * 0.78})`);
+        upperAtmosphere.addColorStop(1.00, `rgba(${fogR}, ${fogG}, ${fogB}, ${hazeStrength})`);
+        ctx.fillStyle = upperAtmosphere;
+        ctx.fillRect(0, 0, sourceWidth, sourceHeight * 0.505);
+
+        // Wider mountain veil around the horizon, fading both upward and downward.
+        const horizonVeil = ctx.createLinearGradient(
+          0, sourceHeight * 0.405,
+          0, sourceHeight * 0.635
+        );
+        horizonVeil.addColorStop(0.00, `rgba(${fogR}, ${fogG}, ${fogB}, 0)`);
+        horizonVeil.addColorStop(0.22, `rgba(${fogR}, ${fogG}, ${fogB}, ${hazeStrength * 0.42})`);
+        horizonVeil.addColorStop(0.48, `rgba(${fogR}, ${fogG}, ${fogB}, ${hazeStrength * 0.88})`);
+        horizonVeil.addColorStop(0.68, `rgba(${fogR}, ${fogG}, ${fogB}, ${hazeStrength * 0.70})`);
+        horizonVeil.addColorStop(1.00, `rgba(${fogR}, ${fogG}, ${fogB}, 0)`);
+        ctx.fillStyle = horizonVeil;
+        ctx.fillRect(0, sourceHeight * 0.405, sourceWidth, sourceHeight * 0.23);
+
+        // Extra local mist for drizzle and storms, blended into image pixels so
+        // the photo does not remain unnaturally crystal-clear behind 3D fog.
+        const wetMist = THREE.MathUtils.clamp((rain * 0.14 + wet * 0.035) * 0.94, 0, 0.169);
+        if (wetMist > 0.002) {
+          const mistGradient = ctx.createLinearGradient(
+            0, sourceHeight * 0.39,
+            0, sourceHeight * 0.59
+          );
+          mistGradient.addColorStop(0.00, 'rgba(210,220,232,0)');
+          mistGradient.addColorStop(0.48, `rgba(210,220,232,${wetMist * (1 - night * 0.24)})`);
+          mistGradient.addColorStop(1.00, 'rgba(210,220,232,0)');
+          ctx.fillStyle = mistGradient;
+          ctx.fillRect(0, sourceHeight * 0.39, sourceWidth, sourceHeight * 0.20);
+        }
+
+        let fogTexture = panoramaFogTextures[idx];
+        if (!fogTexture) {
+          fogTexture = new THREE.CanvasTexture(canvas);
+          fogTexture.mapping = THREE.EquirectangularReflectionMapping;
+          fogTexture.encoding = THREE.sRGBEncoding;
+          fogTexture.generateMipmaps = true;
+          fogTexture.minFilter = THREE.LinearMipmapLinearFilter;
+          fogTexture.magFilter = THREE.LinearFilter;
+          fogTexture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+          panoramaFogTextures[idx] = fogTexture;
+        } else {
+          fogTexture.image = canvas;
+          fogTexture.needsUpdate = true;
+        }
+
+        lastPanoramaFogUpdate = now;
+        if (activePanoramaIndex === idx) scene.background = fogTexture;
+      }
+
+      // Scenery surfaces that should read as weather-aged off-white rather than
+      // pure white. Their base colours are gently tinted by the active environment.
+      const environmentNeutralSurfaceMaterials = [];
+
+      function registerEnvironmentNeutralSurface(material, tintStrength = 0.10) {
+        if (!material) return material;
+        material.userData = material.userData || {};
+        material.userData.environmentBaseColor = material.color.clone();
+        material.userData.environmentTintStrength = tintStrength;
+        environmentNeutralSurfaceMaterials.push(material);
+        return material;
+      }
 
       const liveWeather = {
         fogColor: new THREE.Color(ENV_PRESETS[0].fogColor),
@@ -1014,6 +1657,20 @@
           lakeWaterMaterial.envMapIntensity = THREE.MathUtils.lerp(1.65, 1.15, liveWeather.rainRate);
         }
 
+        // Keep pale concrete, reflectors and painted trim inside the current
+        // weather palette. Fog/sunset/night tint is subtle and never turns these
+        // materials into saturated colours.
+        const neutralAirTint = liveWeather.fogColor.clone()
+          .lerp(liveWeather.sunColor, 0.16)
+          .lerp(liveWeather.hemiGround, 0.08);
+        environmentNeutralSurfaceMaterials.forEach((material) => {
+          const baseColor = material.userData.environmentBaseColor;
+          const tintStrength = material.userData.environmentTintStrength || 0.10;
+          if (baseColor) {
+            material.color.copy(baseColor).lerp(neutralAirTint, tintStrength);
+          }
+        });
+
         // Streetlamps, Tyndall Volumetric Haze, Ground Light Pools & Building Windows
         const lampPower = THREE.MathUtils.smoothstep(liveWeather.nightFactor, 0.12, 0.65);
         const tyndallFactor = THREE.MathUtils.clamp(lampPower * (0.62 + liveWeather.wetness * 0.38 + liveWeather.fogDensity * 65), 0, 1);
@@ -1029,6 +1686,12 @@
         });
 
         const activeIdx = t < 0.5 ? (index % ENV_PRESETS.length) : ((index + 1) % ENV_PRESETS.length);
+        setPanoramaBackground(activeIdx);
+        try {
+          updatePanoramaFog(false);
+        } catch (fogError) {
+          // Fog overlay is an enhancement; never interrupt the weather/game loop.
+        }
         const activePreset = ENV_PRESETS[activeIdx];
         const nextPreset = ENV_PRESETS[(index + 1) % ENV_PRESETS.length];
         const envLabel = document.getElementById('label-env');
@@ -1069,11 +1732,11 @@
         }
         ctx.putImageData(imgData, 0, 0);
 
-        ctx.fillStyle = 'rgba(240, 244, 248, 0.88)';
+        ctx.fillStyle = 'rgba(205, 212, 222, 0.78)';
         ctx.fillRect(16, 0, 8, size);
         ctx.fillRect(size - 24, 0, 8, size);
 
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.32)';
+        ctx.fillStyle = 'rgba(220, 224, 230, 0.24)';
         ctx.fillRect(size / 2 - 3, 28, 6, size / 2 - 56);
 
         const map = new THREE.CanvasTexture(diffCanvas);
@@ -1093,12 +1756,29 @@
 
         ctx.fillStyle = '#D91B2E';
         ctx.fillRect(0, 0, 128, 128);
-        ctx.fillStyle = '#F1F5F9';
+        ctx.fillStyle = '#AAB4C0';
         ctx.fillRect(0, 128, 128, 128);
 
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.16)';
+        // Fine concrete grain and brake-dust scuffs across both paint colours.
+        const curbPixels = ctx.getImageData(0, 0, 128, 256);
+        const curbData = curbPixels.data;
+        for (let i = 0; i < curbData.length; i += 4) {
+          const grain = (Math.random() - 0.5) * 17;
+          curbData[i] = Math.max(35, Math.min(210, curbData[i] + grain));
+          curbData[i + 1] = Math.max(35, Math.min(218, curbData[i + 1] + grain));
+          curbData[i + 2] = Math.max(40, Math.min(225, curbData[i + 2] + grain));
+        }
+        ctx.putImageData(curbPixels, 0, 0);
+
+        ctx.fillStyle = 'rgba(28, 34, 43, 0.15)';
         for (let y = 0; y < 256; y += 16) {
           ctx.fillRect(0, y, 128, 4);
+        }
+        for (let n = 0; n < 180; n++) {
+          const x = Math.random() * 128;
+          const y = 128 + Math.random() * 128;
+          ctx.fillStyle = `rgba(35, 43, 54, ${0.035 + Math.random() * 0.10})`;
+          ctx.fillRect(x, y, 1 + Math.random() * 5, 1);
         }
 
         const tex = new THREE.CanvasTexture(canvas);
@@ -1168,8 +1848,17 @@
         ctx.putImageData(imgData, 0, 0);
 
         for (let x = 0; x < 256; x += 64) {
-          ctx.fillStyle = (x / 64) % 2 === 0 ? '#D91B2E' : '#E2E8F0';
+          ctx.fillStyle = (x / 64) % 2 === 0 ? '#B92738' : '#AAB4C0';
           ctx.fillRect(x, 0, 64, 24);
+        }
+        // Break up the painted reflector band with concrete grain and scuffs.
+        for (let n = 0; n < 220; n++) {
+          const x = Math.random() * 256;
+          const y = Math.random() * 24;
+          ctx.fillStyle = Math.random() > 0.5
+            ? 'rgba(28, 35, 45, 0.13)'
+            : 'rgba(225, 229, 234, 0.10)';
+          ctx.fillRect(x, y, 1 + Math.random() * 6, 1);
         }
 
         ctx.fillStyle = 'rgba(15, 17, 22, 0.35)';
@@ -1384,54 +2073,105 @@
       }
 
       function createArchitecturalConcreteTexture() {
-        const size = 256;
+        const size = 512;
         const canvas = document.createElement('canvas');
         canvas.width = size;
         canvas.height = size;
         const ctx = canvas.getContext('2d');
 
-        ctx.fillStyle = '#c2c9d4';
+        // A darker, cool grey concrete albedo. It is deliberately not white:
+        // direct headlights and sunlight should reveal surface relief, not clip it.
+        ctx.fillStyle = '#929ca8';
         ctx.fillRect(0, 0, size, size);
 
         const imgData = ctx.getImageData(0, 0, size, size);
         const d = imgData.data;
-        for (let i = 0; i < d.length; i += 4) {
-          const n = (Math.random() - 0.5) * 22;
-          d[i] = Math.min(250, Math.max(90, d[i] + n));
-          d[i + 1] = Math.min(252, Math.max(95, d[i + 1] + n));
-          d[i + 2] = Math.min(255, Math.max(100, d[i + 2] + n));
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const i = (y * size + x) * 4;
+            const grain = (Math.random() - 0.5) * 30;
+            const broad = Math.sin(x * 0.041 + y * 0.013) * 3.2 +
+                          Math.sin(y * 0.027 - x * 0.009) * 2.4;
+            const pore = Math.random() > 0.982 ? -17 : 0;
+            const value = grain + broad + pore;
+            d[i] = Math.max(62, Math.min(158, 146 + value));
+            d[i + 1] = Math.max(68, Math.min(164, 156 + value));
+            d[i + 2] = Math.max(76, Math.min(174, 168 + value));
+            d[i + 3] = 255;
+          }
         }
         ctx.putImageData(imgData, 0, 0);
 
-        // Precast formwork panel seams and tie-rod holes
-        ctx.strokeStyle = 'rgba(30, 41, 59, 0.25)';
+        // Irregular vertical rain/dirt streaks and broad, low-contrast stains.
+        for (let n = 0; n < 34; n++) {
+          const x = Math.random() * size;
+          const y = Math.random() * size;
+          const streakH = 18 + Math.random() * 150;
+          const streakW = 1 + Math.random() * 5;
+          const alpha = 0.025 + Math.random() * 0.075;
+          const stain = ctx.createLinearGradient(x, y, x + streakW, y + streakH);
+          stain.addColorStop(0, `rgba(35, 43, 54, ${alpha})`);
+          stain.addColorStop(0.55, `rgba(42, 50, 61, ${alpha * 0.72})`);
+          stain.addColorStop(1, 'rgba(42, 50, 61, 0)');
+          ctx.fillStyle = stain;
+          ctx.fillRect(x, y, streakW, streakH);
+        }
+
+        // Precast formwork joints, panel edges and tie holes.
+        ctx.strokeStyle = 'rgba(38, 47, 59, 0.30)';
         ctx.lineWidth = 2;
-        for (let y = 0; y < size; y += 64) {
+        for (let y = 0; y < size; y += 128) {
           ctx.beginPath();
           ctx.moveTo(0, y);
           ctx.lineTo(size, y);
           ctx.stroke();
+          ctx.strokeStyle = 'rgba(221, 226, 232, 0.12)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(0, y + 3);
+          ctx.lineTo(size, y + 3);
+          ctx.stroke();
+          ctx.strokeStyle = 'rgba(38, 47, 59, 0.30)';
+          ctx.lineWidth = 2;
         }
-        for (let x = 0; x < size; x += 128) {
+        for (let x = 0; x < size; x += 256) {
           ctx.beginPath();
           ctx.moveTo(x, 0);
           ctx.lineTo(x, size);
           ctx.stroke();
         }
 
-        ctx.fillStyle = 'rgba(30, 41, 59, 0.35)';
-        for (let y = 32; y < size; y += 64) {
-          for (let x = 32; x < size; x += 64) {
+        for (let y = 32; y < size; y += 128) {
+          for (let x = 32; x < size; x += 128) {
+            ctx.fillStyle = 'rgba(34, 42, 53, 0.32)';
             ctx.beginPath();
-            ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+            ctx.arc(x, y, 3.0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = 'rgba(213, 220, 227, 0.20)';
+            ctx.beginPath();
+            ctx.arc(x - 1, y - 1, 1.2, 0, Math.PI * 2);
             ctx.fill();
           }
+        }
+
+        // Fine aggregate flecks and surface pitting.
+        for (let n = 0; n < 1450; n++) {
+          const x = Math.random() * size;
+          const y = Math.random() * size;
+          const r = 0.25 + Math.random() * 1.0;
+          const a = 0.035 + Math.random() * 0.09;
+          ctx.fillStyle = Math.random() > 0.5
+            ? `rgba(30, 39, 50, ${a})`
+            : `rgba(225, 230, 235, ${a * 0.72})`;
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fill();
         }
 
         const tex = new THREE.CanvasTexture(canvas);
         tex.wrapS = THREE.RepeatWrapping;
         tex.wrapT = THREE.RepeatWrapping;
-        tex.repeat.set(2, 2);
+        tex.repeat.set(1.15, 1.15);
         tex.anisotropy = maxAnisotropy;
         tex.encoding = THREE.sRGBEncoding;
         return tex;
@@ -1791,14 +2531,18 @@
       });
 
       const sharedConcreteTex = createArchitecturalConcreteTexture();
-      const sharedArchConcreteMat = new THREE.MeshStandardMaterial({
-        color: 0xd8dee6,
-        map: sharedConcreteTex,
-        bumpMap: sharedConcreteTex,
-        bumpScale: 0.025,
-        roughness: 0.58,
-        metalness: 0.14
-      });
+      const sharedArchConcreteMat = registerEnvironmentNeutralSurface(
+        new THREE.MeshStandardMaterial({
+          color: 0xd2d8df,
+          map: sharedConcreteTex,
+          bumpMap: sharedConcreteTex,
+          bumpScale: 0.052,
+          roughness: 0.94,
+          metalness: 0.015,
+          envMapIntensity: 0.22
+        }),
+        0.055
+      );
 
       const sharedSteelTex = createBrushedSteelTexture();
       const sharedBrushedSteelMat = new THREE.MeshStandardMaterial({
@@ -2276,11 +3020,16 @@
           emissive: 0xef4444,
           emissiveIntensity: 1.2
         });
-        const reflectorWhiteMat = new THREE.MeshStandardMaterial({
-          color: 0xffffff,
-          emissive: 0xe2e8f0,
-          emissiveIntensity: 1.2
-        });
+        const reflectorWhiteMat = registerEnvironmentNeutralSurface(
+          new THREE.MeshStandardMaterial({
+            color: 0xcbd3dd,
+            emissive: 0x667487,
+            emissiveIntensity: 0.28,
+            roughness: 0.52,
+            metalness: 0.04
+          }),
+          0.16
+        );
 
         for (let i = startIdx; i < endIdx; i += 2) {
           const s = trackSamples[i];
@@ -2495,6 +3244,14 @@
             });
           }
 
+          // Bridge-end piers and deck structure must cast shadows onto the
+          // vehicle as it passes through the dense blue/steel support section.
+          segGroup.traverse((obj) => {
+            if (obj.isMesh) {
+              obj.castShadow = true;
+              obj.receiveShadow = true;
+            }
+          });
           parentGroup.add(segGroup);
         }
 
@@ -2558,6 +3315,14 @@
             });
           });
 
+          // Include crossbeams, centre spine and suspension cables in the
+          // shadow pass, not just the two vertical legs.
+          pylonGroup.traverse((obj) => {
+            if (obj.isMesh) {
+              obj.castShadow = true;
+              obj.receiveShadow = true;
+            }
+          });
           parentGroup.add(pylonGroup);
         });
 
@@ -2606,22 +3371,8 @@
           }
         });
 
-        const waterfallMat = new THREE.MeshStandardMaterial({
-          color: 0xe0f2fe,
-          emissive: 0x7dd3fc,
-          emissiveIntensity: 0.62,
-          roughness: 0.12
-        });
-        [-82, 82].forEach((wx) => {
-          const cliff = new THREE.Mesh(new THREE.ConeGeometry(28, 56, 7), sharedRockMat);
-          cliff.position.set(wx, 25, 0);
-          pondGroup.add(cliff);
-
-          const cascade = new THREE.Mesh(new THREE.BoxGeometry(4.8, 40, 4.4), waterfallMat);
-          cascade.position.set(wx > 0 ? wx - 14 : wx + 14, 17, 0);
-          cascade.rotation.z = wx > 0 ? 0.22 : -0.22;
-          pondGroup.add(cascade);
-        });
+        // Oversized procedural gorge cliff peaks removed; distant mountain
+        // silhouettes now come exclusively from the selected 360 panorama.
 
         parentGroup.add(pondGroup);
       }
@@ -2655,9 +3406,11 @@
         gantryGroup.add(bridgeMesh);
 
         const lightBarMat = new THREE.MeshStandardMaterial({
-          color: 0xffffff,
-          emissive: 0x38bdf8,
-          emissiveIntensity: 1.5
+          color: 0xc7d0dc,
+          emissive: 0x29465b,
+          emissiveIntensity: 0.72,
+          roughness: 0.48,
+          metalness: 0.16
         });
         const lightBar = new THREE.Mesh(new THREE.BoxGeometry(sample.halfWidth * 2 + 2, 0.14, 0.25), lightBarMat);
         lightBar.position.set(0, 6.4, 1.35);
@@ -2665,7 +3418,14 @@
 
         const lineGeo = new THREE.PlaneGeometry(sample.halfWidth * 2 - 0.8, 1.8);
         lineGeo.rotateX(-Math.PI / 2);
-        const lineMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.4 });
+        const lineMat = registerEnvironmentNeutralSurface(
+          new THREE.MeshStandardMaterial({
+            color: 0xc7ced8,
+            roughness: 0.66,
+            metalness: 0.02
+          }),
+          0.12
+        );
         const lineMesh = new THREE.Mesh(lineGeo, lineMat);
         lineMesh.position.set(0, 0.028, 0);
         gantryGroup.add(lineMesh);
@@ -2701,8 +3461,16 @@
 
         const roofCanopy = new THREE.Mesh(new THREE.BoxGeometry(13.5, 0.65, 48), structMat);
         roofCanopy.position.set(1.8, 8.3, 0);
+        roofCanopy.castShadow = true;
+        roofCanopy.receiveShadow = true;
         pitGroup.add(roofCanopy);
 
+        pitGroup.traverse((obj) => {
+          if (obj.isMesh) {
+            obj.castShadow = true;
+            obj.receiveShadow = true;
+          }
+        });
         parentGroup.add(pitGroup);
       }
 
@@ -2745,12 +3513,27 @@
             segGroup.add(ceilingLamp);
           }
 
+          // Tunnel roofs and support columns must participate in the shadow
+          // pass; previously they were added with Three.js' default castShadow=false.
+          segGroup.traverse((obj) => {
+            if (obj.isMesh) {
+              obj.castShadow = true;
+              obj.receiveShadow = true;
+            }
+          });
           parentGroup.add(segGroup);
         }
       }
 
       function addWindTurbinesToChunk(parentGroup, sample, colliders, chunkTurbines) {
-        const turbineMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.3, metalness: 0.4 });
+        const turbineMat = registerEnvironmentNeutralSurface(
+          new THREE.MeshStandardMaterial({
+            color: 0xb8c2ce,
+            roughness: 0.42,
+            metalness: 0.34
+          }),
+          0.11
+        );
         [-42, 46].forEach((sideOffset, idx) => {
           const pos = sample.pt.clone().addScaledVector(sample.right, sideOffset);
           const tGroup = new THREE.Group();
@@ -2813,6 +3596,12 @@
           colliders.push({ x: worldP.x, z: worldP.z, r: 1.8, minY: sample.pt.y - 1, maxY: sample.pt.y + 10 });
         });
 
+        group.traverse((obj) => {
+          if (obj.isMesh) {
+            obj.castShadow = true;
+            obj.receiveShadow = true;
+          }
+        });
         parentGroup.add(group);
       }
 
@@ -2954,24 +3743,8 @@
         parentGroup.add(treeInst);
         parentGroup.add(trunkInst);
 
-        // 3. Distant Snow-Dusted Alpine Peaks along the Horizon of each Chunk
-        const ridgeCount = 6;
-        const ridgeGeo = new THREE.ConeGeometry(78, 105, 6);
-        const ridgeInst = new THREE.InstancedMesh(ridgeGeo, sharedRockMat, ridgeCount);
-        for (let m = 0; m < ridgeCount; m++) {
-          const seedBase = chunkIdx * 500 + m * 31;
-          const s = trackSamples[startIdx + Math.floor((m / ridgeCount) * SAMPLES_PER_CHUNK)];
-          const side = m % 2 === 0 ? 1 : -1;
-          const dist = 210 + seededRandom(seedBase + 1) * 140;
-          const mp = s.pt.clone().addScaledVector(s.right, side * dist);
-          const sy = 0.65 + seededRandom(seedBase + 2) * 0.75;
-          dummy.position.set(mp.x, 46 * sy - 4, mp.z);
-          dummy.scale.set(1.2, sy, 1.2);
-          dummy.rotation.set(0, seedBase, 0);
-          dummy.updateMatrix();
-          ridgeInst.setMatrixAt(m, dummy.matrix);
-        }
-        parentGroup.add(ridgeInst);
+        // 3. Distant procedural alpine mountain peaks intentionally removed.
+        // The 360 panorama is now the only mountain silhouette in every weather preset.
       }
 
       // -----------------------------------------------------------------------
@@ -3048,6 +3821,17 @@
 
       const wheelPivots = [];
       const wheelSpinMeshes = [];
+      let porscheWheelRig = null;
+      let porscheWheelSpinAngle = 0;
+      // Front tyre/rim meshes in this GLB contain roughly 19 degrees of baked-in
+      // toe skew. Counter it at the hub pivot; live steering is added afterwards.
+      const PORSCHE_FRONT_TOE_CORRECTION = THREE.MathUtils.degToRad(-18.5);
+      let porscheModelLoaded = false;
+      let loadedPorscheModelRoot = null;
+      const porscheHeadlightMaterials = [];
+      const porscheRearLightMaterials = [];
+      const porscheBrakeLightPoints = [];
+      const porscheReverseLightPoints = [];
       let brakeDiscMaterial = null;
       let activeWingMesh = null;
       let headLightLeft, headLightRight;
@@ -3078,6 +3862,7 @@
           opacity: 0.92
         });
         const contactShadow = new THREE.Mesh(shadowPlaneGeo, shadowPlaneMat);
+        contactShadow.userData.isContactShadow = true;
         contactShadow.position.set(0, 0.035, 0);
         carRoot.add(contactShadow);
 
@@ -3272,6 +4057,528 @@
       }
 
       // -----------------------------------------------------------------------
+      // 5A. OPTIONAL PORSCHE 911 CARRERA 4S GLB UPGRADE
+      // -----------------------------------------------------------------------
+      // The procedural GT car above remains the guaranteed fallback. It is hidden
+      // only after the external GLB loads and both wheel rigs are confirmed.
+      function loadUpdatedPorscheModelWithLoader() {
+        if (!THREE.GLTFLoader) {
+          console.warn('[GT Proving Ground] GLTFLoader unavailable. Original procedural car remains active.');
+          return;
+        }
+
+        const modelPath = './assets/free_porsche_911_carrera_4s.glb';
+        const loader = new THREE.GLTFLoader();
+
+        fetch(modelPath, { cache: 'force-cache' })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`Porsche GLB HTTP ${response.status} ${response.statusText} at ${modelPath}`);
+            }
+            return response.arrayBuffer();
+          })
+          .then((arrayBuffer) => new Promise((resolve, reject) => {
+            loader.parse(arrayBuffer, './assets/', resolve, reject);
+          }))
+          .then(async (gltf) => {
+            let modelRoot = null;
+            try {
+              const fallbackChildren = chassisGroup.children.slice();
+
+              modelRoot = new THREE.Group();
+              modelRoot.name = 'Porsche911_RuntimeRoot';
+
+              const orientationRoot = new THREE.Group();
+              orientationRoot.name = 'Porsche911_AxisCorrection';
+
+              // The imported Sketchfab_model node already contains the axis conversion
+              // that maps this car into the game's coordinate system:
+              // game X = car width, game Y = up, game +Z = front.
+              // Applying another 180-degree rotation flips the Porsche upside down.
+              orientationRoot.rotation.order = 'XYZ';
+              orientationRoot.rotation.set(0, 0, 0);
+              orientationRoot.add(gltf.scene);
+              modelRoot.add(orientationRoot);
+
+              // Remove only known oversized Sketchfab environment meshes.
+              // Cube.002_0 is retained: its transformed size is small and it belongs
+              // to the car assembly, not the giant environment plane.
+              const helperNames = new Set([
+                'Plane_0' // embedded flat ground plane; game supplies its own road/shadow
+              ]);
+              const helperObjectsToRemove = [];
+              const hiddenHelperMeshes = [];
+
+              gltf.scene.traverse((obj) => {
+                if (!obj.isMesh || !obj.geometry) return;
+                if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
+                if (!obj.geometry.boundingBox) return;
+
+                const meshSize = new THREE.Vector3();
+                obj.geometry.boundingBox.getSize(meshSize);
+                if (helperNames.has(obj.name) ||
+                    Math.max(meshSize.x, meshSize.y, meshSize.z) > 14) {
+                  helperObjectsToRemove.push(obj);
+                  hiddenHelperMeshes.push(obj.name || 'unnamed helper');
+                }
+              });
+
+              helperObjectsToRemove.forEach((obj) => {
+                if (obj.parent) obj.parent.remove(obj);
+              });
+
+              // Calculate the real vehicle bounds AFTER the GLB's own Sketchfab
+              // root matrix and our corrected axis orientation have both applied.
+              orientationRoot.updateMatrixWorld(true);
+              const sourceBounds = new THREE.Box3().setFromObject(orientationRoot);
+              if (sourceBounds.isEmpty()) {
+                throw new Error('Porsche GLB contains no visible vehicle geometry after helper removal.');
+              }
+
+              const sourceSize = new THREE.Vector3();
+              const sourceCenter = new THREE.Vector3();
+              sourceBounds.getSize(sourceSize);
+              sourceBounds.getCenter(sourceCenter);
+
+              // Keep native proportions. The GLB's root matrix already contributes
+              // its original scale; this only makes the visible body fit the game car.
+              const fitScale = Math.min(
+                2.08 / sourceSize.x,
+                4.62 / sourceSize.z
+              );
+              if (!Number.isFinite(fitScale) || fitScale <= 0) {
+                throw new Error(`Invalid Porsche source bounds: ${sourceSize.toArray().map(v => v.toFixed(2)).join(' × ')} m.`);
+              }
+
+              orientationRoot.scale.setScalar(fitScale);
+              orientationRoot.position.set(
+                -sourceCenter.x * fitScale,
+                -sourceBounds.min.y * fitScale + 0.025,
+                -sourceCenter.z * fitScale
+              );
+              orientationRoot.updateMatrixWorld(true);
+              modelRoot.updateMatrixWorld(true);
+
+              // Verify the corrected final size using the exact transformed model.
+              const finalBounds = new THREE.Box3().setFromObject(modelRoot);
+              const finalSize = new THREE.Vector3();
+              finalBounds.getSize(finalSize);
+              if (
+                finalBounds.isEmpty() ||
+                finalSize.x < 1.2 || finalSize.x > 2.5 ||
+                finalSize.z < 2.8 || finalSize.z > 5.2 ||
+                finalSize.y < 0.45 || finalSize.y > 2.2
+              ) {
+                throw new Error(
+                  `Porsche final bounds invalid after axis correction: ` +
+                  `${finalSize.toArray().map(v => v.toFixed(2)).join(' × ')} m. ` +
+                  `Source bounds were ${sourceSize.toArray().map(v => v.toFixed(2)).join(' × ')} m.`
+                );
+              }
+
+              // Optional wheel rigs are found with a full hierarchy traversal.
+              // If this Sketchfab exporter changes their names, body integration
+              // still succeeds and the original procedural car is not substituted.
+              function findNamedNode(root, targetName) {
+                const normalizedTarget = targetName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                let found = null;
+                root.traverse((obj) => {
+                  if (found || !obj.name) return;
+                  const normalizedName = obj.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+                  if (obj.name === targetName || normalizedName === normalizedTarget) {
+                    found = obj;
+                  }
+                });
+                return found;
+              }
+
+              function findGLTFNodeByIndex(nodeIndex) {
+                const associations = gltf.parser && gltf.parser.associations;
+                if (associations && typeof associations.entries === 'function') {
+                  for (const [object, association] of associations.entries()) {
+                    if (association && association.nodes === nodeIndex) return object;
+                  }
+                }
+                return null;
+              }
+
+              async function resolveWheelAssembly(assemblyName) {
+                const jsonNodes = gltf.parser && gltf.parser.json && gltf.parser.json.nodes;
+                const nodeIndex = jsonNodes
+                  ? jsonNodes.findIndex((node) => node.name === assemblyName)
+                  : -1;
+
+                // Stable GLTF node-index association first, then object-name traversal.
+                let assembly = nodeIndex >= 0 ? findGLTFNodeByIndex(nodeIndex) : null;
+                if (!assembly) assembly = findNamedNode(gltf.scene, assemblyName);
+
+                // Parser dependency lookup as a final fallback for loader variations.
+                if (!assembly && nodeIndex >= 0 && gltf.parser && gltf.parser.getDependency) {
+                  try {
+                    assembly = await gltf.parser.getDependency('node', nodeIndex);
+                  } catch (error) {
+                    console.warn(`[GT Proving Ground] GLB node dependency lookup failed: ${assemblyName}`, error);
+                  }
+                }
+
+                // Ensure it is actually attached to the loaded scene.
+                if (assembly && !assembly.parent) {
+                  let attached = false;
+                  gltf.scene.traverse((obj) => {
+                    if (obj === assembly) attached = true;
+                  });
+                  if (!attached) assembly = null;
+                }
+                return { assembly, nodeIndex };
+              }
+
+              function splitBufferGeometryBySideX(sourceGeometry, sideSign) {
+                const position = sourceGeometry.getAttribute('position');
+                if (!position) return null;
+
+                const index = sourceGeometry.index;
+                const triangleCount = index ? index.count / 3 : position.count / 3;
+                const attributeNames = Object.keys(sourceGeometry.attributes);
+                const values = {};
+                attributeNames.forEach((name) => { values[name] = []; });
+
+                function readComponent(attribute, vertexIndex, component) {
+                  if (attribute.isInterleavedBufferAttribute) {
+                    return attribute.data.array[
+                      vertexIndex * attribute.data.stride + attribute.offset + component
+                    ];
+                  }
+                  return attribute.array[vertexIndex * attribute.itemSize + component];
+                }
+
+                let acceptedTriangles = 0;
+                for (let t = 0; t < triangleCount; t++) {
+                  const ia = index ? index.getX(t * 3) : t * 3;
+                  const ib = index ? index.getX(t * 3 + 1) : t * 3 + 1;
+                  const ic = index ? index.getX(t * 3 + 2) : t * 3 + 2;
+
+                  const cx = (
+                    position.getX(ia) + position.getX(ib) + position.getX(ic)
+                  ) / 3;
+
+                  // The wheel parts are physically separate across the car width.
+                  // Ignore only tiny triangles straddling the centreline.
+                  if (sideSign * cx < 0.045) continue;
+
+                  [ia, ib, ic].forEach((vertexIndex) => {
+                    attributeNames.forEach((name) => {
+                      const attribute = sourceGeometry.getAttribute(name);
+                      for (let c = 0; c < attribute.itemSize; c++) {
+                        values[name].push(readComponent(attribute, vertexIndex, c));
+                      }
+                    });
+                  });
+                  acceptedTriangles++;
+                }
+
+                if (!acceptedTriangles) return null;
+
+                const splitGeometry = new THREE.BufferGeometry();
+                attributeNames.forEach((name) => {
+                  const sourceAttribute = sourceGeometry.getAttribute(name);
+                  const sourceArray = sourceAttribute.isInterleavedBufferAttribute
+                    ? sourceAttribute.data.array
+                    : sourceAttribute.array;
+                  const TypedArray = sourceArray.constructor;
+                  const typedValues = new TypedArray(values[name]);
+                  splitGeometry.setAttribute(
+                    name,
+                    new THREE.BufferAttribute(
+                      typedValues,
+                      sourceAttribute.itemSize,
+                      sourceAttribute.normalized
+                    )
+                  );
+                });
+
+                splitGeometry.computeBoundingBox();
+                splitGeometry.computeBoundingSphere();
+                return splitGeometry;
+              }
+
+              function makeIndividualWheelRigs(assemblyName) {
+                const assembly = findNamedNode(gltf.scene, assemblyName);
+                if (!assembly || !assembly.parent) {
+                  console.warn(`[GT Proving Ground] Wheel axle group missing: ${assemblyName}; keeping GLB wheels static rather than distorting them.`);
+                  return null;
+                }
+
+                const parent = assembly.parent;
+                parent.updateMatrixWorld(true);
+                assembly.updateMatrixWorld(true);
+
+                const sourceMeshes = assembly.children.filter((child) => child.isMesh && child.geometry);
+                if (!sourceMeshes.length) {
+                  console.warn(`[GT Proving Ground] No mesh parts found in axle group ${assemblyName}.`);
+                  return null;
+                }
+
+                const sideRecords = {
+                  left: { sign: -1, items: [], worldBounds: new THREE.Box3() },
+                  right: { sign: 1, items: [], worldBounds: new THREE.Box3() }
+                };
+
+                // Capture each original mesh's full world transform before moving
+                // anything. The geometry itself contains separate left/right islands.
+                sourceMeshes.forEach((sourceMesh) => {
+                  sourceMesh.updateMatrixWorld(true);
+                  const sourceWorldMatrix = sourceMesh.matrixWorld.clone();
+
+                  ['left', 'right'].forEach((sideName) => {
+                    const side = sideRecords[sideName];
+                    const splitGeometry = splitBufferGeometryBySideX(
+                      sourceMesh.geometry,
+                      side.sign
+                    );
+                    if (!splitGeometry || !splitGeometry.boundingBox) return;
+
+                    const worldBounds = splitGeometry.boundingBox.clone().applyMatrix4(sourceWorldMatrix);
+                    side.worldBounds.union(worldBounds);
+                    side.items.push({
+                      source: sourceMesh,
+                      geometry: splitGeometry,
+                      worldMatrix: sourceWorldMatrix
+                    });
+                  });
+                });
+
+                function buildSidePivot(sideName) {
+                  const side = sideRecords[sideName];
+                  if (!side.items.length || side.worldBounds.isEmpty()) return null;
+
+                  const axleWorldCenter = side.worldBounds.getCenter(new THREE.Vector3());
+                  const axleLocalCenter = parent.worldToLocal(axleWorldCenter.clone());
+
+                  const pivot = new THREE.Group();
+                  pivot.name = `${assemblyName}_${sideName}_SteeringPivot`;
+                  pivot.position.copy(axleLocalCenter);
+                  parent.add(pivot);
+                  parent.updateMatrixWorld(true);
+
+                  const inversePivotWorld = pivot.matrixWorld.clone().invert();
+                  side.items.forEach((item) => {
+                    const wheelPart = new THREE.Mesh(item.geometry, item.source.material);
+                    wheelPart.name = `${item.source.name}_${sideName}_wheelPart`;
+                    wheelPart.castShadow = true;
+                    wheelPart.receiveShadow = true;
+
+                    const localMatrix = inversePivotWorld.clone().multiply(item.worldMatrix);
+                    localMatrix.decompose(
+                      wheelPart.position,
+                      wheelPart.quaternion,
+                      wheelPart.scale
+                    );
+                    wheelPart.matrixAutoUpdate = true;
+                    wheelPart.updateMatrix();
+                    pivot.add(wheelPart);
+                  });
+
+                  return {
+                    pivot,
+                    baseZ: axleLocalCenter.z,
+                    baseX: axleLocalCenter.x,
+                    baseY: axleLocalCenter.y
+                  };
+                }
+
+                const leftRig = buildSidePivot('left');
+                const rightRig = buildSidePivot('right');
+
+                if (leftRig && rightRig) {
+                  // Remove the combined axle meshes only after both independent
+                  // side rigs have been built from their original world matrices.
+                  parent.remove(assembly);
+                  return { left: leftRig, right: rightRig };
+                }
+
+                // If either side fails, roll back the partial pivots and leave
+                // the original axle assembly intact rather than losing one tyre.
+                if (leftRig && leftRig.pivot.parent) leftRig.pivot.parent.remove(leftRig.pivot);
+                if (rightRig && rightRig.pivot.parent) rightRig.pivot.parent.remove(rightRig.pivot);
+                console.warn(`[GT Proving Ground] Could not split both sides of ${assemblyName}; original paired axle retained.`);
+                return null;
+              }
+
+              const frontWheelRigs = makeIndividualWheelRigs('Cylinder.001');
+              const rearWheelRigs = makeIndividualWheelRigs('Cylinder.000');
+
+              porscheWheelRig = (frontWheelRigs || rearWheelRigs) ? {
+                front: frontWheelRigs,
+                rear: rearWheelRigs
+              } : null;
+
+              console.info(
+                `[GT Proving Ground] Independent Porsche wheel rigs: ` +
+                `front-left=${!!(frontWheelRigs && frontWheelRigs.left)}, ` +
+                `front-right=${!!(frontWheelRigs && frontWheelRigs.right)}, ` +
+                `rear-left=${!!(rearWheelRigs && rearWheelRigs.left)}, ` +
+                `rear-right=${!!(rearWheelRigs && rearWheelRigs.right)}.`
+              );
+
+              // Porsche-specific emissive lighting: the GLB's front lamp lens
+              // meshes use the "lights" material; rear lamp meshes use tex_shiny.
+              function setNodeEmissive(nodeName, colorHex, intensity, targetArray) {
+                const node = findNamedNode(gltf.scene, nodeName);
+                if (!node) {
+                  console.warn(`[GT Proving Ground] Light mesh not found: ${nodeName}`);
+                  return;
+                }
+
+                const sourceMaterials = Array.isArray(node.material) ? node.material : [node.material];
+                const updatedMaterials = sourceMaterials.map((sourceMaterial) => {
+                  if (!sourceMaterial) return sourceMaterial;
+                  const material = sourceMaterial.clone();
+                  if (material.emissive) material.emissive.setHex(colorHex);
+                  material.emissiveIntensity = intensity;
+                  material.needsUpdate = true;
+                  targetArray.push(material);
+                  return material;
+                });
+                node.material = Array.isArray(node.material) ? updatedMaterials : updatedMaterials[0];
+              }
+
+              setNodeEmissive('bumper_front.004_1', 0xeaf5ff, 1.8, porscheHeadlightMaterials);
+              setNodeEmissive('bumper_front.001_2', 0xeaf5ff, 1.8, porscheHeadlightMaterials);
+              setNodeEmissive('Plane.001_0', 0xff1736, 1.35, porscheRearLightMaterials);
+              setNodeEmissive('boot.003_0', 0xff1736, 1.55, porscheRearLightMaterials);
+
+              // Existing dynamic spotlights are attached to chassisGroup, so they
+              // remain aligned with the Porsche as the chassis pitches and rolls.
+              if (headLightLeft && headLightRight) {
+                [headLightLeft, headLightRight].forEach((light) => {
+                  light.intensity = 4.8;
+                  light.distance = 68;
+                  light.angle = Math.PI / 5.4;
+                  light.penumbra = 0.88;
+                  light.decay = 1.45;
+                  light.castShadow = false;
+                });
+                headLightLeft.position.set(-0.61, 0.43, 1.92);
+                headLightLeft.target.position.set(-0.61, 0.0, 28);
+                headLightRight.position.set(0.61, 0.43, 1.92);
+                headLightRight.target.position.set(0.61, 0.0, 28);
+              }
+
+              // Subtle rear glow and white reverse illumination, separate from
+              // emissive body textures so the road/nearby objects receive light.
+              const rearGlowLeft = new THREE.PointLight(0xff1736, 0.36, 7.5, 2);
+              const rearGlowRight = new THREE.PointLight(0xff1736, 0.36, 7.5, 2);
+              rearGlowLeft.position.set(-0.66, 0.34, -2.03);
+              rearGlowRight.position.set(0.66, 0.34, -2.03);
+              chassisGroup.add(rearGlowLeft, rearGlowRight);
+              porscheBrakeLightPoints.push(rearGlowLeft, rearGlowRight);
+
+              const reverseLightLeft = new THREE.PointLight(0xeaf5ff, 0.0, 5.5, 2);
+              const reverseLightRight = new THREE.PointLight(0xeaf5ff, 0.0, 5.5, 2);
+              reverseLightLeft.position.set(-0.38, 0.28, -2.06);
+              reverseLightRight.position.set(0.38, 0.28, -2.06);
+              chassisGroup.add(reverseLightLeft, reverseLightRight);
+              porscheReverseLightPoints.push(reverseLightLeft, reverseLightRight);
+
+              // All visible vehicle meshes participate in the game's shadow pass.
+              gltf.scene.traverse((obj) => {
+                if (!obj.isMesh || !obj.visible) return;
+                obj.castShadow = true;
+                obj.receiveShadow = true;
+                const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+                mats.forEach((mat) => {
+                  if (!mat) return;
+                  if ('envMapIntensity' in mat) {
+                    mat.envMapIntensity = Math.min(1.25, Math.max(0.7, mat.envMapIntensity || 1));
+                  }
+                  mat.needsUpdate = true;
+                });
+              });
+
+              // Attach the validated Porsche before hiding any fallback meshes.
+              chassisGroup.add(modelRoot);
+              modelRoot.updateMatrixWorld(true);
+
+              // Wheel rigs and Porsche lighting have already been registered
+              // using the inspected per-side GLB geometry above.
+              porscheModelLoaded = true;
+              loadedPorscheModelRoot = modelRoot;
+
+              // Fallback is hidden only after the model is attached and its
+              // correctly oriented dimensions have passed validation.
+              fallbackChildren.forEach((child) => {
+                child.traverse((obj) => {
+                  if (obj.isMesh) obj.visible = false;
+                });
+              });
+              wheelPivots.forEach((wp) => {
+                wp.group.visible = false;
+              });
+
+              console.info(
+                `[GT Proving Ground] Porsche 911 Carrera 4S integrated successfully. ` +
+                `Final game-space bounds: ${finalSize.x.toFixed(2)} W × ` +
+                `${finalSize.y.toFixed(2)} H × ${finalSize.z.toFixed(2)} L m; ` +
+                `scale=${fitScale.toFixed(3)}; helpers removed=${hiddenHelperMeshes.join(', ') || 'none'}; ` +
+                `front wheel pair=${!!frontWheelRigs}; rear wheel pair=${!!rearWheelRigs}.`
+              );
+            } catch (integrationError) {
+              if (modelRoot && modelRoot.parent) modelRoot.parent.remove(modelRoot);
+              porscheWheelRig = null;
+              porscheModelLoaded = false;
+              loadedPorscheModelRoot = null;
+              console.error(
+                '[GT Proving Ground] Porsche integration failed; procedural fallback remains visible.',
+                integrationError
+              );
+            }
+          })
+          .catch((error) => {
+            console.error(
+              `[GT Proving Ground] Porsche model could not load from ${modelPath}.`,
+              error
+            );
+          });
+      }
+
+      // Load the matching GLTFLoader if the first CDN is blocked.
+      function loadUpdatedPorscheModel() {
+        if (THREE.GLTFLoader) {
+          loadUpdatedPorscheModelWithLoader();
+          return;
+        }
+
+        const loaderSources = [
+          'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js',
+          'https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js'
+        ];
+        let sourceIndex = 0;
+
+        const tryNextLoaderSource = () => {
+          if (THREE.GLTFLoader) {
+            loadUpdatedPorscheModelWithLoader();
+            return;
+          }
+          if (sourceIndex >= loaderSources.length) {
+            console.error('[GT Proving Ground] GLTFLoader CDN could not be reached; procedural fallback remains active.');
+            return;
+          }
+
+          const script = document.createElement('script');
+          script.async = true;
+          script.src = loaderSources[sourceIndex++];
+          script.onload = () => {
+            if (THREE.GLTFLoader) loadUpdatedPorscheModelWithLoader();
+            else tryNextLoaderSource();
+          };
+          script.onerror = tryNextLoaderSource;
+          document.head.appendChild(script);
+        };
+
+        tryNextLoaderSource();
+      }
+
+      // -----------------------------------------------------------------------
       // 6. TIRE SMOKE & PERSISTENT 3D ASPHALT SKIDMARKS
       // -----------------------------------------------------------------------
       const SMOKE_POOL_SIZE = 48;
@@ -3368,6 +4675,16 @@
 
         skidIndex = (skidIndex + 1) % MAX_SKID_SEGMENTS;
         skidGeo.attributes.position.needsUpdate = true;
+        // All solid vehicle panels must receive shadows from bridge pylons,
+        // overhead beams and roadside structures as well as cast onto the road.
+        // The transparent underbody contact-shadow plane remains a baked decal.
+        chassisGroup.traverse((obj) => {
+          if (obj.isMesh && !(obj.userData && obj.userData.isContactShadow)) {
+            obj.castShadow = true;
+            obj.receiveShadow = true;
+          }
+        });
+
       }
 
       // -----------------------------------------------------------------------
@@ -4239,6 +5556,12 @@
         STATE.steerAngle = 0;
         STATE.driftAngle = 0;
         STATE.trackSlope = startSample.slope || 0;
+        STATE.onSpeedBreaker = false;
+        STATE.lastBreakerSampleIdx = -1;
+        STATE.breakerSpringPos = 0;
+        STATE.breakerSpringVel = 0;
+        STATE.breakerPitchKick = 0;
+        STATE.breakerRoadLift = 0;
         STATE.gear = 1;
         STATE.rpm = CONFIG.idleRPM;
         prevRearLeft = null;
@@ -4362,19 +5685,71 @@
 
         STATE.onCurb = onMedianCurb || (distFromCenter > (halfTrack - 0.6) && distFromCenter < (halfTrack + 1.45));
         STATE.offTrack = !closestSample.isBridge && distFromCenter >= (halfTrack + 1.45);
-        // Detect Proving Ground Speed Breakers, Speed Radar Traps & Bridge Expansion Joints
-        let hittingBreaker = false;
-        if (!STATE.offTrack && closestSample.isSpeedBreaker && minDistSq < 2.5 * 2.5) {
-          hittingBreaker = true;
-          const nowMs = performance.now();
-          if (nowMs - STATE.lastBreakerHitTime > 420 && STATE.speedMS > 1.5) {
-            STATE.lastBreakerHitTime = nowMs;
-            const jolt = Math.min(1.6, Math.max(0.35, STATE.speedMS / 22));
-            STATE.breakerSpringVel += jolt * 1.45;
-            STATE.pitchAngle -= jolt * 0.028;
+        // Detect a speed breaker by longitudinal distance along its sample,
+        // not Euclidean distance from the road centre. This works in either
+        // carriageway even when the car is laterally offset from the spline.
+        let breakerCandidate = null;
+        if (!STATE.offTrack) {
+          const breakerSearchStart = Math.max(0, bestIdx - 10);
+          const breakerSearchEnd = Math.min(trackSamples.length - 1, bestIdx + 10);
+          let closestBreakerGap = Infinity;
+
+          for (let bi = breakerSearchStart; bi <= breakerSearchEnd; bi++) {
+            const breakerSample = trackSamples[bi];
+            if (!breakerSample || !breakerSample.isSpeedBreaker) continue;
+
+            const bx = STATE.pos.x - breakerSample.pt.x;
+            const bz = STATE.pos.z - breakerSample.pt.z;
+            const longitudinalGap = bx * breakerSample.tangent.x + bz * breakerSample.tangent.z;
+            const lateralGap = bx * breakerSample.right.x + bz * breakerSample.right.z;
+
+            if (
+              Math.abs(longitudinalGap) <= 3.6 &&
+              Math.abs(lateralGap) <= breakerSample.halfWidth - 0.35 &&
+              Math.abs(longitudinalGap) < closestBreakerGap
+            ) {
+              closestBreakerGap = Math.abs(longitudinalGap);
+              breakerCandidate = {
+                sample: breakerSample,
+                index: bi,
+                longitudinalGap
+              };
+            }
+          }
+        }
+
+        const hittingBreaker = !!breakerCandidate;
+        STATE.breakerRoadLift = 0;
+
+        if (breakerCandidate) {
+          const proximity = THREE.MathUtils.clamp(
+            1 - Math.abs(breakerCandidate.longitudinalGap) / 3.6,
+            0,
+            1
+          );
+          const smoothProximity = proximity * proximity * (3 - 2 * proximity);
+          STATE.breakerRoadLift = 0.12 * smoothProximity;
+
+          if (
+            breakerCandidate.index !== STATE.lastBreakerSampleIdx &&
+            STATE.speedMS > 1.0
+          ) {
+            STATE.lastBreakerSampleIdx = breakerCandidate.index;
+            STATE.lastBreakerHitTime = performance.now();
+
+            const impact = THREE.MathUtils.clamp(STATE.speedMS / 23, 0.35, 1.65);
+            STATE.breakerSpringVel += impact * 2.05;
+            STATE.breakerPitchKick -= impact * 0.018;
             AudioEngine.triggerSpeedBreakerThump(STATE.speedMS);
           }
-        } else if (!STATE.offTrack && closestSample.isSpeedTrap && minDistSq < 6.5 * 6.5 && STATE.speedMS > 28) {
+        }
+
+        if (!breakerCandidate && STATE.lastBreakerSampleIdx >= 0 &&
+            Math.abs(bestIdx - STATE.lastBreakerSampleIdx) > 12) {
+          STATE.lastBreakerSampleIdx = -1;
+        }
+
+        if (!STATE.offTrack && closestSample.isSpeedTrap && minDistSq < 6.5 * 6.5 && STATE.speedMS > 28) {
           if (!closestSample.trapTriggered) {
             closestSample.trapTriggered = true;
             triggerOvertakeBanner('SPEED RADAR CLOCKED', `${Math.round(STATE.speedMS * 3.6)} KM/H // SECTOR TRAP`);
@@ -4382,8 +5757,8 @@
         }
         STATE.onSpeedBreaker = hittingBreaker;
 
-        const springK = 165.0;
-        const damperC = 14.5;
+        const springK = 148.0;
+        const damperC = 18.5;
         const springAccel = -springK * STATE.breakerSpringPos - damperC * STATE.breakerSpringVel;
         STATE.breakerSpringVel += springAccel * dt;
         STATE.breakerSpringPos += STATE.breakerSpringVel * dt;
@@ -4447,7 +5822,10 @@
         // Logical Automatic PDK Shifting: waits until near the top of each gear's speed & RPM band with a natural 0.65s cooldown
         if (STATE.transmission === 'auto' && STATE.gear > 0 && STATE.shiftCooldown <= 0) {
           const shiftUpKmh = CONFIG.gearSpeedTargetsKMH[STATE.gear] * 0.96;
-          const shiftDownKmh = STATE.gear > 1 ? CONFIG.gearSpeedTargetsKMH[STATE.gear - 1] * 0.72 : 0;
+          const uphillShiftFactor = Math.sin(STATE.trackSlope) > 0.045 ? 0.84 : 0.72;
+          const shiftDownKmh = STATE.gear > 1
+            ? CONFIG.gearSpeedTargetsKMH[STATE.gear - 1] * uphillShiftFactor
+            : 0;
 
           if (currentKmh >= shiftUpKmh && STATE.rpm >= CONFIG.ShiftUpRPM && STATE.gear < 6 && STATE.throttle > 0.25) {
             shiftUp();
@@ -4493,6 +5871,16 @@
         const gearMultiplier = currentRatio / CONFIG.gearRatios[3]; // Normalized around 3rd gear
         const tractionCap = Math.min(1.38, 0.62 + gearMultiplier * 0.34);
         let driveAccel = (STATE.throttleSmoothed * baseWheelForce * torqueCurve * tractionCap) / 1420 * gearDir;
+
+        // Modest low-speed hill-start torque: a loaded GT car should not bog
+        // down at the crest or stall while re-accelerating on the bridge ramp.
+        const roadGrade = Math.sin(STATE.trackSlope);
+        const uphillGrade = Math.max(0, roadGrade);
+        const hillStartFactor = THREE.MathUtils.clamp(1 - Math.abs(STATE.forwardSpeed) / 18, 0, 1);
+        const hillStartAssist = uphillGrade * CONFIG.gravity * 0.32 *
+          hillStartFactor * STATE.throttleSmoothed;
+        driveAccel += hillStartAssist;
+
         if (STATE.gear === 1 && STATE.forwardSpeed < 0 && STATE.throttleSmoothed > 0.05) {
           driveAccel += 24.0 * STATE.throttleSmoothed;
         }
@@ -4502,11 +5890,18 @@
 
         const gearRatioFactor = STATE.gear > 0 ? CONFIG.gearRatios[STATE.gear] : 2.5;
         const offThrottleFactor = Math.max(0, 1.0 - STATE.throttleSmoothed * 2.5);
-        const compressionBrake = -motionSign * offThrottleFactor * (1.25 + gearRatioFactor * 0.45) - (STATE.forwardSpeed * 0.055);
-        const rollingResistance = -motionSign * (STATE.offTrack ? 6.5 : 1.35);
+        // Engine braking eases on descents so gravity can naturally pull the car
+        // downhill; the road-grade force itself uses the full gravity component.
+        const downhillCoastFactor = roadGrade < -0.015
+          ? THREE.MathUtils.clamp(1 + roadGrade * 6.5, 0.28, 1.0)
+          : 1.0;
+        const compressionBrake =
+          -motionSign * offThrottleFactor * (1.25 + gearRatioFactor * 0.45) * downhillCoastFactor -
+          (STATE.forwardSpeed * 0.045);
+        const rollingResistance = -motionSign * (STATE.offTrack ? 5.8 : 0.28);
         const aeroDrag = -STATE.forwardSpeed * Math.abs(STATE.forwardSpeed) * (STATE.drsActive ? 0.0012 : 0.0017);
         const offTrackDrag = STATE.offTrack ? -STATE.forwardSpeed * 0.95 : 0;
-        const slopeGravityAccel = -Math.sin(STATE.trackSlope) * CONFIG.gravity * 0.35;
+        const slopeGravityAccel = -roadGrade * CONFIG.gravity;
 
         const prevFwdSpeed = STATE.forwardSpeed;
         const totalResistAccel = brakeDecel + compressionBrake + rollingResistance + aeroDrag + offTrackDrag + slopeGravityAccel;
@@ -4574,7 +5969,7 @@
 
         // Smooth C1 continuous spline elevation & slope interpolation so climbing up/down bridge ramps NEVER shakes!
         const splineSurface = sampleSplineElevationAndSlope(bestIdx, STATE.pos.x, STATE.pos.z);
-        STATE.pos.y = splineSurface.y;
+        STATE.pos.y = splineSurface.y + STATE.breakerRoadLift;
         STATE.trackSlope += (splineSurface.slope - STATE.trackSlope) * Math.min(1, dt * 16);
 
         // Clean, zero-invisible-wall collision resolution:
@@ -4672,13 +6067,21 @@
         STATE.longG += (rawLongG - STATE.longG) * Math.min(1, dt * 6);
         STATE.latG += (rawLatG - STATE.latG) * Math.min(1, dt * 8);
 
-        const targetPitch = THREE.MathUtils.clamp(-STATE.longG * 0.014, -0.028, 0.028);
+        const targetPitch = THREE.MathUtils.clamp(
+          -STATE.longG * 0.014 + STATE.breakerPitchKick,
+          -0.10,
+          0.10
+        );
+        STATE.breakerPitchKick *= Math.exp(-dt * 4.5);
         const targetRoll = THREE.MathUtils.clamp(STATE.latG * 0.022, -0.048, 0.048);
         STATE.pitchAngle += (targetPitch - STATE.pitchAngle) * Math.min(1, dt * 8);
         STATE.rollAngle += (targetRoll - STATE.rollAngle) * Math.min(1, dt * 10);
 
         const curbJitter = 0;
-        STATE.heaveOffset = (STATE.rideHeightOffset * 0.001) + STATE.breakerSpringPos * 0.10;
+        STATE.heaveOffset =
+          (STATE.rideHeightOffset * 0.001) +
+          STATE.breakerSpringPos * 0.27 +
+          STATE.breakerRoadLift * 0.55;
 
         // Responsive tire slip calculation so Spacebar drift, hard cornering, and hard braking all produce audible drift screech
         const driftSlideAmount = Math.min(1.0, Math.abs(STATE.driftAngle) / 0.16);
@@ -4714,7 +6117,23 @@
         carRoot.position.set(STATE.pos.x, STATE.pos.y, STATE.pos.z);
         carRoot.rotation.order = 'YXZ';
         carRoot.rotation.y = STATE.heading;
-        carRoot.rotation.x = -STATE.trackSlope;
+
+        // Pitch follows the direction the car's nose faces relative to the track.
+        // A U-turn reverses the pitch sign; simply selecting reverse without
+        // turning the chassis does not incorrectly invert the suspension/road pitch.
+        const pitchTrackSample = trackSamples[STATE.lastTrackIndex];
+        let chassisTrackAlignment = 1;
+        if (pitchTrackSample && pitchTrackSample.tangent) {
+          const chassisForwardX = Math.sin(STATE.heading);
+          const chassisForwardZ = Math.cos(STATE.heading);
+          chassisTrackAlignment = THREE.MathUtils.clamp(
+            chassisForwardX * pitchTrackSample.tangent.x +
+            chassisForwardZ * pitchTrackSample.tangent.z,
+            -1,
+            1
+          );
+        }
+        carRoot.rotation.x = -STATE.trackSlope * chassisTrackAlignment;
 
         chassisGroup.position.y = STATE.heaveOffset;
         chassisGroup.rotation.x = STATE.pitchAngle;
@@ -4730,6 +6149,28 @@
 
         const isBraking = STATE.brake > 0.1 || STATE.handbrake > 0;
         tailLightMaterial.emissiveIntensity = isBraking ? 4.2 : 1.1;
+
+        const nightLevel = THREE.MathUtils.clamp(liveWeather.nightFactor || 0, 0, 1);
+        const headlampLevel = STATE.headlightsOn ? 1.9 + nightLevel * 2.2 : 0.05;
+        if (headLightLeft && headLightRight) {
+          headLightLeft.visible = STATE.headlightsOn;
+          headLightRight.visible = STATE.headlightsOn;
+          headLightLeft.intensity = 2.2 + nightLevel * 4.5;
+          headLightRight.intensity = 2.2 + nightLevel * 4.5;
+        }
+        porscheHeadlightMaterials.forEach((material) => {
+          material.emissiveIntensity = headlampLevel;
+        });
+
+        porscheRearLightMaterials.forEach((material) => {
+          material.emissiveIntensity = isBraking ? 4.8 : 1.35;
+        });
+        porscheBrakeLightPoints.forEach((light) => {
+          light.intensity = isBraking ? 1.55 : 0.32;
+        });
+        porscheReverseLightPoints.forEach((light) => {
+          light.intensity = STATE.gear === -1 ? 1.65 : 0.0;
+        });
 
         // Glowing hot carbon-ceramic brake rotors under heavy high-speed braking
         if (brakeDiscMaterial) {
@@ -4747,6 +6188,35 @@
           wp.group.position.y = wp.baseY + (STATE.onCurb ? curbJitter * 0.5 : 0) + STATE.breakerSpringPos * 0.08;
           wheelSpinMeshes[idx].rotation.x += wheelSpinStep;
         });
+
+        if (porscheWheelRig) {
+          // The GLB's Root node maps its local Z to game-world up, X to the
+          // wheel axle and local Z rotation to vertical steering. Each wheel
+          // now has its own hub pivot rather than steering the whole axle pair.
+          porscheWheelSpinAngle += wheelSpinStep;
+          const wheelSuspensionTravel =
+            (STATE.onCurb ? curbJitter * 0.22 : 0) -
+            STATE.breakerSpringPos * 0.42 +
+            STATE.breakerRoadLift * 0.20;
+
+          const animateWheelSide = (rig, isFront) => {
+            if (!rig) return;
+            rig.pivot.rotation.x = porscheWheelSpinAngle;
+            if (isFront) {
+              rig.pivot.rotation.z = visualFrontWheelSteer + PORSCHE_FRONT_TOE_CORRECTION;
+            }
+            rig.pivot.position.z = rig.baseZ + wheelSuspensionTravel;
+          };
+
+          if (porscheWheelRig.front) {
+            animateWheelSide(porscheWheelRig.front.left, true);
+            animateWheelSide(porscheWheelRig.front.right, true);
+          }
+          if (porscheWheelRig.rear) {
+            animateWheelSide(porscheWheelRig.rear.left, false);
+            animateWheelSide(porscheWheelRig.rear.right, false);
+          }
+        }
 
         const sunRadius = 115;
         const azRad = (liveWeather.sunAzimuth * Math.PI) / 180;
@@ -5204,6 +6674,9 @@
           headLightRight.visible = true;
         }
         headLightMaterial.emissiveIntensity = 2.2;
+        porscheHeadlightMaterials.forEach((material) => {
+          material.emissiveIntensity = 2.0;
+        });
         document.getElementById('btn-lights').classList.add('active');
       }
 
@@ -5313,6 +6786,98 @@
       });
 
       // -----------------------------------------------------------------------
+
+      // -----------------------------------------------------------------------
+      // WEATHER START SCREEN
+      // -----------------------------------------------------------------------
+      document.querySelectorAll('.menu-wx-card').forEach((card) => {
+        const cardIndex = Number.parseInt(card.dataset.wx, 10);
+        const preset = ENV_PRESETS[cardIndex];
+        const preview = card.querySelector('.absolute.inset-0');
+
+        if (preview && preset) {
+          preview.style.backgroundImage = `url("${preset.asset}")`;
+          const probe = new Image();
+          probe.onerror = () => {
+            preview.style.backgroundImage = `url("${preset.fallbackUrl}")`;
+          };
+          probe.src = preset.asset;
+        }
+
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.menu-wx-card').forEach((item) => {
+            item.classList.remove('border-white', 'bg-white/10');
+          });
+          card.classList.add('border-white', 'bg-white/10');
+          STATE.envIndex = cardIndex;
+          STATE.weatherBlend = 0;
+          STATE.autoWeather = false;
+          const autoButton = document.getElementById('btn-auto-weather');
+          if (autoButton) {
+            autoButton.classList.remove('text-emerald-400', 'border-emerald-500/30', 'bg-emerald-500/10');
+            autoButton.classList.add('text-neutral-400');
+          }
+          applyEnvironmentState(STATE.envIndex, 0, true);
+        });
+      });
+
+      document.getElementById('menu-auto-wx').addEventListener('click', () => {
+        STATE.autoWeather = true;
+        STATE.weatherBlend = 0;
+        const autoButton = document.getElementById('btn-auto-weather');
+        if (autoButton) {
+          autoButton.classList.add('text-emerald-400', 'border-emerald-500/30', 'bg-emerald-500/10');
+          autoButton.classList.remove('text-neutral-400');
+        }
+        applyEnvironmentState(STATE.envIndex, 0, true);
+        showToast('Auto Weather Cycle Enabled.');
+      });
+
+      document.getElementById('btn-start-drive').addEventListener('click', () => {
+        try {
+          AudioEngine.ensureUnlocked();
+        } catch (error) {
+          console.warn('[GT Proving Ground] Audio unlock deferred until user interaction.', error);
+        }
+        const menu = document.getElementById('main-menu');
+        if (menu) {
+          menu.classList.add('opacity-0', 'pointer-events-none');
+          window.setTimeout(() => { menu.style.display = 'none'; }, 720);
+        }
+      });
+
+      // Upper HUD fades to about 50% after inactivity and restores immediately
+      // whenever the user moves, touches, clicks, scrolls or presses a key.
+      let uiIdleTimeout = 0;
+      function markInterfaceActive() {
+        document.body.classList.remove('ui-idle');
+        window.clearTimeout(uiIdleTimeout);
+        uiIdleTimeout = window.setTimeout(() => {
+          document.body.classList.add('ui-idle');
+        }, 3200);
+      }
+      ['pointerdown', 'pointermove', 'touchstart', 'keydown', 'wheel'].forEach((eventName) => {
+        window.addEventListener(eventName, markInterfaceActive, { passive: true });
+      });
+      markInterfaceActive();
+
+      // Some desktop browsers suspend Web Audio when a tab becomes inactive.
+      // Preserve the audio toggle/master gain, and resume the already-unlocked
+      // context when this tab becomes visible/focused again.
+      function resumeGameAudioAfterFocus() {
+        if (!AudioEngine || !AudioEngine.active || !AudioEngine.ctx) return;
+        if (AudioEngine.ctx.state === 'suspended' || AudioEngine.ctx.state === 'interrupted') {
+          AudioEngine.ctx.resume().catch((error) => {
+            console.warn('[GT Proving Ground] Audio resume awaits browser permission.', error);
+          });
+        }
+      }
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) resumeGameAudioAfterFocus();
+      });
+      window.addEventListener('focus', resumeGameAudioAfterFocus);
+      window.addEventListener('pageshow', resumeGameAudioAfterFocus);
+
       // 13. INITIALIZATION & MAIN 60FPS SIMULATION LOOP
       // -----------------------------------------------------------------------
       let lastFrameTime = performance.now();
@@ -5351,6 +6916,7 @@
         ensureSamplesUpTo(SAMPLES_PER_CHUNK * 4);
         updateStreamingWorld();
         buildGTCar();
+        loadUpdatedPorscheModel();
         buildAICars();
         applyEnvironmentState(0, 0, true);
         resetVehicleToStart();

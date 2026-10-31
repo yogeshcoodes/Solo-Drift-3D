@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>GT PROVING GROUND // TELEMETRY & DYNAMICS SIMULATOR</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0d12'/%3E%3Cpath d='M12 40h40l-7-17H19z' fill='%23aeb8c5'/%3E%3Cpath d='M17 42h30' stroke='%23e11d48' stroke-width='4'/%3E%3C/svg%3E" />
   <script>
     // Suppress Tailwind CDN production console warning for clean DevTools output
     (function () {
@@ -160,6 +161,81 @@
     body.ui-idle header > .gt-panel:hover,
     body.ui-idle header > .gt-panel:focus-within { opacity: 1; }
 
+    #onfoot-controls button {
+      touch-action: none;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    #world-mode-hud {
+      top: 78px;
+      bottom: auto !important;
+      left: 50%;
+      width: max-content;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      max-width: min(380px, calc(100vw - 28px));
+      padding: 9px 16px;
+      display: block;
+      box-sizing: border-box;
+      overflow: visible;
+      white-space: normal;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+    #world-mode-hint {
+      line-height: 1.35;
+      text-wrap: balance;
+    }
+    #world-mode-hud.hidden { display: none !important; }
+    #game-menu-panel {
+      top: 116px;
+      right: 12px;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
+    /* Floating menu trigger stays independent of the crowded quick-control bar. */
+    #btn-game-menu {
+      position: fixed;
+      top: 70px;
+      right: 12px;
+      z-index: 135;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+    @media (max-width: 640px) {
+      #game-menu-panel {
+        top: calc(102px + env(safe-area-inset-top));
+        right: 8px;
+        width: min(248px, calc(100vw - 16px));
+      }
+      #btn-game-menu {
+        top: calc(62px + env(safe-area-inset-top));
+        right: 8px;
+        min-width: 38px;
+        min-height: 36px;
+        justify-content: center;
+      }
+      #btn-game-menu span { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      #world-mode-hud {
+        top: 58px;
+        bottom: auto !important;
+        width: max-content;
+        max-width: calc(100vw - 22px);
+        padding: 7px 12px;
+        min-width: 210px;
+        height: auto !important;
+      }
+      #world-mode-title {
+        font-size: 9px;
+        letter-spacing: 0.14em;
+      }
+      #world-mode-hint {
+        font-size: 8px;
+      }
+    }
+
     #touch-controls button {
       touch-action: none;
       -webkit-tap-highlight-color: transparent;
@@ -297,6 +373,130 @@
         width: 36px !important;
         min-width: 36px;
       }
+    }
+
+    /* V25: keep on-foot and open-world navigation controls in one responsive
+       safe-area layout instead of letting them scatter around the viewport. */
+    #onfoot-controls {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: max(16px, env(safe-area-inset-bottom));
+      width: 100%;
+      max-width: 100%;
+      padding-left: clamp(10px, 2.4vw, 28px);
+      padding-right: clamp(10px, 2.4vw, 28px);
+      gap: 12px;
+      align-items: flex-end;
+      justify-content: space-between;
+      box-sizing: border-box;
+      pointer-events: none;
+      z-index: 110;
+    }
+    #onfoot-controls > div { min-width: 0; }
+    #onfoot-controls .grid {
+      gap: clamp(5px, 0.8vw, 9px);
+    }
+    #onfoot-controls button {
+      min-width: 0;
+      touch-action: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #onfoot-controls > div:last-child {
+      width: clamp(92px, 11vw, 136px);
+      max-width: 34vw;
+    }
+    #onfoot-controls > div:last-child button {
+      width: 100%;
+      min-height: clamp(38px, 5.4vh, 48px);
+      padding: 9px 8px;
+      white-space: nowrap;
+    }
+    #world-mode-hud {
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: min(420px, calc(100vw - 24px));
+      z-index: 125;
+    }
+    #btn-game-menu {
+      z-index: 145;
+    }
+
+    @media (max-width: 760px) {
+      #world-mode-hud {
+        top: calc(104px + env(safe-area-inset-top));
+        width: max-content;
+        min-width: min(210px, calc(100vw - 24px));
+        max-width: calc(100vw - 20px);
+        padding: 7px 10px;
+      }
+      #world-mode-title { font-size: 9px !important; }
+      #world-mode-hint { font-size: 8px !important; }
+      #onfoot-controls {
+        bottom: calc(112px + env(safe-area-inset-bottom));
+        padding-left: 10px;
+        padding-right: 10px;
+        gap: 6px;
+      }
+      #onfoot-controls .grid button {
+        width: clamp(42px, 12vw, 52px) !important;
+        height: clamp(42px, 12vw, 52px) !important;
+        min-width: clamp(42px, 12vw, 52px) !important;
+        border-radius: 14px !important;
+        font-size: 18px !important;
+      }
+      #onfoot-controls > div:last-child {
+        width: clamp(88px, 24vw, 110px);
+        gap: 6px;
+      }
+      #onfoot-controls > div:last-child button {
+        min-height: 38px;
+        font-size: 9px !important;
+        border-radius: 12px !important;
+      }
+      #btn-game-menu {
+        top: calc(62px + env(safe-area-inset-top)) !important;
+        right: 8px !important;
+      }
+      #game-menu-panel {
+        top: calc(106px + env(safe-area-inset-top)) !important;
+        right: 8px !important;
+      }
+      #minimap-container {
+        width: min(124px, 30vw) !important;
+      }
+    }
+
+    @media (max-width: 420px) and (orientation: portrait) {
+      #world-mode-hud {
+        top: calc(112px + env(safe-area-inset-top));
+      }
+      #onfoot-controls {
+        bottom: calc(106px + env(safe-area-inset-bottom));
+      }
+      #onfoot-controls .grid button {
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+      }
+      #onfoot-controls > div:last-child {
+        width: 88px;
+      }
+      #onfoot-controls > div:last-child button {
+        min-height: 35px;
+        padding: 7px 5px;
+        font-size: 8px !important;
+      }
+    }
+
+    @media (max-height: 520px) and (orientation: landscape) {
+      #onfoot-controls { bottom: max(8px, env(safe-area-inset-bottom)); }
+      #onfoot-controls .grid button {
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+      }
+      #world-mode-hud { top: 88px; }
     }
   </style>
 </head>
@@ -486,6 +686,14 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
         </svg>
         <span class="text-[9px] sm:text-[11px] font-semibold">GARAGE</span>
+      </button>
+
+      <!-- In-game navigation (hidden on the home screen). -->
+      <button id="btn-game-menu" class="hidden gt-btn rounded-lg sm:rounded-xl px-2 py-1 sm:px-2.5 sm:py-1.5 text-[9px] sm:text-[11px] font-black tracking-wide flex items-center gap-1" type="button" aria-expanded="false" aria-controls="game-menu-panel" title="Game Menu [Esc]">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <span>MENU</span>
       </button>
     </div>
   </header>
@@ -743,6 +951,49 @@
     </div>
   </footer>
 
+  <!-- Lightweight toast messages for on-foot enter/exit and interactions. -->
+  <div id="gt-toast-host" class="fixed z-[160] top-20 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none" aria-live="polite"></div>
+
+  <!-- Open-world / on-foot mode prompt -->
+  <div id="world-mode-hud" class="hidden fixed z-[95] left-1/2 -translate-x-1/2 bottom-5 sm:bottom-7 px-4 py-2.5 rounded-2xl border border-white/15 bg-black/65 backdrop-blur-xl text-white shadow-2xl pointer-events-none">
+    <div id="world-mode-title" class="text-[10px] sm:text-xs font-black tracking-[0.22em] text-emerald-300 text-center">DRIVING</div>
+    <div id="world-mode-hint" class="text-[9px] sm:text-[10px] text-neutral-300 mt-1 text-center">F  EXIT VEHICLE  ·  Stop the car first</div>
+  </div>
+
+  <!-- Responsive in-game navigation panel -->
+  <div id="game-menu-panel" class="hidden fixed z-[150] top-[76px] right-3 w-[min(270px,calc(100vw-24px))] rounded-2xl border border-white/15 bg-[#080b12]/95 backdrop-blur-2xl p-3 shadow-2xl" role="dialog" aria-label="Game menu">
+    <div class="flex items-center justify-between mb-2 px-1">
+      <div>
+        <div class="text-[9px] tracking-[0.2em] uppercase text-sky-300 font-black">SESSION</div>
+        <div class="text-sm font-bold text-white">Game Menu</div>
+      </div>
+      <button id="game-menu-close" type="button" class="w-9 h-9 rounded-xl border border-white/10 bg-white/5 text-white text-lg" aria-label="Close menu">×</button>
+    </div>
+    <div class="grid gap-2">
+      <button id="game-menu-resume" type="button" class="min-h-11 rounded-xl border border-white/15 bg-white/10 text-white text-[11px] font-black tracking-wider">RESUME GAME</button>
+      <button id="game-menu-home" type="button" class="min-h-11 rounded-xl border border-sky-400/30 bg-sky-500/15 text-sky-100 text-[11px] font-black tracking-wider">HOME SCREEN</button>
+      <button id="game-menu-exit" type="button" class="min-h-11 rounded-xl border border-rose-400/25 bg-rose-500/10 text-rose-100 text-[11px] font-black tracking-wider">EXIT FULLSCREEN</button>
+    </div>
+    <div class="mt-2 px-1 text-[9px] leading-relaxed text-neutral-500">Exit returns to the browser tab. Browsers do not allow a webpage to close its own tab.</div>
+  </div>
+
+  <!-- Touch-only controls while exploring on foot -->
+  <div id="onfoot-controls" class="hidden fixed z-[110] inset-x-0 bottom-5 px-4 items-end justify-between pointer-events-none">
+    <div class="grid grid-cols-3 grid-rows-2 gap-2 pointer-events-auto">
+      <span></span>
+      <button id="foot-forward" class="w-14 h-14 rounded-2xl bg-black/65 border border-white/20 text-white text-xl font-bold backdrop-blur-lg">▲</button>
+      <span></span>
+      <button id="foot-left" class="w-14 h-14 rounded-2xl bg-black/65 border border-white/20 text-white text-xl font-bold backdrop-blur-lg">◀</button>
+      <button id="foot-back" class="w-14 h-14 rounded-2xl bg-black/65 border border-white/20 text-white text-xl font-bold backdrop-blur-lg">▼</button>
+      <button id="foot-right" class="w-14 h-14 rounded-2xl bg-black/65 border border-white/20 text-white text-xl font-bold backdrop-blur-lg">▶</button>
+    </div>
+    <div class="flex flex-col gap-2 pointer-events-auto">
+      <button id="foot-run" class="px-4 py-3 rounded-xl bg-sky-500/80 border border-sky-300/40 text-white text-[10px] font-black tracking-wider">RUN</button>
+      <button id="foot-interact" class="px-4 py-3 rounded-xl bg-emerald-500/80 border border-emerald-300/40 text-white text-[10px] font-black tracking-wider">F · CAR</button>
+      <button id="foot-salute" class="px-4 py-3 rounded-xl bg-black/70 border border-white/20 text-white text-[10px] font-black tracking-wider">G · SALUTE</button>
+    </div>
+  </div>
+
   <!-- ===================================================================== -->
   <!-- APPLICATION LOGIC: THREE.JS PBR ENGINE, TRACK, PHYSICS & AUDIO        -->
   <!-- ===================================================================== -->
@@ -805,6 +1056,8 @@
         onCurb: false,
         offTrack: false,
         onSpeedBreaker: false,
+        inTunnelBranch: false,
+        inTunnel: false,
         lastBreakerHitTime: 0,
         lastBreakerSampleIdx: -1,
         breakerSpringPos: 0,
@@ -840,6 +1093,26 @@
           space: false,
           shift: false
         }
+      };
+
+      // Open-world extension state. The current vehicle simulation remains the
+      // primary physics system; on-foot movement uses its own lightweight actor state.
+      const WORLD_MODE = {
+        mode: 'driving', // driving | exitTransition | onFoot | enterTransition
+        transition: null,
+        streamTimer: 0,
+        runTouch: false,
+        lastToast: 0
+      };
+      // The world-mode prompt and in-game navigation are only active after
+      // START DRIVE. The simulator may initialise in the background at home.
+      let gameSessionStarted = false;
+      const FOOT_PLAYER = {
+        position: new THREE.Vector3(0, 0, 0),
+        heading: 0,
+        trackIndex: 0,
+        moveSpeed: 0,
+        isRunning: false
       };
 
       // -----------------------------------------------------------------------
@@ -2392,8 +2665,17 @@
         scene.add(worldGroundMesh);
       }
 
+      function getWorldFocusPosition() {
+        if (WORLD_MODE.mode === 'onFoot' || WORLD_MODE.mode === 'exitTransition' || WORLD_MODE.mode === 'enterTransition') {
+          if (coolManActor && coolManActor.parent === scene) return coolManActor.position;
+          if (WORLD_MODE.mode === 'onFoot') return FOOT_PLAYER.position;
+        }
+        return STATE.pos;
+      }
+
       function updateCelestialSky() {
-        skyGroup.position.set(STATE.pos.x, 0, STATE.pos.z);
+        const worldFocus = getWorldFocusPosition();
+        skyGroup.position.set(worldFocus.x, 0, worldFocus.z);
 
         const skyRadius = 560;
         const azRad = (liveWeather.sunAzimuth * Math.PI) / 180;
@@ -2431,11 +2713,14 @@
 
         if (worldGroundMesh) {
           const snapSize = 15.0;
-          const gx = Math.round(STATE.pos.x / snapSize) * snapSize;
-          const gz = Math.round(STATE.pos.z / snapSize) * snapSize;
+          const gx = Math.round(worldFocus.x / snapSize) * snapSize;
+          const gz = Math.round(worldFocus.z / snapSize) * snapSize;
           worldGroundMesh.position.x = gx;
           worldGroundMesh.position.z = gz;
-          const currSample = trackSamples[STATE.lastTrackIndex];
+          const focusTrackIndex = (WORLD_MODE.mode === 'onFoot' || WORLD_MODE.mode === 'exitTransition' || WORLD_MODE.mode === 'enterTransition')
+            ? FOOT_PLAYER.trackIndex
+            : STATE.lastTrackIndex;
+          const currSample = trackSamples[focusTrackIndex];
           const inBridgeGorge = currSample && (currSample.biomeType === 1 || currSample.biomeType === 2);
           worldGroundMesh.position.y = inBridgeGorge ? -2.65 : -0.06;
         }
@@ -2564,6 +2849,158 @@
         metalness: 0.55
       });
 
+      // Shared open-world district materials (reused across streamed chunks).
+      const districtRoadMat = new THREE.MeshStandardMaterial({
+        color: 0x454a50, roughness: 0.92, metalness: 0.015
+      });
+
+      function createDistrictGrimeTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 128;
+        canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, 128, 128);
+        const edge = ctx.createRadialGradient(64, 64, 8, 64, 64, 62);
+        edge.addColorStop(0, 'rgba(74, 62, 46, 0.52)');
+        edge.addColorStop(0.48, 'rgba(74, 62, 46, 0.30)');
+        edge.addColorStop(0.82, 'rgba(74, 62, 46, 0.10)');
+        edge.addColorStop(1, 'rgba(74, 62, 46, 0)');
+        ctx.fillStyle = edge;
+        ctx.fillRect(0, 0, 128, 128);
+        for (let i = 0; i < 980; i++) {
+          const x = Math.random() * 128;
+          const y = Math.random() * 128;
+          const a = 0.025 + Math.random() * 0.075;
+          ctx.fillStyle = Math.random() > 0.55
+            ? `rgba(32, 29, 24, ${a})`
+            : `rgba(168, 148, 112, ${a * 0.65})`;
+          ctx.fillRect(x, y, 1 + Math.random() * 2.2, 1);
+        }
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.wrapS = THREE.ClampToEdgeWrapping;
+        texture.wrapT = THREE.ClampToEdgeWrapping;
+        texture.encoding = THREE.sRGBEncoding;
+        texture.anisotropy = Math.min(4, maxAnisotropy);
+        return texture;
+      }
+
+      const districtGrimeMat = new THREE.MeshStandardMaterial({
+        color: 0x7b6a50,
+        map: createDistrictGrimeTexture(),
+        transparent: true,
+        opacity: 0.52,
+        alphaTest: 0.012,
+        depthWrite: false,
+        roughness: 1.0,
+        metalness: 0.0,
+        side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: -1
+      });
+
+      function addDistrictGrimePatches(parentGroup, startIdx, biomeType) {
+        // Small mud/silt accumulations only at verges, parking apron edges,
+        // warehouse yards and the lakeside bank; never paint the racing line.
+        const patchLayouts = biomeType === 5
+          ? [
+              { i: 17, side: -1, extra: 2.4, w: 5.4, d: 4.4 },
+              { i: 31, side: -1, extra: 3.0, w: 6.2, d: 5.0 },
+              { i: 57, side: -1, extra: 2.1, w: 4.8, d: 4.0 },
+              { i: 72, side: -1, extra: 3.2, w: 5.8, d: 4.7 }
+            ]
+          : (biomeType === 6
+            ? [
+                { i: 18, side: 1, extra: 2.0, w: 5.8, d: 5.0 },
+                { i: 38, side: 1, extra: 3.0, w: 6.4, d: 5.4 },
+                { i: 61, side: -1, extra: 2.2, w: 4.8, d: 4.2 },
+                { i: 75, side: 1, extra: 2.4, w: 5.5, d: 4.6 }
+              ]
+            : [
+                { i: 16, side: -1, extra: 3.2, w: 7.0, d: 5.8 },
+                { i: 34, side: 1, extra: 3.5, w: 6.2, d: 5.1 },
+                { i: 58, side: -1, extra: 3.2, w: 7.4, d: 5.6 },
+                { i: 74, side: 1, extra: 3.0, w: 6.6, d: 5.4 }
+              ]);
+
+        patchLayouts.forEach((layout, index) => {
+          const sample = trackSamples[startIdx + layout.i];
+          if (!sample) return;
+          const offset = sample.halfWidth + layout.extra;
+          const point = sample.pt.clone().addScaledVector(sample.right, layout.side * offset);
+          const groundY = getTerrainHeightAtOffset(sample, offset);
+          const patch = new THREE.Mesh(
+            new THREE.PlaneGeometry(layout.w, layout.d),
+            districtGrimeMat
+          );
+          patch.rotation.x = -Math.PI / 2;
+          patch.rotation.z = (seededRandom(sample.idx * 0.17 + index) - 0.5) * 0.22;
+          patch.rotation.y = Math.atan2(sample.tangent.x, sample.tangent.z);
+          patch.position.set(point.x, groundY + 0.018, point.z);
+          patch.receiveShadow = true;
+          patch.castShadow = false;
+          parentGroup.add(patch);
+        });
+      }
+      const districtGroundMat = new THREE.MeshStandardMaterial({
+        map: grassTex,
+        bumpMap: grassTex,
+        color: 0x646b60,
+        bumpScale: 0.055,
+        roughness: 0.96,
+        metalness: 0.0,
+        envMapIntensity: 0.12
+      });
+      const districtGlassMat = new THREE.MeshPhysicalMaterial({
+        color: 0x172c3b, roughness: 0.22, metalness: 0.26,
+        clearcoat: 0.65, clearcoatRoughness: 0.18
+      });
+      const districtLitWindowMat = new THREE.MeshStandardMaterial({
+        color: 0x8c7750, emissive: 0x3a2b16, emissiveIntensity: 0.58, roughness: 0.55
+      });
+      const districtTrimMat = new THREE.MeshStandardMaterial({
+        color: 0x8b9298, roughness: 0.72, metalness: 0.24
+      });
+      const districtContainerMats = [
+        new THREE.MeshStandardMaterial({ color: 0x6d3330, roughness: 0.78, metalness: 0.22 }),
+        new THREE.MeshStandardMaterial({ color: 0x314a5a, roughness: 0.76, metalness: 0.24 }),
+        new THREE.MeshStandardMaterial({ color: 0x77786e, roughness: 0.82, metalness: 0.18 }),
+        new THREE.MeshStandardMaterial({ color: 0x8b6841, roughness: 0.8, metalness: 0.2 })
+      ];
+      // Dark, low-glare lake water. The previous giant glossy plane reflected
+      // the sky into a bright cyan sheet and intersected the sloped terrain.
+      const districtWaterMat = new THREE.MeshStandardMaterial({
+        color: 0x17313a,
+        roughness: 0.88,
+        metalness: 0.015,
+        transparent: false,
+        side: THREE.DoubleSide,
+        envMapIntensity: 0.07
+      });
+      const districtShoreMat = new THREE.MeshStandardMaterial({
+        color: 0x625b4c,
+        map: sharedConcreteTex,
+        bumpMap: sharedConcreteTex,
+        bumpScale: 0.028,
+        roughness: 0.98,
+        metalness: 0.0,
+        side: THREE.DoubleSide
+      });
+      const districtLampMat = new THREE.MeshStandardMaterial({
+        color: 0x20252c, roughness: 0.42, metalness: 0.62
+      });
+      const districtTownFacadeMats = [
+        new THREE.MeshStandardMaterial({ color: 0x77685b, map: sharedBuildingTex, roughness: 0.86 }),
+        new THREE.MeshStandardMaterial({ color: 0x5b6873, map: sharedBuildingTex, roughness: 0.82 }),
+        new THREE.MeshStandardMaterial({ color: 0x867b69, map: sharedBuildingTex, roughness: 0.88 })
+      ];
+      const districtHotelFacadeMat = new THREE.MeshStandardMaterial({
+        color: 0x66717b, map: sharedBuildingTex, bumpMap: sharedBuildingTex,
+        roughness: 0.82, metalness: 0.08
+      });
+      const districtDispenserMat = new THREE.MeshStandardMaterial({ color: 0xc7c3b8, roughness: 0.65 });
+      const districtBoatHullMat = new THREE.MeshStandardMaterial({ color: 0x263440, roughness: 0.42, metalness: 0.18 });
+      const districtBoatCabinMat = new THREE.MeshStandardMaterial({ color: 0xc0c3c1, roughness: 0.55 });
+
       const sharedCarbonTex = createCarbonWeaveTexture();
 
       // Deterministic pseudo-random helper for Minecraft-style seed consistency
@@ -2584,13 +3021,10 @@
           const localIdx = i % SAMPLES_PER_CHUNK;
           const u = localIdx / SAMPLES_PER_CHUNK;
 
-          // 5-Stage Endless Highway Cycle:
-          // 0: Divided Alpine Valley Expressway (Road divisions + Grandstand + Gantry)
-          // 1: MEGA-BRIDGE SPAN PART 1 (Ascending Viaduct + North Pylon + Deep Lagoon Pond)
-          // 2: MEGA-BRIDGE SPAN PART 2 (High Divided Deck + Mid Crossover + South Pylon + Lagoon Waterfall)
-          // 3: Swiss Rock-Cut Avalanche Tunnel Gallery + Wind Turbine Ridge
-          // 4: Divided Scenic Oasis Parkway (Road divisions + Skybridge Overpass + Speed Breaker)
-          const biomeType = chunkIdx === 0 ? 0 : ((chunkIdx % 5 + 5) % 5);
+          // 8-zone endless world route:
+          // 0 highway, 1-2 mega bridge, 3 alpine tunnel, 4 scenic parkway,
+          // 5 Alpine Town, 6 Lago Azzurro lakeside, 7 Porto Vecchio harbour.
+          const biomeType = chunkIdx === 0 ? 0 : ((chunkIdx % 8 + 8) % 8);
 
           let yawRateStep = 0;
           if (biomeType === 1 || biomeType === 2) {
@@ -2598,6 +3032,15 @@
             yawRateStep = Math.sin(u * Math.PI * 2) * 0.0018;
           } else if (biomeType === 3) {
             yawRateStep = Math.sin(u * Math.PI) * 0.0085 * (chunkIdx % 2 === 0 ? 1 : -1);
+          } else if (biomeType === 5) {
+            // Tighter urban street curves and slower corner radii.
+            yawRateStep = Math.sin(u * Math.PI * 2 + chunkIdx) * 0.0042;
+          } else if (biomeType === 6) {
+            // Long scenic lakeside bends.
+            yawRateStep = Math.sin(u * Math.PI * 1.4) * 0.0032;
+          } else if (biomeType === 7) {
+            // Broad port-terminal service-road curves.
+            yawRateStep = Math.sin(u * Math.PI * 2) * 0.0026;
           } else {
             const wave1 = Math.sin(i * 0.042 + chunkIdx * 1.1) * 0.010;
             const wave2 = Math.cos(i * 0.021) * 0.006;
@@ -2646,20 +3089,55 @@
             dividerHalfWidth = splitBlend * 1.75 * midCrossoverGap;
             if (localIdx % 18 === 0 && elev > 2.5) isExpansionJoint = true;
           } else if (biomeType === 0 || biomeType === 4) {
-            // Divided Dual-Carriageway Highway on regular ground roads ("divisions raaste me bhi")
+            // Divided Dual-Carriageway Highway on regular ground roads.
             if (biomeType === 4) {
               elev = 0.5 * (1.0 - Math.cos(u * Math.PI * 2)) * 2.4;
             }
-            // Smoothly taper highway divisions in and out with a mid-chunk crossover gap
             const roadSplitEnv = Math.sin(u * Math.PI);
             const splitTaper = THREE.MathUtils.smoothstep(roadSplitEnv, 0.15, 0.45);
             const crossoverGap = 1.0 - Math.exp(-Math.pow((u - 0.52) / 0.06, 2));
-            halfWidth = 7.5 + splitTaper * 3.8; // Widens to 22.6m dual carriageway
+            halfWidth = 7.5 + splitTaper * 3.8;
             dividerHalfWidth = splitTaper * 1.45 * crossoverGap;
+          } else if (biomeType === 5 || biomeType === 6 || biomeType === 7) {
+            // Wider undivided streets / promenade / terminal roads.
+            halfWidth = biomeType === 5 ? 13.0 : (biomeType === 6 ? 12.0 : 14.0);
+            dividerHalfWidth = 0;
+            if (biomeType === 5) {
+              elev = 0.12 * Math.sin(u * Math.PI * 2);
+            } else if (biomeType === 6) {
+              elev = 0.55 * Math.sin(u * Math.PI * 1.5);
+            } else {
+              elev = 0.06 * Math.sin(u * Math.PI * 2);
+            }
           }
 
           if ((biomeType === 0 && localIdx === 68) || (biomeType === 4 && localIdx === 46)) {
             isSpeedBreaker = true;
+          }
+
+          // Alpine Town carries a parallel service spur that leaves the main
+          // carriageway, enters a lit rock-cut tunnel, then merges back in.
+          // Because its centreline stays parallel to the main spline, the existing
+          // vehicle dynamics can follow it using the lateral corridor below.
+          let tunnelBranch = null;
+          if (biomeType === 5 && localIdx >= 8 && localIdx <= 89) {
+            // Long lateral approach, a smooth 6.1m descent, an extended
+            // underground section, then a gradual climb back to the town road.
+            const enterBlend = THREE.MathUtils.smoothstep(localIdx, 8, 32);
+            const exitBlend = 1.0 - THREE.MathUtils.smoothstep(localIdx, 74, 89);
+            const branchBlend = THREE.MathUtils.clamp(enterBlend * exitBlend, 0, 1);
+            const descend = THREE.MathUtils.smoothstep(localIdx, 25, 38);
+            const ascend = 1.0 - THREE.MathUtils.smoothstep(localIdx, 78, 89);
+            const tunnelDepth = 6.1 * THREE.MathUtils.clamp(descend * ascend, 0, 1);
+            tunnelBranch = {
+              side: 1,
+              centerOffset: halfWidth + 6.7 + branchBlend * 8.0,
+              halfWidth: 5.25,
+              blend: branchBlend,
+              depth: tunnelDepth,
+              inTunnel: localIdx >= 38 && localIdx <= 84,
+              localIdx
+            };
           }
 
           const pt = new THREE.Vector3(genCursorPos.x, elev, genCursorPos.z);
@@ -2684,6 +3162,7 @@
             dividerHalfWidth,
             isBridge,
             isSpeedBreaker,
+            tunnelBranch,
             isExpansionJoint: false
           });
 
@@ -2720,6 +3199,7 @@
 
       // Compute exact terrain embankment ground Y at any lateral distance from road centerline so NO props ever float!
       const TERRAIN_EMBANKMENT_WIDTH = 22.0;
+      const DISTRICT_TERRAIN_WIDTH = 74.0;
       const CURB_WIDTH = 1.25;
       function getTerrainHeightAtOffset(sample, absLatOffset) {
         if (!sample) return 0;
@@ -2733,7 +3213,9 @@
           outerGroundY = THREE.MathUtils.lerp(-0.05, -2.5, gorgeCarve);
         }
         if (absLatOffset <= innerEdge) return elev;
-        const t = THREE.MathUtils.clamp((absLatOffset - innerEdge) / TERRAIN_EMBANKMENT_WIDTH, 0, 1);
+        const districtBiome = sample.biomeType >= 5;
+        const embankmentWidth = districtBiome ? DISTRICT_TERRAIN_WIDTH : TERRAIN_EMBANKMENT_WIDTH;
+        const t = THREE.MathUtils.clamp((absLatOffset - innerEdge) / embankmentWidth, 0, 1);
         return THREE.MathUtils.lerp(innerGroundY, outerGroundY, t);
       }
 
@@ -2747,8 +3229,11 @@
         const chunkTurbines = [];
         const N = SAMPLES_PER_CHUNK;
         const curbWidth = 1.25;
-        // Narrow 22m shoulder embankment prevents ribbon self-intersection & black bands on curves!
-        const terrainOuterWidth = 22.0;
+        const chunkBiomeForTerrain = trackSamples[startIdx].biomeType;
+        // Open-world districts need a larger continuous land apron beneath buildings,
+        // access roads, the lakeshore and the port crane. Race chunks keep the
+        // original narrow embankment so the old track silhouette is unchanged.
+        const terrainOuterWidth = chunkBiomeForTerrain >= 5 ? DISTRICT_TERRAIN_WIDTH : TERRAIN_EMBANKMENT_WIDTH;
 
         const positions = new Float32Array((N + 1) * 2 * 3);
         const normals = new Float32Array((N + 1) * 2 * 3);
@@ -2865,8 +3350,10 @@
         terrGeoL.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
         terrGeoL.setAttribute('uv', new THREE.BufferAttribute(terrainUVs, 2));
         terrGeoL.setIndex(terrainIndices);
-        const terrMeshL = new THREE.Mesh(terrGeoL, terrainMaterial);
+        const districtGroundMaterial = chunkBiomeForTerrain >= 5 ? districtGroundMat : terrainMaterial;
+        const terrMeshL = new THREE.Mesh(terrGeoL, districtGroundMaterial);
         terrMeshL.receiveShadow = true;
+        terrMeshL.castShadow = true;
         chunkGroup.add(terrMeshL);
 
         const terrGeoR = new THREE.BufferGeometry();
@@ -2874,8 +3361,9 @@
         terrGeoR.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
         terrGeoR.setAttribute('uv', new THREE.BufferAttribute(terrainUVs, 2));
         terrGeoR.setIndex(terrainIndices);
-        const terrMeshR = new THREE.Mesh(terrGeoR, terrainMaterial);
+        const terrMeshR = new THREE.Mesh(terrGeoR, districtGroundMaterial);
         terrMeshR.receiveShadow = true;
+        terrMeshR.castShadow = true;
         chunkGroup.add(terrMeshR);
 
         const biomeType = trackSamples[startIdx].biomeType;
@@ -2897,6 +3385,11 @@
           addPedestrianOverpassToChunk(chunkGroup, trackSamples[startIdx + 25], colliders);
           addScenicInfieldOasisToChunk(chunkGroup, trackSamples[startIdx + 60], colliders);
           addSpeedTrapCameraToChunk(chunkGroup, trackSamples[startIdx + 80]);
+        } else if (biomeType === 5 || biomeType === 6 || biomeType === 7) {
+          addOpenWorldDistrictToChunk(chunkGroup, startIdx, biomeType, colliders);
+          if (biomeType === 5) {
+            addAlpineBypassTunnelToChunk(chunkGroup, startIdx, endIdx, colliders);
+          }
         }
 
         // Add rare Speed Breakers in this chunk
@@ -2930,7 +3423,10 @@
       }
 
       function updateStreamingWorld() {
-        const currentChunk = Math.max(0, Math.floor(STATE.lastTrackIndex / SAMPLES_PER_CHUNK));
+        const streamIndex = (WORLD_MODE.mode === 'onFoot' || WORLD_MODE.mode === 'exitTransition' || WORLD_MODE.mode === 'enterTransition')
+          ? FOOT_PLAYER.trackIndex
+          : STATE.lastTrackIndex;
+        const currentChunk = Math.max(0, Math.floor(streamIndex / SAMPLES_PER_CHUNK));
         const minKeep = Math.max(0, currentChunk - 1);
         const maxKeep = currentChunk + 3;
 
@@ -3671,19 +4167,685 @@
         parentGroup.add(trapGroup);
       }
 
+      function addDistrictBuilding(parentGroup, sample, side, alongOffset, lateralOffset, width, depth, height, facadeMat, colliders, options = {}) {
+        const placementSample = trackSamples[Math.max(0, Math.min(trackSamples.length - 1, sample.idx + alongOffset))] || sample;
+        const yaw = Math.atan2(placementSample.tangent.x, placementSample.tangent.z);
+        const position = placementSample.pt.clone()
+          .addScaledVector(placementSample.right, side * lateralOffset);
+        const groundY = getTerrainHeightAtOffset(placementSample, Math.abs(lateralOffset));
+        const building = new THREE.Group();
+        building.position.set(position.x, groundY, position.z);
+        building.rotation.y = yaw;
+
+        const body = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), facadeMat);
+        body.position.y = height * 0.5;
+        body.castShadow = true;
+        body.receiveShadow = true;
+        building.add(body);
+
+        const roof = new THREE.Mesh(
+          new THREE.BoxGeometry(width + 0.42, 0.28, depth + 0.42),
+          options.roofMat || sharedBrushedSteelMat
+        );
+        roof.position.y = height + 0.12;
+        roof.castShadow = true;
+        roof.receiveShadow = true;
+        building.add(roof);
+
+        const inwardX = side > 0 ? -1 : 1;
+        const floorCount = Math.max(1, Math.floor((height - 1.5) / 2.6));
+        // Use instanced window panels so the new districts stay light enough
+        // for the older integrated GPUs this project is being tested on.
+        const windowGeo = new THREE.BoxGeometry(0.08, 1.05, 1.05);
+        const windowsPerFloor = Math.max(2, Math.floor(depth / 3.1));
+        const maxWindowCount = floorCount * windowsPerFloor;
+        const normalWindows = new THREE.InstancedMesh(windowGeo, districtGlassMat, maxWindowCount);
+        const litWindows = options.litWindows
+          ? new THREE.InstancedMesh(windowGeo, districtLitWindowMat, maxWindowCount)
+          : null;
+        const windowDummy = new THREE.Object3D();
+        let normalWindowCount = 0;
+        let litWindowCount = 0;
+
+        for (let floor = 0; floor < floorCount; floor++) {
+          for (let slot = 0; slot < windowsPerFloor; slot++) {
+            windowDummy.position.set(
+              inwardX * (width * 0.5 + 0.045),
+              1.9 + floor * 2.55,
+              -depth * 0.5 + 2.0 + slot * 3.0
+            );
+            windowDummy.rotation.set(0, 0, 0);
+            windowDummy.updateMatrix();
+            const shouldLight = options.litWindows &&
+              seededRandom(sample.idx * 23 + floor * 7 + slot * 11) > 0.42;
+            if (shouldLight && litWindows) {
+              litWindows.setMatrixAt(litWindowCount++, windowDummy.matrix);
+            } else {
+              normalWindows.setMatrixAt(normalWindowCount++, windowDummy.matrix);
+            }
+          }
+        }
+
+        normalWindows.count = normalWindowCount;
+        normalWindows.castShadow = false;
+        normalWindows.receiveShadow = false;
+        building.add(normalWindows);
+        if (litWindows) {
+          litWindows.count = litWindowCount;
+          litWindows.castShadow = false;
+          litWindows.receiveShadow = false;
+          building.add(litWindows);
+        }
+
+        // Ground-level entrance / loading shutters.
+        const door = new THREE.Mesh(
+          new THREE.BoxGeometry(0.10, Math.min(3.1, height * 0.42), Math.min(2.1, depth * 0.22)),
+          options.doorMat || districtTrimMat
+        );
+        door.position.set(inwardX * (width * 0.5 + 0.055), Math.min(1.65, height * 0.22), 0);
+        building.add(door);
+
+        parentGroup.add(building);
+        colliders.push({
+          x: position.x, z: position.z,
+          r: Math.max(width, depth) * 0.42,
+          minY: groundY - 0.5,
+          maxY: groundY + height + 1.0
+        });
+        return building;
+      }
+
+      function addDistrictAccessPad(parentGroup, sample, side, alongOffset, lateralOffset, width, depth) {
+        const placementSample = trackSamples[Math.max(0, Math.min(trackSamples.length - 1, sample.idx + alongOffset))] || sample;
+        const yaw = Math.atan2(placementSample.tangent.x, placementSample.tangent.z);
+        const point = placementSample.pt.clone().addScaledVector(placementSample.right, side * lateralOffset);
+        const groundY = getTerrainHeightAtOffset(placementSample, Math.abs(lateralOffset));
+        const pad = new THREE.Mesh(new THREE.BoxGeometry(width, 0.12, depth), districtRoadMat);
+        pad.position.set(point.x, groundY + 0.025, point.z);
+        pad.rotation.y = yaw;
+        pad.receiveShadow = true;
+        pad.castShadow = false;
+        parentGroup.add(pad);
+
+        // Narrow apron strip visually links the road shoulder to the pad.
+        const lateralGap = Math.max(4.0, lateralOffset - placementSample.halfWidth);
+        const linkMidOffset = (placementSample.halfWidth + lateralOffset) * 0.5;
+        const linkGroundY = getTerrainHeightAtOffset(placementSample, Math.abs(linkMidOffset));
+        const link = new THREE.Mesh(
+          new THREE.BoxGeometry(lateralGap + 1.2, 0.10, 5.2),
+          districtRoadMat
+        );
+        link.position.copy(placementSample.pt)
+          .addScaledVector(placementSample.right, side * linkMidOffset);
+        link.position.y = linkGroundY + 0.035;
+        link.rotation.y = yaw;
+        link.receiveShadow = true;
+        parentGroup.add(link);
+      }
+
+      function addDistrictStreetLamp(parentGroup, sample, side, alongOffset, lateralOffset) {
+        const s = trackSamples[Math.max(0, Math.min(trackSamples.length - 1, sample.idx + alongOffset))] || sample;
+        const yaw = Math.atan2(s.tangent.x, s.tangent.z);
+        const p = s.pt.clone().addScaledVector(s.right, side * lateralOffset);
+        const y = getTerrainHeightAtOffset(s, Math.abs(lateralOffset));
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.12, 6.2, 8), districtLampMat);
+        pole.position.set(p.x, y + 3.1, p.z);
+        pole.castShadow = true;
+        parentGroup.add(pole);
+        const arm = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.10, 0.12), districtLampMat);
+        arm.position.set(p.x - Math.sin(yaw) * 0.55, y + 6.08, p.z - Math.cos(yaw) * 0.55);
+        arm.rotation.y = yaw;
+        parentGroup.add(arm);
+        const lamp = new THREE.Mesh(
+          new THREE.BoxGeometry(0.52, 0.10, 0.30),
+          districtLitWindowMat
+        );
+        lamp.position.set(arm.position.x, y + 5.98, arm.position.z);
+        parentGroup.add(lamp);
+      }
+
+      function addOpenWorldDistrictToChunk(parentGroup, startIdx, biomeType, colliders) {
+        const baseSample = trackSamples[startIdx + 40];
+        if (!baseSample) return;
+        addDistrictGrimePatches(parentGroup, startIdx, biomeType);
+        const cityFacade = districtHotelFacadeMat;
+        const warehouseMat = sharedBrushedSteelMat;
+
+        // Streetside lay-bys and parking pads give the player wider areas to pull over.
+        const districtAccessSides = biomeType === 5 ? [-1] : [-1, 1];
+        districtAccessSides.forEach((side) => {
+          addDistrictAccessPad(
+            parentGroup, baseSample, side, 20,
+            baseSample.halfWidth + 7.2, 11.5, 28
+          );
+          addDistrictAccessPad(
+            parentGroup, baseSample, side, 61,
+            baseSample.halfWidth + 7.0, 9.0, 22
+          );
+          addDistrictStreetLamp(parentGroup, baseSample, side, 12, baseSample.halfWidth + 2.8);
+          addDistrictStreetLamp(parentGroup, baseSample, side, 52, baseSample.halfWidth + 2.8);
+        });
+
+        if (biomeType === 5) {
+          // ALPINE TOWN — mixed-height shops, apartments, small forecourts and a fuel stop.
+          const facades = districtTownFacadeMats;
+          let b = 0;
+          [-1].forEach((side) => {
+            [10, 29, 48, 67].forEach((along, index) => {
+              const width = 11 + (index % 2) * 3;
+              const height = 7.5 + (index % 3) * 2.4;
+              addDistrictBuilding(
+                parentGroup, baseSample, side, along,
+                baseSample.halfWidth + 22 + (index % 2) * 2,
+                width, 13 + (index % 2) * 3, height,
+                facades[(b++) % facades.length], colliders,
+                { litWindows: true, roofMat: sharedArchConcreteMat }
+              );
+            });
+          });
+
+          // Fuel-station canopy and forecourt, offset from the town road.
+          const stationSample = trackSamples[startIdx + 47];
+          if (stationSample) {
+            const side = -1;
+            const offset = stationSample.halfWidth + 15.5;
+            addDistrictAccessPad(parentGroup, stationSample, side, 0, offset, 17, 22);
+            const pos = stationSample.pt.clone().addScaledVector(stationSample.right, side * offset);
+            const ground = getTerrainHeightAtOffset(stationSample, offset);
+            const canopyGroup = new THREE.Group();
+            canopyGroup.position.set(pos.x, ground, pos.z);
+            canopyGroup.rotation.y = Math.atan2(stationSample.tangent.x, stationSample.tangent.z);
+            const roof = new THREE.Mesh(new THREE.BoxGeometry(16, 0.45, 19), sharedArchConcreteMat);
+            roof.position.y = 4.3;
+            roof.castShadow = true;
+            roof.receiveShadow = true;
+            canopyGroup.add(roof);
+            [-6.4, 6.4].forEach((x) => {
+              [-7.5, 7.5].forEach((z) => {
+                const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.38, 4.1, 0.38), districtTrimMat);
+                pillar.position.set(x, 2.05, z);
+                pillar.castShadow = true;
+                canopyGroup.add(pillar);
+              });
+            });
+            [-3.7, 0, 3.7].forEach((x) => {
+              const dispenser = new THREE.Mesh(new THREE.BoxGeometry(0.72, 1.25, 0.55), districtDispenserMat);
+              dispenser.position.set(x, 0.72, 0);
+              canopyGroup.add(dispenser);
+            });
+            parentGroup.add(canopyGroup);
+          }
+        } else if (biomeType === 6) {
+          // LAGO AZZURRO — hotel, promenade, water plane, marina pier and small boats.
+          [-1, 1].forEach((side) => {
+            addDistrictBuilding(
+              parentGroup, baseSample, side, 28,
+              baseSample.halfWidth + 23,
+              18, 28, 14.5,
+              cityFacade, colliders,
+              { litWindows: true, roofMat: sharedArchConcreteMat }
+            );
+          });
+
+          const waterSide = 1;
+          // One deterministic lakeside bay beside the promenade. An oval surface
+          // follows the local district heading; it no longer stretches hundreds
+          // of metres across the sloped terrain or creates random-looking wedges.
+          const waterOffset = baseSample.halfWidth + 54;
+          const waterPoint = baseSample.pt.clone().addScaledVector(baseSample.right, waterSide * waterOffset);
+          const waterY = getTerrainHeightAtOffset(baseSample, waterOffset) + 0.018;
+          const waterYaw = Math.atan2(baseSample.tangent.x, baseSample.tangent.z);
+
+          const shore = new THREE.Mesh(new THREE.RingGeometry(0.88, 1.08, 64), districtShoreMat);
+          shore.geometry.scale(19.5, 1.62, 1);
+          shore.rotation.x = -Math.PI / 2;
+          shore.rotation.y = waterYaw;
+          shore.position.set(waterPoint.x, waterY - 0.025, waterPoint.z);
+          shore.receiveShadow = true;
+          parentGroup.add(shore);
+
+          const water = new THREE.Mesh(new THREE.CircleGeometry(1, 64), districtWaterMat);
+          water.scale.set(19.5, 1.62, 1);
+          water.rotation.x = -Math.PI / 2;
+          water.rotation.y = waterYaw;
+          water.position.set(waterPoint.x, waterY, waterPoint.z);
+          water.receiveShadow = true;
+          water.renderOrder = 1;
+          parentGroup.add(water);
+
+          const dock = new THREE.Mesh(new THREE.BoxGeometry(8.5, 0.36, 25), sharedBrushedSteelMat);
+          dock.position.copy(waterPoint).addScaledVector(baseSample.right, -waterSide * 15.5);
+          dock.position.y = waterY + 0.34;
+          dock.rotation.y = Math.atan2(baseSample.tangent.x, baseSample.tangent.z);
+          dock.castShadow = true;
+          dock.receiveShadow = true;
+          parentGroup.add(dock);
+
+          // Two low-poly moored boats with dark hulls and pale cabins.
+          const hullMat = districtBoatHullMat;
+          const cabinMat = districtBoatCabinMat;
+          [-8, 9].forEach((along) => {
+            const boat = new THREE.Group();
+            const bpos = baseSample.pt.clone()
+              .addScaledVector(baseSample.right, waterSide * (waterOffset + (along > 0 ? 7 : -7)))
+              .addScaledVector(baseSample.tangent, along);
+            boat.position.set(bpos.x, waterY + 0.3, bpos.z);
+            boat.rotation.y = Math.atan2(baseSample.tangent.x, baseSample.tangent.z);
+            const hull = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.48, 6.4), hullMat);
+            hull.position.y = 0.2;
+            hull.castShadow = true;
+            boat.add(hull);
+            const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.88, 2.1), cabinMat);
+            cabin.position.set(0, 0.92, 0.2);
+            cabin.castShadow = true;
+            boat.add(cabin);
+            parentGroup.add(boat);
+          });
+        } else if (biomeType === 7) {
+          // PORTO VECCHIO — logistics warehouses, shipping containers and gantry crane.
+          [-1, 1].forEach((side) => {
+            [15, 52].forEach((along, index) => {
+              addDistrictBuilding(
+                parentGroup, baseSample, side, along,
+                baseSample.halfWidth + 27 + index * 4,
+                21, 30, 10.5 + index * 1.8,
+                warehouseMat, colliders,
+                { litWindows: false, roofMat: sharedBrushedSteelMat }
+              );
+            });
+
+            [0, 1, 2, 3].forEach((containerIndex) => {
+              const s = trackSamples[startIdx + 8 + containerIndex * 17];
+              if (!s) return;
+              const offset = s.halfWidth + 14.5 + (containerIndex % 2) * 4;
+              const p = s.pt.clone().addScaledVector(s.right, side * offset);
+              const y = getTerrainHeightAtOffset(s, offset);
+              const container = new THREE.Mesh(
+                new THREE.BoxGeometry(2.45, 2.55, 6.1),
+                districtContainerMats[(containerIndex + (side > 0 ? 1 : 0)) % districtContainerMats.length]
+              );
+              container.position.set(p.x, y + 1.28, p.z);
+              container.rotation.y = Math.atan2(s.tangent.x, s.tangent.z);
+              container.castShadow = true;
+              container.receiveShadow = true;
+              parentGroup.add(container);
+              colliders.push({ x: p.x, z: p.z, r: 1.5, minY: y, maxY: y + 3.5 });
+            });
+          });
+
+          // Simple cargo gantry crane silhouette beyond the terminal apron.
+          const craneSample = trackSamples[startIdx + 45];
+          if (craneSample) {
+            const side = 1;
+            const offset = craneSample.halfWidth + 42;
+            const p = craneSample.pt.clone().addScaledVector(craneSample.right, side * offset);
+            const y = getTerrainHeightAtOffset(craneSample, offset);
+            const crane = new THREE.Group();
+            crane.position.set(p.x, y, p.z);
+            crane.rotation.y = Math.atan2(craneSample.tangent.x, craneSample.tangent.z);
+            const legs = [-10, 10];
+            legs.forEach((x) => {
+              const leg = new THREE.Mesh(new THREE.BoxGeometry(0.8, 15, 0.8), districtTrimMat);
+              leg.position.set(x, 7.5, 0);
+              leg.castShadow = true;
+              crane.add(leg);
+            });
+            const beam = new THREE.Mesh(new THREE.BoxGeometry(22, 1.0, 1.1), districtContainerMats[1]);
+            beam.position.y = 15;
+            beam.castShadow = true;
+            crane.add(beam);
+            const trolley = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.5, 2.2), districtContainerMats[0]);
+            trolley.position.set(0, 13.8, 0);
+            crane.add(trolley);
+            parentGroup.add(crane);
+          }
+        }
+      }
+
+      function createTunnelRouteSignTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 160;
+        const ctx = canvas.getContext('2d');
+        const grad = ctx.createLinearGradient(0, 0, 512, 160);
+        grad.addColorStop(0, '#0b1b28');
+        grad.addColorStop(1, '#183849');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 512, 160);
+        ctx.strokeStyle = '#7ea9bd';
+        ctx.lineWidth = 5;
+        ctx.strokeRect(7, 7, 498, 146);
+        ctx.fillStyle = '#eff6f8';
+        ctx.font = '900 45px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('ALPINE BYPASS', 256, 66);
+        ctx.fillStyle = '#f5c36b';
+        ctx.font = '700 26px Arial';
+        ctx.fillText('UNDERGROUND TUNNEL  ·  150 M', 256, 111);
+        return new THREE.CanvasTexture(canvas);
+      }
+
+      function addAlpineBypassTunnelToChunk(parentGroup, startIdx, endIdx, colliders) {
+        const routeSamples = [];
+        for (let i = startIdx + 8; i <= Math.min(endIdx - 1, startIdx + 89); i++) {
+          const sample = trackSamples[i];
+          if (sample && sample.tunnelBranch) routeSamples.push(sample);
+        }
+        if (routeSamples.length < 32) return;
+
+        const laneHalfWidth = 5.25;
+        const roadPositions = [];
+        const roadUvs = [];
+        const roadIndices = [];
+        const edgeEntries = [];
+        const dashEntries = [];
+        const connectorRows = [];
+        const dummy = new THREE.Object3D();
+
+        routeSamples.forEach((sample, index) => {
+          const branch = sample.tunnelBranch;
+          const laneCenter = sample.pt.clone().addScaledVector(sample.right, branch.side * branch.centerOffset);
+          const left = laneCenter.clone().addScaledVector(sample.right, -laneHalfWidth);
+          const right = laneCenter.clone().addScaledVector(sample.right, laneHalfWidth);
+          const roadY = sample.pt.y - (branch.depth || 0) + 0.045;
+          roadPositions.push(left.x, roadY, left.z, right.x, roadY, right.z);
+          roadUvs.push(0, index * SAMPLE_STRIDE / 11, 1, index * SAMPLE_STRIDE / 11);
+          if (index < routeSamples.length - 1) {
+            const a = index * 2;
+            roadIndices.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+          }
+
+          const yaw = Math.atan2(sample.tangent.x, sample.tangent.z);
+          [-1, 1].forEach((side) => {
+            const edge = laneCenter.clone().addScaledVector(sample.right, side * (laneHalfWidth - 0.16));
+            edgeEntries.push({ point: edge, yaw, y: roadY + 0.035 });
+          });
+
+          // The access aprons are sloped in 3D, so the branch can descend below
+          // grade without a flat connector slab floating above the embankment.
+          if (branch.localIdx <= 38 || branch.localIdx >= 78) {
+            const mainEdge = sample.halfWidth + 0.20;
+            const branchInner = branch.centerOffset - laneHalfWidth;
+            const connectorWidth = branchInner - mainEdge;
+            if (connectorWidth > 0.18) {
+              const mainPoint = sample.pt.clone().addScaledVector(sample.right, branch.side * mainEdge);
+              const branchPoint = sample.pt.clone().addScaledVector(sample.right, branch.side * branchInner);
+              connectorRows.push({
+                localIdx: branch.localIdx,
+                a: mainPoint,
+                b: branchPoint,
+                ay: sample.pt.y + 0.04,
+                by: sample.pt.y - (branch.depth || 0) + 0.04
+              });
+            }
+          }
+
+          if (sample.localIdx % 5 === 0) {
+            const dash = laneCenter.clone();
+            dash.y = roadY + 0.085;
+            dashEntries.push({ point: dash, yaw });
+          }
+        });
+
+        const roadGeometry = new THREE.BufferGeometry();
+        roadGeometry.setAttribute('position', new THREE.Float32BufferAttribute(roadPositions, 3));
+        roadGeometry.setAttribute('uv', new THREE.Float32BufferAttribute(roadUvs, 2));
+        roadGeometry.setIndex(roadIndices);
+        roadGeometry.computeVertexNormals();
+        const branchRoad = new THREE.Mesh(roadGeometry, roadMaterial);
+        branchRoad.receiveShadow = true;
+        branchRoad.castShadow = false;
+        parentGroup.add(branchRoad);
+
+        const edgeGeo = new THREE.BoxGeometry(0.12, 0.035, SAMPLE_STRIDE);
+        const edgeInst = new THREE.InstancedMesh(edgeGeo, curbMaterial, edgeEntries.length);
+        let edgeCount = 0;
+        edgeEntries.forEach((entry) => {
+          dummy.position.set(entry.point.x, entry.y, entry.point.z);
+          dummy.rotation.set(0, entry.yaw, 0);
+          dummy.updateMatrix();
+          edgeInst.setMatrixAt(edgeCount++, dummy.matrix);
+        });
+        edgeInst.count = edgeCount;
+        edgeInst.receiveShadow = true;
+        parentGroup.add(edgeInst);
+
+        if (connectorRows.length > 1) {
+          const connectorPositions = [];
+          const connectorUvs = [];
+          const connectorIndices = [];
+          connectorRows.forEach((row, index) => {
+            connectorPositions.push(
+              row.a.x, row.ay, row.a.z,
+              row.b.x, row.by, row.b.z
+            );
+            connectorUvs.push(0, row.localIdx, 1, row.localIdx);
+            if (index > 0 && row.localIdx === connectorRows[index - 1].localIdx + 1) {
+              const a = index * 2 - 2;
+              connectorIndices.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+            }
+          });
+          const connectorGeo = new THREE.BufferGeometry();
+          connectorGeo.setAttribute('position', new THREE.Float32BufferAttribute(connectorPositions, 3));
+          connectorGeo.setAttribute('uv', new THREE.Float32BufferAttribute(connectorUvs, 2));
+          connectorGeo.setIndex(connectorIndices);
+          connectorGeo.computeVertexNormals();
+          const connectorMesh = new THREE.Mesh(connectorGeo, roadMaterial);
+          connectorMesh.receiveShadow = true;
+          parentGroup.add(connectorMesh);
+        }
+
+        // Short centre dashes identify this as a separate service/tunnel lane.
+        const dashGeo = new THREE.BoxGeometry(0.10, 0.026, 1.55);
+        const dashMat = new THREE.MeshStandardMaterial({ color: 0xc4c3b8, roughness: 0.88, metalness: 0.0 });
+        const dashInst = new THREE.InstancedMesh(dashGeo, dashMat, dashEntries.length);
+        let dashCount = 0;
+        dashEntries.forEach((entry) => {
+          dummy.position.copy(entry.point);
+          dummy.rotation.set(0, entry.yaw, 0);
+          dummy.updateMatrix();
+          dashInst.setMatrixAt(dashCount++, dummy.matrix);
+        });
+        dashInst.count = dashCount;
+        parentGroup.add(dashInst);
+
+        // A longer underground rock-cut tunnel. The road and shell sit 6.1m
+        // below the surface grade, so the camera follows the vehicle beneath it.
+        const tunnelSamples = routeSamples.filter((sample) => sample.tunnelBranch.inTunnel);
+        const tunnelConcrete = sharedArchConcreteMat;
+        const tunnelInnerMat = new THREE.MeshStandardMaterial({
+          color: 0x30383e,
+          map: sharedConcreteTex,
+          bumpMap: sharedConcreteTex,
+          bumpScale: 0.045,
+          roughness: 0.97,
+          metalness: 0.01
+        });
+        const rockRibMat = new THREE.MeshStandardMaterial({
+          color: 0x4b4c49,
+          map: sharedRockTex || sharedConcreteTex,
+          bumpMap: sharedRockTex || sharedConcreteTex,
+          bumpScale: 0.075,
+          roughness: 1.0,
+          metalness: 0.0
+        });
+        const roofGlowMat = new THREE.MeshStandardMaterial({
+          color: 0xceb997,
+          emissive: 0xd99a55,
+          emissiveIntensity: 1.05,
+          roughness: 0.52
+        });
+        const wallGuideMat = new THREE.MeshStandardMaterial({
+          color: 0x7c9aa5,
+          emissive: 0x326174,
+          emissiveIntensity: 0.48,
+          roughness: 0.58
+        });
+        const portalHazardMat = new THREE.MeshStandardMaterial({
+          color: 0x572b2c,
+          roughness: 0.9,
+          metalness: 0.0
+        });
+
+        tunnelSamples.forEach((sample, index) => {
+          if (index % 2 !== 0) return;
+          const branch = sample.tunnelBranch;
+          const center = sample.pt.clone().addScaledVector(sample.right, branch.side * branch.centerOffset);
+          const roadY = sample.pt.y - (branch.depth || 0);
+          const frame = new THREE.Group();
+          frame.position.copy(center);
+          frame.position.y = roadY;
+          frame.rotation.y = Math.atan2(sample.tangent.x, sample.tangent.z);
+
+          const wallLeft = new THREE.Mesh(new THREE.BoxGeometry(0.62, 5.35, SAMPLE_STRIDE * 2.05), tunnelInnerMat);
+          wallLeft.position.set(-5.45, 2.66, 0);
+          wallLeft.castShadow = true;
+          wallLeft.receiveShadow = true;
+          frame.add(wallLeft);
+
+          const wallRight = new THREE.Mesh(new THREE.BoxGeometry(0.62, 5.35, SAMPLE_STRIDE * 2.05), tunnelInnerMat);
+          wallRight.position.set(5.45, 2.66, 0);
+          wallRight.castShadow = true;
+          wallRight.receiveShadow = true;
+          frame.add(wallRight);
+
+          // Thick textured rock/concrete ceiling, now below the external grade.
+          const roof = new THREE.Mesh(new THREE.BoxGeometry(11.7, 0.86, SAMPLE_STRIDE * 2.05), rockRibMat);
+          roof.position.set(0, 5.58, 0);
+          roof.castShadow = true;
+          roof.receiveShadow = true;
+          frame.add(roof);
+
+          // Reinforced arch rib details break up the long rectangular ceiling.
+          const archRib = new THREE.Mesh(new THREE.TorusGeometry(5.05, 0.13, 7, 24, Math.PI), tunnelConcrete);
+          archRib.position.set(0, 0.45, 0);
+          archRib.castShadow = true;
+          archRib.receiveShadow = true;
+          frame.add(archRib);
+
+          const ceilingStrip = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.09, 2.55), roofGlowMat);
+          ceilingStrip.position.set(0, 5.06, 0);
+          frame.add(ceilingStrip);
+
+          [-5.02, 5.02].forEach((x) => {
+            const lowGuide = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.20, 2.3), wallGuideMat);
+            lowGuide.position.set(x, 0.72, 0);
+            frame.add(lowGuide);
+          });
+
+          frame.traverse((obj) => {
+            if (obj.isMesh) {
+              obj.castShadow = true;
+              obj.receiveShadow = true;
+            }
+          });
+          parentGroup.add(frame);
+
+          // Warm pools of light every ~22m plus a softer floor-level guide light.
+          if (index % 5 === 0) {
+            const ceilingLight = new THREE.PointLight(0xffc58a, 0.82, 24, 1.7);
+            ceilingLight.position.set(center.x, roadY + 4.65, center.z);
+            ceilingLight.castShadow = false;
+            parentGroup.add(ceilingLight);
+          }
+          if (index % 8 === 0) {
+            const floorLight = new THREE.PointLight(0x84b9ca, 0.18, 8, 2);
+            floorLight.position.set(center.x, roadY + 0.62, center.z);
+            floorLight.castShadow = false;
+            parentGroup.add(floorLight);
+          }
+
+          if (index % 4 === 0) {
+            [-1, 1].forEach((side) => {
+              const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.48, 0.12), portalHazardMat);
+              post.position.copy(center).addScaledVector(sample.right, side * 5.02);
+              post.position.y = roadY + 0.27;
+              parentGroup.add(post);
+            });
+          }
+
+          // Collision capsules at both tunnel walls, following the lowered road.
+          if (index % 2 === 0) {
+            [-1, 1].forEach((side) => {
+              const wallPoint = center.clone().addScaledVector(sample.right, side * 5.56);
+              colliders.push({
+                x: wallPoint.x,
+                z: wallPoint.z,
+                r: 0.82,
+                minY: roadY - 0.25,
+                maxY: roadY + 5.55
+              });
+            });
+          }
+        });
+
+        // Portal frames rise from the lowered road to the original surface grade,
+        // making the downhill/uphill connection read as an actual underground entry.
+        [tunnelSamples[0], tunnelSamples[tunnelSamples.length - 1]].forEach((sample) => {
+          if (!sample) return;
+          const branch = sample.tunnelBranch;
+          const center = sample.pt.clone().addScaledVector(sample.right, branch.side * branch.centerOffset);
+          const roadY = sample.pt.y - (branch.depth || 0);
+          const portal = new THREE.Group();
+          portal.position.copy(center);
+          portal.position.y = roadY;
+          portal.rotation.y = Math.atan2(sample.tangent.x, sample.tangent.z);
+          [-5.6, 5.6].forEach((x) => {
+            const post = new THREE.Mesh(new THREE.BoxGeometry(0.78, 6.25, 1.0), tunnelConcrete);
+            post.position.set(x, 3.1, 0);
+            post.castShadow = true;
+            post.receiveShadow = true;
+            portal.add(post);
+            const marker = new THREE.Mesh(new THREE.BoxGeometry(0.13, 5.75, 1.02), portalHazardMat);
+            marker.position.set(x + (x < 0 ? 0.47 : -0.47), 3.1, -0.05);
+            portal.add(marker);
+          });
+          const lintel = new THREE.Mesh(new THREE.BoxGeometry(12.1, 0.86, 1.05), rockRibMat);
+          lintel.position.set(0, 6.12, 0);
+          lintel.castShadow = true;
+          lintel.receiveShadow = true;
+          portal.add(lintel);
+          parentGroup.add(portal);
+        });
+
+        const signSample = routeSamples[5];
+        if (signSample) {
+          const branch = signSample.tunnelBranch;
+          const sign = new THREE.Group();
+          const signCenter = signSample.pt.clone().addScaledVector(
+            signSample.right,
+            branch.side * (branch.centerOffset + 3.4)
+          );
+          sign.position.copy(signCenter);
+          sign.position.y += 4.0;
+          sign.rotation.y = Math.atan2(signSample.tangent.x, signSample.tangent.z);
+          const texture = createTunnelRouteSignTexture();
+          const signMat = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.7, metalness: 0.04 });
+          const board = new THREE.Mesh(new THREE.BoxGeometry(4.8, 1.45, 0.16), signMat);
+          board.castShadow = true;
+          sign.add(board);
+          parentGroup.add(sign);
+        }
+
+        console.info('[GT Proving Ground] Extended underground Alpine bypass streamed: approx. 150m below-grade section.');
+      }
+
       function populateChunkScenery(parentGroup, chunkIdx, startIdx, endIdx, colliders) {
         const dummy = new THREE.Object3D();
 
         // 1. Precast Concrete Roadside Barriers anchored flush into the terrain embankment slope (Never floating!)
+        const sceneryBiome = trackSamples[startIdx].biomeType;
+        const barrierCapacity = sceneryBiome === 5 ? 8 : (sceneryBiome === 6 ? 6 : (sceneryBiome === 7 ? 12 : 24));
         const barrierGeo = new THREE.BoxGeometry(0.65, 1.08, 3.8);
-        const barrierInst = new THREE.InstancedMesh(barrierGeo, sharedBarrierMat, 24);
+        const barrierInst = new THREE.InstancedMesh(barrierGeo, sharedBarrierMat, barrierCapacity);
         barrierInst.castShadow = true;
         barrierInst.receiveShadow = true;
         let bCount = 0;
-        for (let i = startIdx + 4; i < endIdx - 4 && bCount < 24; i += 6) {
+        for (let i = startIdx + 4; i < endIdx - 4 && bCount < barrierCapacity; i += (sceneryBiome >= 5 ? 16 : 6)) {
           const s = trackSamples[i];
           if (s.isBridge) continue;
           const side = (i % 12 === 0) ? 1 : -1;
+          if (s.tunnelBranch && side === s.tunnelBranch.side) continue;
           const offset = s.halfWidth + 5.6;
           const p = s.pt.clone().addScaledVector(s.right, side * offset);
           const groundY = getTerrainHeightAtOffset(s, offset);
@@ -3701,7 +4863,7 @@
         parentGroup.add(barrierInst);
 
         // 2. Procedural Pine Forest Flanking the Chunk (Anchored into terrain height)
-        const treeCount = 46;
+        const treeCount = sceneryBiome === 5 ? 7 : (sceneryBiome === 6 ? 12 : (sceneryBiome === 7 ? 5 : 46));
         const treeGeo = new THREE.ConeGeometry(2.6, 8.2, 7);
         const trunkGeo = new THREE.CylinderGeometry(0.35, 0.48, 2.5, 6);
         const treeInst = new THREE.InstancedMesh(treeGeo, sharedTreeMat, treeCount);
@@ -3717,7 +4879,10 @@
           if ((s.biomeType === 1 || s.biomeType === 2) && sampleOffset > 6 && sampleOffset < 84) continue;
 
           const side = seededRandom(seedBase + 2) > 0.5 ? 1 : -1;
-          const latDist = s.halfWidth + 18 + seededRandom(seedBase + 3) * 95;
+          const urbanPlanting = sceneryBiome >= 5;
+          const latDist = urbanPlanting
+            ? s.halfWidth + 34 + seededRandom(seedBase + 3) * 28
+            : s.halfWidth + 18 + seededRandom(seedBase + 3) * 95;
           const p = s.pt.clone().addScaledVector(s.right, side * latDist);
           const groundY = getTerrainHeightAtOffset(s, latDist);
           const scale = 0.75 + seededRandom(seedBase + 4) * 0.9;
@@ -3821,17 +4986,27 @@
 
       const wheelPivots = [];
       const wheelSpinMeshes = [];
-      let porscheWheelRig = null;
-      let porscheWheelSpinAngle = 0;
-      // Front tyre/rim meshes in this GLB contain roughly 19 degrees of baked-in
-      // toe skew. Counter it at the hub pivot; live steering is added afterwards.
-      const PORSCHE_FRONT_TOE_CORRECTION = THREE.MathUtils.degToRad(-18.5);
-      let porscheModelLoaded = false;
-      let loadedPorscheModelRoot = null;
-      const porscheHeadlightMaterials = [];
-      const porscheRearLightMaterials = [];
-      const porscheBrakeLightPoints = [];
-      const porscheReverseLightPoints = [];
+      let alfaWheelRig = [];
+      let alfaWheelSpinAngle = 0;
+      let alfaModelLoaded = false;
+
+      // Rigged "Cool Man" character runtime.
+      let coolManActor = null;
+      let coolManVisual = null;
+      let coolManMixer = null;
+      let coolManActions = {};
+      let coolManCurrentAction = null;
+      let coolManLoaded = false;
+      let coolManFinishedListener = null;
+      // Restored from V24: these coordinates were the previously verified
+      // driver-seat fit for the Alfa cockpit. V25 had mirrored/raised them.
+      const DRIVER_SEAT_LOCAL = new THREE.Vector3(0.34, -0.17, -0.12);
+      const FOOT_EXIT_LOCAL = new THREE.Vector3(1.22, 0.02, -0.12);
+      let loadedAlfaModelRoot = null;
+      const alfaHeadlightMaterials = [];
+      const alfaRearLightMaterials = [];
+      const alfaBrakeLightPoints = [];
+      const alfaReverseLightPoints = [];
       let brakeDiscMaterial = null;
       let activeWingMesh = null;
       let headLightLeft, headLightRight;
@@ -4057,82 +5232,66 @@
       }
 
       // -----------------------------------------------------------------------
-      // 5A. OPTIONAL PORSCHE 911 CARRERA 4S GLB UPGRADE
+      // 5A. ALFA ROMEO STRADALE 1967 GLB UPGRADE
       // -----------------------------------------------------------------------
-      // The procedural GT car above remains the guaranteed fallback. It is hidden
-      // only after the external GLB loads and both wheel rigs are confirmed.
-      function loadUpdatedPorscheModelWithLoader() {
+      // The original procedural GT remains the fallback. The Alfa replaces it
+      // only after the GLB has loaded, its helper planes have been removed, the
+      // body bounds fit the vehicle envelope, and all four wheel pivots exist.
+      function loadUpdatedAlfaModelWithLoader() {
         if (!THREE.GLTFLoader) {
-          console.warn('[GT Proving Ground] GLTFLoader unavailable. Original procedural car remains active.');
+          console.warn('[GT Proving Ground] GLTFLoader unavailable. Procedural fallback remains active.');
           return;
         }
 
-        const modelPath = './assets/free_porsche_911_carrera_4s.glb';
+        const modelPath = './assets/alfa_romeo_stradale_1967.glb';
         const loader = new THREE.GLTFLoader();
 
         fetch(modelPath, { cache: 'force-cache' })
           .then((response) => {
             if (!response.ok) {
-              throw new Error(`Porsche GLB HTTP ${response.status} ${response.statusText} at ${modelPath}`);
+              throw new Error(`Alfa GLB HTTP ${response.status} ${response.statusText} at ${modelPath}`);
             }
             return response.arrayBuffer();
           })
           .then((arrayBuffer) => new Promise((resolve, reject) => {
             loader.parse(arrayBuffer, './assets/', resolve, reject);
           }))
-          .then(async (gltf) => {
+          .then((gltf) => {
             let modelRoot = null;
             try {
               const fallbackChildren = chassisGroup.children.slice();
 
               modelRoot = new THREE.Group();
-              modelRoot.name = 'Porsche911_RuntimeRoot';
+              modelRoot.name = 'AlfaRomeoStradale1967_RuntimeRoot';
 
               const orientationRoot = new THREE.Group();
-              orientationRoot.name = 'Porsche911_AxisCorrection';
-
-              // The imported Sketchfab_model node already contains the axis conversion
-              // that maps this car into the game's coordinate system:
-              // game X = car width, game Y = up, game +Z = front.
-              // Applying another 180-degree rotation flips the Porsche upside down.
-              orientationRoot.rotation.order = 'XYZ';
+              orientationRoot.name = 'AlfaRomeo_GameSpaceRoot';
+              // The embedded Sketchfab transforms already produce game axes:
+              // X = car width, Y = up, +Z = front. Do not rotate this model again.
               orientationRoot.rotation.set(0, 0, 0);
               orientationRoot.add(gltf.scene);
               modelRoot.add(orientationRoot);
 
-              // Remove only known oversized Sketchfab environment meshes.
-              // Cube.002_0 is retained: its transformed size is small and it belongs
-              // to the car assembly, not the giant environment plane.
-              const helperNames = new Set([
-                'Plane_0' // embedded flat ground plane; game supplies its own road/shadow
-              ]);
-              const helperObjectsToRemove = [];
-              const hiddenHelperMeshes = [];
-
+              // These two VRayMtl1 objects are flat export/ground sheets, not car
+              // bodywork. Removing them prevents the fit bounds including a floor.
+              const helperMeshes = [];
               gltf.scene.traverse((obj) => {
-                if (!obj.isMesh || !obj.geometry) return;
-                if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
-                if (!obj.geometry.boundingBox) return;
-
-                const meshSize = new THREE.Vector3();
-                obj.geometry.boundingBox.getSize(meshSize);
-                if (helperNames.has(obj.name) ||
-                    Math.max(meshSize.x, meshSize.y, meshSize.z) > 14) {
-                  helperObjectsToRemove.push(obj);
-                  hiddenHelperMeshes.push(obj.name || 'unnamed helper');
+                if (!obj.isMesh) return;
+                const materialNames = (Array.isArray(obj.material) ? obj.material : [obj.material])
+                  .filter(Boolean)
+                  .map((material) => material.name || '');
+                if ((obj.name || '').includes('VRayMtl1') || materialNames.some((name) => name.includes('VRayMtl1'))) {
+                  helperMeshes.push(obj);
                 }
               });
-
-              helperObjectsToRemove.forEach((obj) => {
+              helperMeshes.forEach((obj) => {
                 if (obj.parent) obj.parent.remove(obj);
               });
 
-              // Calculate the real vehicle bounds AFTER the GLB's own Sketchfab
-              // root matrix and our corrected axis orientation have both applied.
               orientationRoot.updateMatrixWorld(true);
               const sourceBounds = new THREE.Box3().setFromObject(orientationRoot);
               if (sourceBounds.isEmpty()) {
-                throw new Error('Porsche GLB contains no visible vehicle geometry after helper removal.');
+                throw new Error('Alfa GLB has no visible vehicle geometry after helper-plane removal.');
               }
 
               const sourceSize = new THREE.Vector3();
@@ -4140,14 +5299,11 @@
               sourceBounds.getSize(sourceSize);
               sourceBounds.getCenter(sourceCenter);
 
-              // Keep native proportions. The GLB's root matrix already contributes
-              // its original scale; this only makes the visible body fit the game car.
-              const fitScale = Math.min(
-                2.08 / sourceSize.x,
-                4.62 / sourceSize.z
-              );
+              // GLB geometry after embedded transforms: approximately 0.1402 W ×
+              // 0.0841 H × 0.3255 L. Fit the car to the same game-car envelope.
+              const fitScale = Math.min(2.08 / sourceSize.x, 4.62 / sourceSize.z);
               if (!Number.isFinite(fitScale) || fitScale <= 0) {
-                throw new Error(`Invalid Porsche source bounds: ${sourceSize.toArray().map(v => v.toFixed(2)).join(' × ')} m.`);
+                throw new Error(`Invalid Alfa source bounds: ${sourceSize.toArray().map(v => v.toFixed(4)).join(' × ')}.`);
               }
 
               orientationRoot.scale.setScalar(fitScale);
@@ -4159,278 +5315,154 @@
               orientationRoot.updateMatrixWorld(true);
               modelRoot.updateMatrixWorld(true);
 
-              // Verify the corrected final size using the exact transformed model.
               const finalBounds = new THREE.Box3().setFromObject(modelRoot);
               const finalSize = new THREE.Vector3();
               finalBounds.getSize(finalSize);
               if (
                 finalBounds.isEmpty() ||
-                finalSize.x < 1.2 || finalSize.x > 2.5 ||
-                finalSize.z < 2.8 || finalSize.z > 5.2 ||
-                finalSize.y < 0.45 || finalSize.y > 2.2
+                finalSize.x < 1.5 || finalSize.x > 2.4 ||
+                finalSize.y < 0.85 || finalSize.y > 1.65 ||
+                finalSize.z < 4.0 || finalSize.z > 5.0
               ) {
                 throw new Error(
-                  `Porsche final bounds invalid after axis correction: ` +
-                  `${finalSize.toArray().map(v => v.toFixed(2)).join(' × ')} m. ` +
-                  `Source bounds were ${sourceSize.toArray().map(v => v.toFixed(2)).join(' × ')} m.`
+                  `Alfa final bounds invalid: ${finalSize.toArray().map(v => v.toFixed(2)).join(' × ')} m.`
                 );
               }
 
-              // Optional wheel rigs are found with a full hierarchy traversal.
-              // If this Sketchfab exporter changes their names, body integration
-              // still succeeds and the original procedural car is not substituted.
-              function findNamedNode(root, targetName) {
-                const normalizedTarget = targetName.toLowerCase().replace(/[^a-z0-9]/g, '');
-                let found = null;
-                root.traverse((obj) => {
-                  if (found || !obj.name) return;
-                  const normalizedName = obj.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-                  if (obj.name === targetName || normalizedName === normalizedTarget) {
-                    found = obj;
-                  }
-                });
-                return found;
-              }
-
-              function findGLTFNodeByIndex(nodeIndex) {
-                const associations = gltf.parser && gltf.parser.associations;
-                if (associations && typeof associations.entries === 'function') {
-                  for (const [object, association] of associations.entries()) {
-                    if (association && association.nodes === nodeIndex) return object;
-                  }
-                }
-                return null;
-              }
-
-              async function resolveWheelAssembly(assemblyName) {
-                const jsonNodes = gltf.parser && gltf.parser.json && gltf.parser.json.nodes;
-                const nodeIndex = jsonNodes
-                  ? jsonNodes.findIndex((node) => node.name === assemblyName)
-                  : -1;
-
-                // Stable GLTF node-index association first, then object-name traversal.
-                let assembly = nodeIndex >= 0 ? findGLTFNodeByIndex(nodeIndex) : null;
-                if (!assembly) assembly = findNamedNode(gltf.scene, assemblyName);
-
-                // Parser dependency lookup as a final fallback for loader variations.
-                if (!assembly && nodeIndex >= 0 && gltf.parser && gltf.parser.getDependency) {
-                  try {
-                    assembly = await gltf.parser.getDependency('node', nodeIndex);
-                  } catch (error) {
-                    console.warn(`[GT Proving Ground] GLB node dependency lookup failed: ${assemblyName}`, error);
-                  }
-                }
-
-                // Ensure it is actually attached to the loaded scene.
-                if (assembly && !assembly.parent) {
-                  let attached = false;
+              function findAlfaNode(nodeName, fallbackToken = '') {
+                let namedNode = gltf.scene.getObjectByName(nodeName) || null;
+                if (!namedNode && fallbackToken) {
                   gltf.scene.traverse((obj) => {
-                    if (obj === assembly) attached = true;
+                    if (!namedNode && obj.name && obj.name.includes(fallbackToken)) namedNode = obj;
                   });
-                  if (!attached) assembly = null;
                 }
-                return { assembly, nodeIndex };
+                return namedNode;
               }
 
-              function splitBufferGeometryBySideX(sourceGeometry, sideSign) {
-                const position = sourceGeometry.getAttribute('position');
-                if (!position) return null;
+              function findAlfaMesh(nodeName, fallbackToken = '') {
+                const namedNode = findAlfaNode(nodeName, fallbackToken);
+                if (!namedNode) return null;
+                if (namedNode.isMesh && namedNode.geometry) return namedNode;
+                let descendantMesh = null;
+                namedNode.traverse((child) => {
+                  if (!descendantMesh && child.isMesh && child.geometry) descendantMesh = child;
+                });
+                return descendantMesh;
+              }
 
-                const index = sourceGeometry.index;
-                const triangleCount = index ? index.count / 3 : position.count / 3;
-                const attributeNames = Object.keys(sourceGeometry.attributes);
-                const values = {};
-                attributeNames.forEach((name) => { values[name] = []; });
+              function findAlfaWheelObject(nodeName, fallbackToken) {
+                const namedNode = findAlfaNode(nodeName, fallbackToken);
+                if (!namedNode) return null;
+                let containsMesh = false;
+                namedNode.traverse((child) => {
+                  if (child.isMesh && child.geometry) containsMesh = true;
+                });
+                // Return the complete named hierarchy when it wraps primitive meshes,
+                // rather than extracting one primitive and leaving other wheel parts behind.
+                return containsMesh ? namedNode : null;
+              }
 
-                function readComponent(attribute, vertexIndex, component) {
-                  if (attribute.isInterleavedBufferAttribute) {
-                    return attribute.data.array[
-                      vertexIndex * attribute.data.stride + attribute.offset + component
-                    ];
+              // The Alfa GLB has four separately exported wheel meshes, not axle
+              // groups. Each mesh gets a hub-centred steering/spin rig. The pivot
+              // is parented in game space, preserving every original mesh transform.
+              const wheelDefinitions = [
+                {
+                  name: 'Front Left',
+                  node: 'forMayaAO:polySurface317_forMayaAO:mi_car_paint_phen2_0',
+                  token: 'polySurface317',
+                  front: true
+                },
+                {
+                  name: 'Front Right',
+                  node: 'forMayaAO:polySurface45_forMayaAO:mi_car_paint_phen2_0',
+                  token: 'polySurface45',
+                  front: true
+                },
+                {
+                  name: 'Rear Left',
+                  node: 'forMayaAO:polySurface318_forMayaAO:mi_car_paint_phen2_0',
+                  token: 'polySurface318',
+                  front: false
+                },
+                {
+                  name: 'Rear Right',
+                  node: 'forMayaAO:polySurface274_forMayaAO:mi_car_paint_phen2_0',
+                  token: 'polySurface274',
+                  front: false
+                }
+              ];
+
+              const builtWheelRigs = [];
+              wheelDefinitions.forEach((definition) => {
+                const wheelMesh = findAlfaWheelObject(definition.node, definition.token);
+                if (!wheelMesh || !wheelMesh.parent) {
+                  throw new Error(`Alfa wheel hierarchy unresolved: ${definition.node} (${definition.token})`);
+                }
+
+                orientationRoot.updateMatrixWorld(true);
+                wheelMesh.updateMatrixWorld(true);
+                const wheelBounds = new THREE.Box3().setFromObject(wheelMesh);
+                if (wheelBounds.isEmpty()) {
+                  throw new Error(`Alfa wheel has no measurable geometry: ${definition.name}`);
+                }
+
+                // The GLB wheel node includes the complete tyre/alloy assembly.
+                // Its world-space bounds centre is the true hub axis. Do not apply
+                // a vertical ground correction here: shifting the pivot while
+                // preserving the original mesh matrix makes the rim orbit off-centre.
+                const hubWorld = wheelBounds.getCenter(new THREE.Vector3());
+                const hubLocal = orientationRoot.worldToLocal(hubWorld.clone());
+                const originalWorldMatrix = wheelMesh.matrixWorld.clone();
+
+                const steeringPivot = new THREE.Group();
+                steeringPivot.name = `Alfa_${definition.name.replace(/\s+/g, '')}_SteerPivot`;
+                steeringPivot.position.copy(hubLocal);
+                orientationRoot.add(steeringPivot);
+
+                const spinPivot = new THREE.Group();
+                spinPivot.name = `Alfa_${definition.name.replace(/\s+/g, '')}_SpinPivot`;
+                steeringPivot.add(spinPivot);
+                orientationRoot.updateMatrixWorld(true);
+
+                const inverseSpinWorld = spinPivot.matrixWorld.clone().invert();
+                const wheelLocalMatrix = inverseSpinWorld.multiply(originalWorldMatrix);
+                if (wheelMesh.parent) wheelMesh.parent.remove(wheelMesh);
+                spinPivot.add(wheelMesh);
+                wheelLocalMatrix.decompose(
+                  wheelMesh.position,
+                  wheelMesh.quaternion,
+                  wheelMesh.scale
+                );
+                wheelMesh.matrixAutoUpdate = true;
+                wheelMesh.updateMatrix();
+                wheelMesh.traverse((part) => {
+                  if (part.isMesh) {
+                    part.castShadow = true;
+                    part.receiveShadow = true;
                   }
-                  return attribute.array[vertexIndex * attribute.itemSize + component];
-                }
-
-                let acceptedTriangles = 0;
-                for (let t = 0; t < triangleCount; t++) {
-                  const ia = index ? index.getX(t * 3) : t * 3;
-                  const ib = index ? index.getX(t * 3 + 1) : t * 3 + 1;
-                  const ic = index ? index.getX(t * 3 + 2) : t * 3 + 2;
-
-                  const cx = (
-                    position.getX(ia) + position.getX(ib) + position.getX(ic)
-                  ) / 3;
-
-                  // The wheel parts are physically separate across the car width.
-                  // Ignore only tiny triangles straddling the centreline.
-                  if (sideSign * cx < 0.045) continue;
-
-                  [ia, ib, ic].forEach((vertexIndex) => {
-                    attributeNames.forEach((name) => {
-                      const attribute = sourceGeometry.getAttribute(name);
-                      for (let c = 0; c < attribute.itemSize; c++) {
-                        values[name].push(readComponent(attribute, vertexIndex, c));
-                      }
-                    });
-                  });
-                  acceptedTriangles++;
-                }
-
-                if (!acceptedTriangles) return null;
-
-                const splitGeometry = new THREE.BufferGeometry();
-                attributeNames.forEach((name) => {
-                  const sourceAttribute = sourceGeometry.getAttribute(name);
-                  const sourceArray = sourceAttribute.isInterleavedBufferAttribute
-                    ? sourceAttribute.data.array
-                    : sourceAttribute.array;
-                  const TypedArray = sourceArray.constructor;
-                  const typedValues = new TypedArray(values[name]);
-                  splitGeometry.setAttribute(
-                    name,
-                    new THREE.BufferAttribute(
-                      typedValues,
-                      sourceAttribute.itemSize,
-                      sourceAttribute.normalized
-                    )
-                  );
                 });
 
-                splitGeometry.computeBoundingBox();
-                splitGeometry.computeBoundingSphere();
-                return splitGeometry;
-              }
-
-              function makeIndividualWheelRigs(assemblyName) {
-                const assembly = findNamedNode(gltf.scene, assemblyName);
-                if (!assembly || !assembly.parent) {
-                  console.warn(`[GT Proving Ground] Wheel axle group missing: ${assemblyName}; keeping GLB wheels static rather than distorting them.`);
-                  return null;
-                }
-
-                const parent = assembly.parent;
-                parent.updateMatrixWorld(true);
-                assembly.updateMatrixWorld(true);
-
-                const sourceMeshes = assembly.children.filter((child) => child.isMesh && child.geometry);
-                if (!sourceMeshes.length) {
-                  console.warn(`[GT Proving Ground] No mesh parts found in axle group ${assemblyName}.`);
-                  return null;
-                }
-
-                const sideRecords = {
-                  left: { sign: -1, items: [], worldBounds: new THREE.Box3() },
-                  right: { sign: 1, items: [], worldBounds: new THREE.Box3() }
-                };
-
-                // Capture each original mesh's full world transform before moving
-                // anything. The geometry itself contains separate left/right islands.
-                sourceMeshes.forEach((sourceMesh) => {
-                  sourceMesh.updateMatrixWorld(true);
-                  const sourceWorldMatrix = sourceMesh.matrixWorld.clone();
-
-                  ['left', 'right'].forEach((sideName) => {
-                    const side = sideRecords[sideName];
-                    const splitGeometry = splitBufferGeometryBySideX(
-                      sourceMesh.geometry,
-                      side.sign
-                    );
-                    if (!splitGeometry || !splitGeometry.boundingBox) return;
-
-                    const worldBounds = splitGeometry.boundingBox.clone().applyMatrix4(sourceWorldMatrix);
-                    side.worldBounds.union(worldBounds);
-                    side.items.push({
-                      source: sourceMesh,
-                      geometry: splitGeometry,
-                      worldMatrix: sourceWorldMatrix
-                    });
-                  });
+                builtWheelRigs.push({
+                  name: definition.name,
+                  front: definition.front,
+                  steeringPivot,
+                  spinPivot,
+                  baseY: steeringPivot.position.y
                 });
+              });
 
-                function buildSidePivot(sideName) {
-                  const side = sideRecords[sideName];
-                  if (!side.items.length || side.worldBounds.isEmpty()) return null;
-
-                  const axleWorldCenter = side.worldBounds.getCenter(new THREE.Vector3());
-                  const axleLocalCenter = parent.worldToLocal(axleWorldCenter.clone());
-
-                  const pivot = new THREE.Group();
-                  pivot.name = `${assemblyName}_${sideName}_SteeringPivot`;
-                  pivot.position.copy(axleLocalCenter);
-                  parent.add(pivot);
-                  parent.updateMatrixWorld(true);
-
-                  const inversePivotWorld = pivot.matrixWorld.clone().invert();
-                  side.items.forEach((item) => {
-                    const wheelPart = new THREE.Mesh(item.geometry, item.source.material);
-                    wheelPart.name = `${item.source.name}_${sideName}_wheelPart`;
-                    wheelPart.castShadow = true;
-                    wheelPart.receiveShadow = true;
-
-                    const localMatrix = inversePivotWorld.clone().multiply(item.worldMatrix);
-                    localMatrix.decompose(
-                      wheelPart.position,
-                      wheelPart.quaternion,
-                      wheelPart.scale
-                    );
-                    wheelPart.matrixAutoUpdate = true;
-                    wheelPart.updateMatrix();
-                    pivot.add(wheelPart);
-                  });
-
-                  return {
-                    pivot,
-                    baseZ: axleLocalCenter.z,
-                    baseX: axleLocalCenter.x,
-                    baseY: axleLocalCenter.y
-                  };
-                }
-
-                const leftRig = buildSidePivot('left');
-                const rightRig = buildSidePivot('right');
-
-                if (leftRig && rightRig) {
-                  // Remove the combined axle meshes only after both independent
-                  // side rigs have been built from their original world matrices.
-                  parent.remove(assembly);
-                  return { left: leftRig, right: rightRig };
-                }
-
-                // If either side fails, roll back the partial pivots and leave
-                // the original axle assembly intact rather than losing one tyre.
-                if (leftRig && leftRig.pivot.parent) leftRig.pivot.parent.remove(leftRig.pivot);
-                if (rightRig && rightRig.pivot.parent) rightRig.pivot.parent.remove(rightRig.pivot);
-                console.warn(`[GT Proving Ground] Could not split both sides of ${assemblyName}; original paired axle retained.`);
-                return null;
-              }
-
-              const frontWheelRigs = makeIndividualWheelRigs('Cylinder.001');
-              const rearWheelRigs = makeIndividualWheelRigs('Cylinder.000');
-
-              porscheWheelRig = (frontWheelRigs || rearWheelRigs) ? {
-                front: frontWheelRigs,
-                rear: rearWheelRigs
-              } : null;
-
-              console.info(
-                `[GT Proving Ground] Independent Porsche wheel rigs: ` +
-                `front-left=${!!(frontWheelRigs && frontWheelRigs.left)}, ` +
-                `front-right=${!!(frontWheelRigs && frontWheelRigs.right)}, ` +
-                `rear-left=${!!(rearWheelRigs && rearWheelRigs.left)}, ` +
-                `rear-right=${!!(rearWheelRigs && rearWheelRigs.right)}.`
-              );
-
-              // Porsche-specific emissive lighting: the GLB's front lamp lens
-              // meshes use the "lights" material; rear lamp meshes use tex_shiny.
-              function setNodeEmissive(nodeName, colorHex, intensity, targetArray) {
-                const node = findNamedNode(gltf.scene, nodeName);
+              // Front and rear lamp meshes are explicitly named in this GLB.
+              function setAlfaLampEmissive(nodeName, colorHex, intensity, targetArray) {
+                const node = findAlfaMesh(
+                  nodeName,
+                  nodeName.includes('frontLights') ? 'frontLights' : (nodeName.includes('rear_lights') ? 'rear_lights' : '')
+                );
                 if (!node) {
-                  console.warn(`[GT Proving Ground] Light mesh not found: ${nodeName}`);
+                  console.warn(`[GT Proving Ground] Optional Alfa lamp mesh not found: ${nodeName}`);
                   return;
                 }
-
                 const sourceMaterials = Array.isArray(node.material) ? node.material : [node.material];
-                const updatedMaterials = sourceMaterials.map((sourceMaterial) => {
+                const clonedMaterials = sourceMaterials.map((sourceMaterial) => {
                   if (!sourceMaterial) return sourceMaterial;
                   const material = sourceMaterial.clone();
                   if (material.emissive) material.emissive.setHex(colorHex);
@@ -4439,112 +5471,158 @@
                   targetArray.push(material);
                   return material;
                 });
-                node.material = Array.isArray(node.material) ? updatedMaterials : updatedMaterials[0];
+                node.material = Array.isArray(node.material) ? clonedMaterials : clonedMaterials[0];
               }
 
-              setNodeEmissive('bumper_front.004_1', 0xeaf5ff, 1.8, porscheHeadlightMaterials);
-              setNodeEmissive('bumper_front.001_2', 0xeaf5ff, 1.8, porscheHeadlightMaterials);
-              setNodeEmissive('Plane.001_0', 0xff1736, 1.35, porscheRearLightMaterials);
-              setNodeEmissive('boot.003_0', 0xff1736, 1.55, porscheRearLightMaterials);
+              setAlfaLampEmissive(
+                'forMayaAO:faraz2_forMayaAO:frontLights_0',
+                0xe8f2ff,
+                1.65,
+                alfaHeadlightMaterials
+              );
+              setAlfaLampEmissive(
+                'forMayaAO:pSphere2_forMayaAO:frontLights_0',
+                0xe8f2ff,
+                1.35,
+                alfaHeadlightMaterials
+              );
+              setAlfaLampEmissive(
+                'forMayaAO:faraz1_forMayaAO:rear_lights_0',
+                0xff1736,
+                1.25,
+                alfaRearLightMaterials
+              );
 
-              // Existing dynamic spotlights are attached to chassisGroup, so they
-              // remain aligned with the Porsche as the chassis pitches and rolls.
-              if (headLightLeft && headLightRight) {
-                [headLightLeft, headLightRight].forEach((light) => {
-                  light.intensity = 4.8;
-                  light.distance = 68;
-                  light.angle = Math.PI / 5.4;
-                  light.penumbra = 0.88;
-                  light.decay = 1.45;
-                  light.castShadow = false;
-                });
-                headLightLeft.position.set(-0.61, 0.43, 1.92);
-                headLightLeft.target.position.set(-0.61, 0.0, 28);
-                headLightRight.position.set(0.61, 0.43, 1.92);
-                headLightRight.target.position.set(0.61, 0.0, 28);
-              }
-
-              // Subtle rear glow and white reverse illumination, separate from
-              // emissive body textures so the road/nearby objects receive light.
-              const rearGlowLeft = new THREE.PointLight(0xff1736, 0.36, 7.5, 2);
-              const rearGlowRight = new THREE.PointLight(0xff1736, 0.36, 7.5, 2);
-              rearGlowLeft.position.set(-0.66, 0.34, -2.03);
-              rearGlowRight.position.set(0.66, 0.34, -2.03);
-              chassisGroup.add(rearGlowLeft, rearGlowRight);
-              porscheBrakeLightPoints.push(rearGlowLeft, rearGlowRight);
-
-              const reverseLightLeft = new THREE.PointLight(0xeaf5ff, 0.0, 5.5, 2);
-              const reverseLightRight = new THREE.PointLight(0xeaf5ff, 0.0, 5.5, 2);
-              reverseLightLeft.position.set(-0.38, 0.28, -2.06);
-              reverseLightRight.position.set(0.38, 0.28, -2.06);
-              chassisGroup.add(reverseLightLeft, reverseLightRight);
-              porscheReverseLightPoints.push(reverseLightLeft, reverseLightRight);
-
-              // All visible vehicle meshes participate in the game's shadow pass.
+              // Preserve all embedded GLB textures/materials; only enable shadows
+              // and cap excessive environment reflection on metallic paint/chrome.
               gltf.scene.traverse((obj) => {
                 if (!obj.isMesh || !obj.visible) return;
                 obj.castShadow = true;
                 obj.receiveShadow = true;
-                const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-                mats.forEach((mat) => {
-                  if (!mat) return;
-                  if ('envMapIntensity' in mat) {
-                    mat.envMapIntensity = Math.min(1.25, Math.max(0.7, mat.envMapIntensity || 1));
+                const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
+                materials.forEach((material) => {
+                  if (!material) return;
+                  if ('envMapIntensity' in material) {
+                    material.envMapIntensity = Math.min(1.2, Math.max(0.65, material.envMapIntensity || 1));
                   }
-                  mat.needsUpdate = true;
+                  material.needsUpdate = true;
                 });
               });
 
-              // Attach the validated Porsche before hiding any fallback meshes.
+              // Attach model before hiding any fallback meshes.
               chassisGroup.add(modelRoot);
               modelRoot.updateMatrixWorld(true);
 
-              // Wheel rigs and Porsche lighting have already been registered
-              // using the inspected per-side GLB geometry above.
-              porscheModelLoaded = true;
-              loadedPorscheModelRoot = modelRoot;
+              if (headLightLeft && headLightRight) {
+                [headLightLeft, headLightRight].forEach((light) => {
+                  light.intensity = 4.6;
+                  light.distance = 68;
+                  light.angle = Math.PI / 5.6;
+                  light.penumbra = 0.9;
+                  light.decay = 1.45;
+                  light.castShadow = false;
+                });
+                headLightLeft.position.set(-0.48, 0.38, 1.98);
+                headLightLeft.target.position.set(-0.48, 0.02, 27);
+                headLightRight.position.set(0.48, 0.38, 1.98);
+                headLightRight.target.position.set(0.48, 0.02, 27);
+              }
 
-              // Fallback is hidden only after the model is attached and its
-              // correctly oriented dimensions have passed validation.
+              // Red brake glow and white reverse lamps sit at the Alfa's rear,
+              // complementing the real rear lamp mesh without replacing it.
+              const rearGlowLeft = new THREE.PointLight(0xff1836, 0.30, 7.0, 2);
+              const rearGlowRight = new THREE.PointLight(0xff1836, 0.30, 7.0, 2);
+              rearGlowLeft.position.set(-0.52, 0.40, -2.13);
+              rearGlowRight.position.set(0.52, 0.40, -2.13);
+              chassisGroup.add(rearGlowLeft, rearGlowRight);
+              alfaBrakeLightPoints.push(rearGlowLeft, rearGlowRight);
+
+              const reverseLightLeft = new THREE.PointLight(0xeaf5ff, 0.0, 5.2, 2);
+              const reverseLightRight = new THREE.PointLight(0xeaf5ff, 0.0, 5.2, 2);
+              reverseLightLeft.position.set(-0.26, 0.30, -2.16);
+              reverseLightRight.position.set(0.26, 0.30, -2.16);
+              chassisGroup.add(reverseLightLeft, reverseLightRight);
+              alfaReverseLightPoints.push(reverseLightLeft, reverseLightRight);
+
+              // Existing game exhaust-pop / boost flames are moved to the Alfa's
+              // rear dual-exhaust location. The GLB itself has no baked animation;
+              // boost visuals and sound continue to come from the game systems.
+              if (exhaustFlameLeft) exhaustFlameLeft.position.set(-0.17, 0.24, -2.22);
+              if (exhaustFlameRight) exhaustFlameRight.position.set(0.17, 0.24, -2.22);
+
+              alfaWheelRig = builtWheelRigs;
+              alfaWheelSpinAngle = 0;
+              alfaModelLoaded = true;
+              loadedAlfaModelRoot = modelRoot;
+
+              // Keep the existing game nitro/KERS and exhaust-pop system active.
+              // Hide only the procedural fallback meshes; retain live flame meshes.
               fallbackChildren.forEach((child) => {
+                // Cool Man is attached to chassisGroup while seated. Never let
+                // Alfa fallback cleanup hide the driver when the character GLB
+                // happens to finish loading before the car GLB.
+                if (coolManActor && child === coolManActor) return;
                 child.traverse((obj) => {
-                  if (obj.isMesh) obj.visible = false;
+                  const belongsToDriver = !!(
+                    coolManActor &&
+                    (obj === coolManActor || coolManActor.getObjectById(obj.id))
+                  );
+                  if (
+                    obj.isMesh &&
+                    !belongsToDriver &&
+                    obj !== exhaustFlameLeft &&
+                    obj !== exhaustFlameRight
+                  ) {
+                    obj.visible = false;
+                  }
                 });
               });
-              wheelPivots.forEach((wp) => {
-                wp.group.visible = false;
-              });
+              wheelPivots.forEach((wheel) => { wheel.group.visible = false; });
+
+              // Reassert the seated driver after swapping the procedural car
+              // for the Alfa, without interrupting an active on-foot transition.
+              if (coolManLoaded && coolManActor && WORLD_MODE.mode === 'driving') {
+                if (coolManActor.parent !== chassisGroup) chassisGroup.attach(coolManActor);
+                coolManActor.position.copy(DRIVER_SEAT_LOCAL);
+                coolManActor.rotation.set(0, 0, 0);
+                coolManActor.visible = true;
+                if (coolManVisual) {
+                  coolManVisual.visible = true;
+                  coolManVisual.traverse((part) => {
+                    if (part.isMesh) part.visible = true;
+                    if (part.isSkinnedMesh) part.frustumCulled = false;
+                  });
+                }
+                playCoolManAnimation('sit', { timeScale: 1, fade: 0.18 });
+              }
 
               console.info(
-                `[GT Proving Ground] Porsche 911 Carrera 4S integrated successfully. ` +
-                `Final game-space bounds: ${finalSize.x.toFixed(2)} W × ` +
-                `${finalSize.y.toFixed(2)} H × ${finalSize.z.toFixed(2)} L m; ` +
-                `scale=${fitScale.toFixed(3)}; helpers removed=${hiddenHelperMeshes.join(', ') || 'none'}; ` +
-                `front wheel pair=${!!frontWheelRigs}; rear wheel pair=${!!rearWheelRigs}.`
+                `[GT Proving Ground] Alfa Romeo Stradale 1967 integrated successfully. ` +
+                `Bounds ${finalSize.x.toFixed(2)} W × ${finalSize.y.toFixed(2)} H × ${finalSize.z.toFixed(2)} L m; ` +
+                `scale=${fitScale.toFixed(2)}; animated wheels=${builtWheelRigs.length}/4; ` +
+                `animations in GLB=${gltf.animations ? gltf.animations.length : 0}; ` +
+                `helper planes removed=${helperMeshes.length}.`
               );
             } catch (integrationError) {
               if (modelRoot && modelRoot.parent) modelRoot.parent.remove(modelRoot);
-              porscheWheelRig = null;
-              porscheModelLoaded = false;
-              loadedPorscheModelRoot = null;
+              alfaWheelRig = [];
+              alfaModelLoaded = false;
+              loadedAlfaModelRoot = null;
               console.error(
-                '[GT Proving Ground] Porsche integration failed; procedural fallback remains visible.',
+                '[GT Proving Ground] Alfa model integration failed; procedural fallback remains visible.',
                 integrationError
               );
             }
           })
           .catch((error) => {
-            console.error(
-              `[GT Proving Ground] Porsche model could not load from ${modelPath}.`,
-              error
-            );
+            console.error(`[GT Proving Ground] Alfa model could not load from ${modelPath}.`, error);
           });
       }
 
-      // Load the matching GLTFLoader if the first CDN is blocked.
-      function loadUpdatedPorscheModel() {
+      // Load the Three.js r128-compatible GLTFLoader. The second CDN is a fallback.
+      function loadUpdatedAlfaModel() {
         if (THREE.GLTFLoader) {
-          loadUpdatedPorscheModelWithLoader();
+          loadUpdatedAlfaModelWithLoader();
           return;
         }
 
@@ -4556,11 +5634,11 @@
 
         const tryNextLoaderSource = () => {
           if (THREE.GLTFLoader) {
-            loadUpdatedPorscheModelWithLoader();
+            loadUpdatedAlfaModelWithLoader();
             return;
           }
           if (sourceIndex >= loaderSources.length) {
-            console.error('[GT Proving Ground] GLTFLoader CDN could not be reached; procedural fallback remains active.');
+            console.error('[GT Proving Ground] GLTFLoader CDNs unavailable; procedural fallback remains active.');
             return;
           }
 
@@ -4568,14 +5646,708 @@
           script.async = true;
           script.src = loaderSources[sourceIndex++];
           script.onload = () => {
-            if (THREE.GLTFLoader) loadUpdatedPorscheModelWithLoader();
+            if (THREE.GLTFLoader) loadUpdatedAlfaModelWithLoader();
             else tryNextLoaderSource();
           };
           script.onerror = tryNextLoaderSource;
           document.head.appendChild(script);
         };
-
         tryNextLoaderSource();
+      }
+
+      // -----------------------------------------------------------------------
+      // 5B. RIGGED DRIVER / ON-FOOT CHARACTER
+      // -----------------------------------------------------------------------
+      function findNearestTrackIndex(position, hintIndex) {
+        const hint = Math.max(0, hintIndex || 0);
+        const searchStart = Math.max(0, hint - 230);
+        const searchEnd = Math.min(trackSamples.length - 1, hint + 290);
+        let bestIndex = Math.min(hint, Math.max(0, trackSamples.length - 1));
+        let bestDistance = Infinity;
+
+        for (let i = searchStart; i <= searchEnd; i++) {
+          const sample = trackSamples[i];
+          const dx = position.x - sample.pt.x;
+          const dz = position.z - sample.pt.z;
+          const distance = dx * dx + dz * dz;
+          if (distance < bestDistance) {
+            bestDistance = distance;
+            bestIndex = i;
+          }
+        }
+        return bestIndex;
+      }
+
+      // Shared UI toast used by vehicle enter/exit, salute and weather actions.
+      // V22 called showToast() from these flows but did not define it, which threw
+      // ReferenceError as soon as an enter/exit transition completed.
+      let toastRemovalTimers = [];
+      function showToast(message, duration = 2300) {
+        const host = document.getElementById('gt-toast-host');
+        if (!host) {
+          console.info(`[GT Proving Ground] ${message}`);
+          return;
+        }
+
+        const toast = document.createElement('div');
+        toast.className = [
+          'rounded-xl',
+          'border',
+          'border-white/15',
+          'bg-slate-950/90',
+          'backdrop-blur-xl',
+          'px-4',
+          'py-2.5',
+          'text-[10px]',
+          'sm:text-xs',
+          'font-bold',
+          'tracking-wide',
+          'text-white',
+          'shadow-2xl',
+          'text-center',
+          'max-w-[calc(100vw-28px)]'
+        ].join(' ');
+        toast.textContent = String(message);
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-6px)';
+        toast.style.transition = 'opacity 160ms ease, transform 160ms ease';
+        host.appendChild(toast);
+
+        requestAnimationFrame(() => {
+          toast.style.opacity = '1';
+          toast.style.transform = 'translateY(0)';
+        });
+
+        const removeTimer = window.setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(-6px)';
+          window.setTimeout(() => toast.remove(), 180);
+        }, Math.max(900, duration));
+        toastRemovalTimers.push(removeTimer);
+        if (toastRemovalTimers.length > 24) {
+          toastRemovalTimers = toastRemovalTimers.filter((timer) => timer !== removeTimer);
+        }
+      }
+
+      function playCoolManAnimation(name, options = {}) {
+        if (!coolManMixer || !coolManActions[name]) return false;
+
+        const action = coolManActions[name];
+        const previous = coolManCurrentAction;
+        if (previous === action) {
+          action.setEffectiveTimeScale(options.timeScale || 1);
+          return true;
+        }
+        action.reset();
+        action.enabled = true;
+        action.setEffectiveTimeScale(options.timeScale || 1);
+        action.setEffectiveWeight(1);
+        if (options.once) {
+          action.setLoop(THREE.LoopOnce, 1);
+          action.clampWhenFinished = true;
+        } else {
+          action.setLoop(THREE.LoopRepeat, Infinity);
+          action.clampWhenFinished = false;
+        }
+
+        action.fadeIn(options.fade === undefined ? 0.22 : options.fade);
+        if (previous && previous !== action) previous.fadeOut(options.fade === undefined ? 0.22 : options.fade);
+        action.play();
+        coolManCurrentAction = action;
+        return true;
+      }
+
+      function getCoolManWorldPosition() {
+        if (!coolManActor) return STATE.pos.clone();
+        const worldPosition = new THREE.Vector3();
+        coolManActor.getWorldPosition(worldPosition);
+        return worldPosition;
+      }
+
+      function getDriverSeatWorldPosition() {
+        return chassisGroup.localToWorld(DRIVER_SEAT_LOCAL.clone());
+      }
+
+      function updateWorldModeHud() {
+        const hud = document.getElementById('world-mode-hud');
+        const title = document.getElementById('world-mode-title');
+        const hint = document.getElementById('world-mode-hint');
+        const footControls = document.getElementById('onfoot-controls');
+        const driveControls = document.getElementById('touch-controls');
+        const menuToggle = document.getElementById('btn-game-menu');
+        const menuPanel = document.getElementById('game-menu-panel');
+        const onFoot = WORLD_MODE.mode === 'onFoot';
+
+        if (!gameSessionStarted) {
+          if (hud) hud.classList.add('hidden');
+          if (footControls) {
+            footControls.classList.add('hidden');
+            footControls.classList.remove('flex');
+          }
+          if (menuToggle) menuToggle.classList.add('hidden');
+          if (menuPanel) menuPanel.classList.add('hidden');
+          return;
+        }
+
+        if (hud) hud.classList.remove('hidden');
+        if (menuToggle) menuToggle.classList.remove('hidden');
+
+        const locationSample = trackSamples[
+          (WORLD_MODE.mode === 'onFoot' || WORLD_MODE.mode === 'exitTransition' || WORLD_MODE.mode === 'enterTransition')
+            ? FOOT_PLAYER.trackIndex
+            : STATE.lastTrackIndex
+        ];
+        const locationNames = ['Alpine Expressway', 'North Mega-Bridge', 'South Mega-Bridge', 'Rock-Cut Tunnel', 'Scenic Parkway', 'Alpine Town', 'Lago Azzurro', 'Porto Vecchio'];
+        const locationName = locationSample ? locationNames[locationSample.biomeType] : 'Proving Ground';
+
+        if (title && hint) {
+          if (WORLD_MODE.mode === 'driving') {
+            title.textContent = `DRIVING · ${locationName.toUpperCase()}`;
+            hint.textContent = 'F  EXIT VEHICLE  ·  Stop the car first';
+            title.className = 'text-[10px] sm:text-xs font-black tracking-[0.22em] text-emerald-300 text-center';
+          } else if (WORLD_MODE.mode === 'onFoot') {
+            title.textContent = `ON FOOT · ${locationName.toUpperCase()}`;
+            hint.textContent = 'WASD  WALK  ·  SHIFT  RUN  ·  F  ENTER  ·  G  SALUTE';
+            title.className = 'text-[10px] sm:text-xs font-black tracking-[0.22em] text-sky-300 text-center';
+          } else {
+            title.textContent = WORLD_MODE.mode === 'exitTransition' ? 'EXITING VEHICLE' : 'ENTERING VEHICLE';
+            hint.textContent = 'Character animation in progress…';
+            title.className = 'text-[10px] sm:text-xs font-black tracking-[0.22em] text-amber-300 text-center';
+          }
+        }
+
+        if (footControls) {
+          footControls.classList.toggle('hidden', !onFoot);
+          footControls.classList.toggle('flex', onFoot);
+        }
+        if (driveControls && onFoot) {
+          driveControls.classList.add('hidden');
+          driveControls.classList.remove('flex');
+        } else if (driveControls && !onFoot && (WORLD_MODE.mode === 'driving')) {
+          if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 900) {
+            driveControls.classList.remove('hidden');
+            driveControls.classList.add('flex');
+          }
+        }
+      }
+
+      function cubicBezierVector(p0, p1, p2, p3, t) {
+        const u = 1 - t;
+        const uu = u * u;
+        const tt = t * t;
+        return p0.clone().multiplyScalar(uu * u)
+          .addScaledVector(p1, 3 * uu * t)
+          .addScaledVector(p2, 3 * u * tt)
+          .addScaledVector(p3, tt * t);
+      }
+
+      function interpolateAngle(from, to, t) {
+        const delta = Math.atan2(Math.sin(to - from), Math.cos(to - from));
+        return from + delta * t;
+      }
+
+      function getCarRightVector(heading) {
+        return new THREE.Vector3(Math.cos(heading), 0, -Math.sin(heading));
+      }
+
+      function getCarForwardVector(heading) {
+        return new THREE.Vector3(Math.sin(heading), 0, Math.cos(heading));
+      }
+
+      function finishExitTransition() {
+        const transition = WORLD_MODE.transition;
+        const exitHeading = transition && Number.isFinite(transition.endHeading)
+          ? transition.endHeading
+          : STATE.heading + Math.PI * 0.5;
+        WORLD_MODE.mode = 'onFoot';
+        WORLD_MODE.transition = null;
+        coolManActor.visible = true;
+        coolManVisual.visible = true;
+        coolManVisual.traverse((obj) => {
+          if (obj.isMesh) obj.visible = true;
+          if (obj.isSkinnedMesh) obj.frustumCulled = false;
+        });
+        coolManActor.rotation.y = exitHeading;
+        coolManActor.updateMatrixWorld(true);
+        FOOT_PLAYER.position.copy(coolManActor.position);
+        FOOT_PLAYER.heading = exitHeading;
+        FOOT_PLAYER.trackIndex = findNearestTrackIndex(FOOT_PLAYER.position, STATE.lastTrackIndex);
+        FOOT_PLAYER.moveSpeed = 0;
+        playCoolManAnimation('pose', { timeScale: 1, fade: 0.28 });
+        updateWorldModeHud();
+        showToast('On foot: WASD walk · Shift run · F return to car · G salute.');
+      }
+
+      function finishEnterTransition() {
+        chassisGroup.attach(coolManActor);
+        coolManActor.position.copy(DRIVER_SEAT_LOCAL);
+        coolManActor.rotation.set(0, 0, 0);
+        WORLD_MODE.mode = 'driving';
+        WORLD_MODE.transition = null;
+        FOOT_PLAYER.moveSpeed = 0;
+        playCoolManAnimation('sit', { timeScale: 1, fade: 0.28 });
+        updateWorldModeHud();
+        showToast('Back in the driver seat.');
+      }
+
+      function beginExitVehicle() {
+        if (!coolManLoaded || !coolManActor) {
+          showToast('Driver character is still loading.');
+          return;
+        }
+        if (Math.abs(STATE.speedMS) > 0.75) {
+          showToast('Stop the car before getting out.');
+          return;
+        }
+
+        const startWorld = getDriverSeatWorldPosition();
+        const doorWorld = chassisGroup.localToWorld(FOOT_EXIT_LOCAL.clone());
+        const right = getCarRightVector(STATE.heading);
+        const forward = getCarForwardVector(STATE.heading);
+        scene.attach(coolManActor);
+        coolManActor.position.copy(startWorld);
+        coolManActor.rotation.y = STATE.heading;
+
+        // A three-point outward arc: rise slightly from the seat, clear the sill,
+        // then plant the character beside the door. This avoids the old straight
+        // diagonal slide through the bodywork.
+        const exitSide = -1;
+        const controlA = startWorld.clone()
+          .addScaledVector(right, exitSide * 0.34)
+          .add(new THREE.Vector3(0, 0.16, 0))
+          .addScaledVector(forward, 0.04);
+        const controlB = doorWorld.clone()
+          .addScaledVector(right, exitSide * 0.03)
+          .addScaledVector(forward, -0.18)
+          .add(new THREE.Vector3(0, 0.07, 0));
+        const endHeading = STATE.heading - Math.PI * 0.5;
+
+        WORLD_MODE.mode = 'exitTransition';
+        WORLD_MODE.transition = {
+          kind: 'exit',
+          elapsed: 0,
+          duration: 1.42,
+          from: startWorld.clone(),
+          controlA,
+          controlB,
+          to: doorWorld.clone(),
+          startHeading: STATE.heading,
+          endHeading
+        };
+
+        STATE.keys.up = STATE.keys.down = STATE.keys.left = STATE.keys.right = false;
+        STATE.keys.shift = false;
+        STATE.keys.space = false;
+        WORLD_MODE.runTouch = false;
+        STATE.vel.set(0, 0, 0);
+        STATE.speedMS = STATE.forwardSpeed = STATE.lateralSpeed = 0;
+        playCoolManAnimation('walking', { timeScale: 0.92, fade: 0.24 });
+        updateWorldModeHud();
+      }
+
+      function beginEnterVehicle() {
+        if (!coolManLoaded || !coolManActor) return;
+        const toCar = new THREE.Vector2(STATE.pos.x - FOOT_PLAYER.position.x, STATE.pos.z - FOOT_PLAYER.position.z);
+        if (toCar.length() > 5.2) {
+          showToast('Move closer to the driver door to enter.');
+          return;
+        }
+
+        const startWorld = coolManActor.position.clone();
+        const seatWorld = getDriverSeatWorldPosition();
+        const doorWorld = chassisGroup.localToWorld(FOOT_EXIT_LOCAL.clone());
+        const right = getCarRightVector(STATE.heading);
+        const forward = getCarForwardVector(STATE.heading);
+        const controlA = startWorld.clone()
+          .addScaledVector(right, 0.20)
+          .add(new THREE.Vector3(0, 0.08, 0));
+        const controlB = seatWorld.clone()
+          .addScaledVector(right, 0.18)
+          .addScaledVector(forward, 0.04)
+          .add(new THREE.Vector3(0, 0.12, 0));
+
+        WORLD_MODE.mode = 'enterTransition';
+        WORLD_MODE.transition = {
+          kind: 'enter',
+          elapsed: 0,
+          duration: 1.34,
+          from: startWorld,
+          controlA,
+          controlB,
+          to: seatWorld.clone(),
+          door: doorWorld.clone(),
+          startHeading: FOOT_PLAYER.heading,
+          endHeading: STATE.heading
+        };
+
+        FOOT_PLAYER.moveSpeed = 0;
+        STATE.keys.up = STATE.keys.down = STATE.keys.left = STATE.keys.right = false;
+        STATE.keys.shift = false;
+        WORLD_MODE.runTouch = false;
+        playCoolManAnimation('walking', { timeScale: 0.84, fade: 0.22 });
+        updateWorldModeHud();
+      }
+
+      function toggleVehicleAndFootMode() {
+        if (WORLD_MODE.mode === 'driving') beginExitVehicle();
+        else if (WORLD_MODE.mode === 'onFoot') beginEnterVehicle();
+      }
+
+      function closeGameMenu() {
+        const panel = document.getElementById('game-menu-panel');
+        const toggle = document.getElementById('btn-game-menu');
+        if (panel) panel.classList.add('hidden');
+        if (toggle) toggle.setAttribute('aria-expanded', 'false');
+      }
+
+      function toggleGameMenu(forceOpen) {
+        if (!gameSessionStarted) return;
+        const panel = document.getElementById('game-menu-panel');
+        const toggle = document.getElementById('btn-game-menu');
+        if (!panel || !toggle) return;
+        const shouldOpen = forceOpen === undefined ? panel.classList.contains('hidden') : !!forceOpen;
+        panel.classList.toggle('hidden', !shouldOpen);
+        toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+      }
+
+      function returnToHomeScreen() {
+        // End all movement before showing the weather selector.
+        Object.keys(STATE.keys).forEach((key) => { STATE.keys[key] = false; });
+        WORLD_MODE.runTouch = false;
+        FOOT_PLAYER.moveSpeed = 0;
+        FOOT_PLAYER.isRunning = false;
+        STATE.vel.set(0, 0, 0);
+        STATE.speedMS = 0;
+        STATE.forwardSpeed = 0;
+        STATE.lateralSpeed = 0;
+        STATE.throttle = 0;
+        STATE.brake = 0;
+        STATE.handbrake = 0;
+        STATE.inTunnelBranch = false;
+        STATE.inTunnel = false;
+        AudioEngine.setTunnelMix(0);
+
+        // If the player is on foot or mid-transition, safely return the avatar
+        // to the driver's seat before switching back to the home overlay.
+        if (coolManLoaded && coolManActor && WORLD_MODE.mode !== 'driving') {
+          chassisGroup.attach(coolManActor);
+          coolManActor.position.copy(DRIVER_SEAT_LOCAL);
+          coolManActor.rotation.set(0, 0, 0);
+          coolManActor.visible = true;
+          if (coolManVisual) {
+            coolManVisual.visible = true;
+            coolManVisual.traverse((obj) => {
+              if (obj.isMesh) obj.visible = true;
+              if (obj.isSkinnedMesh) obj.frustumCulled = false;
+            });
+          }
+          playCoolManAnimation('sit', { timeScale: 1, fade: 0.22 });
+        }
+
+        WORLD_MODE.mode = 'driving';
+        WORLD_MODE.transition = null;
+        gameSessionStarted = false;
+        closeGameMenu();
+        document.body.classList.remove('ui-idle');
+        const menu = document.getElementById('main-menu');
+        if (menu) {
+          menu.style.display = 'flex';
+          menu.classList.remove('pointer-events-none');
+          menu.classList.add('opacity-0');
+          requestAnimationFrame(() => menu.classList.remove('opacity-0'));
+        }
+        updateWorldModeHud();
+      }
+
+      function exitGameToBrowser() {
+        returnToHomeScreen();
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch((error) => {
+            console.info('[GT Proving Ground] Fullscreen exit was denied by the browser.', error);
+          });
+        }
+        showToast('Game session ended. Close this browser tab to leave completely.');
+      }
+
+      function triggerCoolManSalute() {
+        if (WORLD_MODE.mode !== 'onFoot' || !coolManLoaded) return;
+        if (playCoolManAnimation('salute', { once: true, timeScale: 1, fade: 0.12 })) {
+          showToast('Salute');
+        }
+      }
+
+      function loadCoolManCharacter() {
+        if (!THREE.GLTFLoader) {
+          const fallbackSources = [
+            'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js',
+            'https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js'
+          ];
+          let sourceIndex = 0;
+          const tryLoader = () => {
+            if (THREE.GLTFLoader) {
+              loadCoolManCharacter();
+              return;
+            }
+            if (sourceIndex >= fallbackSources.length) {
+              console.warn('[GT Proving Ground] GLTFLoader CDN unavailable for Cool Man; driving remains normal.');
+              return;
+            }
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = fallbackSources[sourceIndex++];
+            script.onload = () => {
+              if (THREE.GLTFLoader) loadCoolManCharacter();
+              else tryLoader();
+            };
+            script.onerror = tryLoader;
+            document.head.appendChild(script);
+          };
+          tryLoader();
+          return;
+        }
+
+        const loader = new THREE.GLTFLoader();
+        const modelPath = './assets/cool_man.glb';
+
+        fetch(modelPath, { cache: 'force-cache' })
+          .then((response) => {
+            if (!response.ok) throw new Error(`Cool Man GLB HTTP ${response.status}`);
+            return response.arrayBuffer();
+          })
+          .then((buffer) => new Promise((resolve, reject) => {
+            loader.parse(buffer, './assets/', resolve, reject);
+          }))
+          .then((gltf) => {
+            const actor = new THREE.Group();
+            actor.name = 'PlayerCoolManActor';
+            const visual = gltf.scene;
+            visual.name = 'CoolManRiggedVisual';
+
+            // The supplied Pose clip is a static, arms-out rest pose. Lower both
+            // shoulder chains into a relaxed natural stance (about 31 degrees),
+            // while leaving the seated and salute clips free to do their own poses.
+            const relaxedShoulderCorrection = new THREE.Quaternion()
+              .setFromAxisAngle(new THREE.Vector3(1, 0, 0), 0.54);
+            const leftShoulderBone = visual.getObjectByName('mixamorig:LeftShoulder_41');
+            const rightShoulderBone = visual.getObjectByName('mixamorig:RightShoulder_80');
+            [leftShoulderBone, rightShoulderBone].forEach((bone) => {
+              if (bone) bone.quaternion.multiply(relaxedShoulderCorrection);
+            });
+            visual.updateMatrixWorld(true);
+
+            const characterBounds = new THREE.Box3().setFromObject(visual);
+            if (characterBounds.isEmpty()) throw new Error('Cool Man model has no visible skinned geometry.');
+            const characterSize = new THREE.Vector3();
+            characterBounds.getSize(characterSize);
+            const height = characterSize.y;
+            if (!Number.isFinite(height) || height < 1.2 || height > 2.4) {
+              throw new Error(`Unexpected Cool Man model height: ${height.toFixed(2)} m`);
+            }
+
+            // Keep the avatar close to real human proportions while leaving
+            // enough headroom for the small classic Alfa cockpit.
+            const characterScale = 0.88;
+            visual.scale.setScalar(characterScale);
+            visual.position.y = -characterBounds.min.y * characterScale;
+            visual.traverse((obj) => {
+              if (obj.isMesh) {
+                obj.castShadow = true;
+                obj.receiveShadow = true;
+                // Animated SkinnedMesh bounds can remain stuck in bind-pose
+                // space and be incorrectly frustum-culled while walking/sitting.
+                if (obj.isSkinnedMesh) obj.frustumCulled = false;
+                obj.visible = true;
+              }
+            });
+            visual.visible = true;
+            visual.frustumCulled = false;
+            actor.visible = true;
+            actor.frustumCulled = false;
+
+            actor.add(visual);
+            coolManActor = actor;
+            coolManVisual = visual;
+            scene.add(actor);
+
+            coolManMixer = new THREE.AnimationMixer(visual);
+            coolManActions = {};
+            (gltf.animations || []).forEach((clip) => {
+              const key = (clip.name || '').trim().toLowerCase();
+              const playableClip = clip.clone();
+
+              // The walking clip contains forward root translation. The game
+              // already moves the actor in world space, so freeze only Hips X/Z
+              // while retaining the animation's vertical bounce and leg cycle.
+              if (key === 'walking') {
+                playableClip.tracks.forEach((track) => {
+                  if (track.name.includes('Hips') && track.name.endsWith('.position')) {
+                    // Keep character motion in world space; preserve the gait bounce.
+                    const stride = track.getValueSize();
+                    const values = track.values;
+                    if (stride === 3 && values.length >= 3) {
+                      const firstX = values[0];
+                      const firstZ = values[2];
+                      for (let v = 0; v < values.length; v += stride) {
+                        values[v] = firstX;
+                        values[v + 2] = firstZ;
+                      }
+                    }
+                  }
+
+                  // The walking clip also keys the shoulder joints. Apply the same
+                  // relaxed shoulder angle to its quaternion keys so the arms do
+                  // not snap back outward when movement begins.
+                  if (
+                    track.name.endsWith('.quaternion') &&
+                    (track.name.includes('mixamorig:LeftShoulder_41') ||
+                     track.name.includes('mixamorig:RightShoulder_80'))
+                  ) {
+                    const values = track.values;
+                    const q = new THREE.Quaternion();
+                    for (let v = 0; v + 3 < values.length; v += 4) {
+                      q.fromArray(values, v).multiply(relaxedShoulderCorrection).normalize();
+                      q.toArray(values, v);
+                    }
+                  }
+                });
+              }
+
+              coolManActions[key] = coolManMixer.clipAction(playableClip);
+            });
+
+            coolManMixer.addEventListener('finished', (event) => {
+              if (coolManCurrentAction === event.action) {
+                if (WORLD_MODE.mode === 'onFoot') playCoolManAnimation('pose', { timeScale: 1, fade: 0.2 });
+              }
+            });
+
+            coolManLoaded = true;
+
+            // Spawn inside the Alfa driver seat by default; the sit clip bends legs
+            // and arms into a seated pose. If the model loads late, attach in-place.
+            chassisGroup.attach(coolManActor);
+            coolManActor.position.copy(DRIVER_SEAT_LOCAL);
+            coolManActor.rotation.set(0, 0, 0);
+            playCoolManAnimation('sit', { timeScale: 1, fade: 0.05 });
+
+            console.info(
+              `[GT Proving Ground] Cool Man loaded: ${gltf.animations.length} clips; ` +
+              `height=${height.toFixed(2)}m; clips=${gltf.animations.map(clip => clip.name).join(', ')}.`
+            );
+            updateWorldModeHud();
+          })
+          .catch((error) => {
+            console.error('[GT Proving Ground] Cool Man character failed to load; vehicle remains playable.', error);
+          });
+      }
+
+      function findFootTrackSample(position, hintIndex) {
+        const target = hintIndex || 0;
+        ensureSamplesUpTo(target + SAMPLES_PER_CHUNK * 3);
+        const index = findNearestTrackIndex(position, target);
+        return trackSamples[index] || trackSamples[0];
+      }
+
+      function updateOnFoot(dt) {
+        const mode = WORLD_MODE.mode;
+        if (mode === 'exitTransition' || mode === 'enterTransition') {
+          const transition = WORLD_MODE.transition;
+          if (!transition || !coolManActor) return;
+          transition.elapsed += dt;
+          const t = THREE.MathUtils.clamp(transition.elapsed / transition.duration, 0, 1);
+          const eased = t * t * (3 - 2 * t);
+          if (transition.controlA && transition.controlB) {
+            coolManActor.position.copy(cubicBezierVector(
+              transition.from,
+              transition.controlA,
+              transition.controlB,
+              transition.to,
+              eased
+            ));
+          } else {
+            coolManActor.position.lerpVectors(transition.from, transition.to, eased);
+          }
+          // A small natural lift over the door sill; the curve settles onto the
+          // ground/seat at its end instead of translating at constant height.
+          coolManActor.position.y += Math.sin(Math.PI * eased) * 0.055;
+          coolManActor.rotation.y = interpolateAngle(
+            transition.startHeading === undefined ? STATE.heading : transition.startHeading,
+            transition.endHeading === undefined ? STATE.heading : transition.endHeading,
+            eased
+          );
+          if (t >= 1) {
+            if (transition.kind === 'exit') finishExitTransition();
+            else finishEnterTransition();
+          }
+          return;
+        }
+
+        if (mode !== 'onFoot' || !coolManActor) return;
+
+        const forwardInput = (STATE.keys.up ? 1 : 0) - (STATE.keys.down ? 1 : 0);
+        const turnInput = (STATE.keys.left ? 1 : 0) - (STATE.keys.right ? 1 : 0);
+        const running = STATE.keys.shift || WORLD_MODE.runTouch;
+        FOOT_PLAYER.isRunning = running;
+        FOOT_PLAYER.heading += turnInput * dt * (running ? 1.55 : 1.95);
+        const desiredSpeed = forwardInput * (running ? 4.65 : 2.35);
+        FOOT_PLAYER.moveSpeed += (desiredSpeed - FOOT_PLAYER.moveSpeed) * Math.min(1, dt * 7.0);
+
+        const candidateFootPosition = FOOT_PLAYER.position.clone();
+        candidateFootPosition.x += Math.sin(FOOT_PLAYER.heading) * FOOT_PLAYER.moveSpeed * dt;
+        candidateFootPosition.z += Math.cos(FOOT_PLAYER.heading) * FOOT_PLAYER.moveSpeed * dt;
+
+        let footBlocked = false;
+        for (const [, chunkData] of activeChunks.entries()) {
+          for (const obstacle of chunkData.colliders) {
+            const dx = candidateFootPosition.x - obstacle.x;
+            const dz = candidateFootPosition.z - obstacle.z;
+            const safeRadius = (obstacle.r || 0.7) + 0.42;
+            if (dx * dx + dz * dz < safeRadius * safeRadius) {
+              footBlocked = true;
+              break;
+            }
+          }
+          if (footBlocked) break;
+        }
+        if (!footBlocked) FOOT_PLAYER.position.copy(candidateFootPosition);
+
+        FOOT_PLAYER.trackIndex = findNearestTrackIndex(FOOT_PLAYER.position, FOOT_PLAYER.trackIndex);
+        ensureSamplesUpTo(FOOT_PLAYER.trackIndex + SAMPLES_PER_CHUNK * 3);
+        const nearest = trackSamples[FOOT_PLAYER.trackIndex];
+        if (nearest) {
+          const dx = FOOT_PLAYER.position.x - nearest.pt.x;
+          const dz = FOOT_PLAYER.position.z - nearest.pt.z;
+          const signedLateral = dx * nearest.right.x + dz * nearest.right.z;
+          const lateral = Math.abs(signedLateral);
+          const branch = nearest.tunnelBranch;
+          const branchLateral = branch ? signedLateral * branch.side : 0;
+          const inBranchLane = !!(
+            branch &&
+            branchLateral >= branch.centerOffset - branch.halfWidth - 0.12 &&
+            branchLateral <= branch.centerOffset + branch.halfWidth + 0.12
+          );
+          const branchDepth = inBranchLane ? (branch.depth || 0) : 0;
+          FOOT_PLAYER.position.y = nearest.pt.y - branchDepth + 0.025;
+        }
+
+        coolManActor.position.copy(FOOT_PLAYER.position);
+        coolManActor.rotation.y = FOOT_PLAYER.heading;
+
+        if (Math.abs(FOOT_PLAYER.moveSpeed) > 0.35) {
+          playCoolManAnimation(
+            'walking',
+            { timeScale: running ? 1.72 : 1.0, fade: 0.18 }
+          );
+        } else if (coolManCurrentAction !== coolManActions.pose) {
+          playCoolManAnimation('pose', { timeScale: 1, fade: 0.24 });
+        }
+
+        WORLD_MODE.streamTimer += dt;
+        if (WORLD_MODE.streamTimer > 0.55) {
+          WORLD_MODE.streamTimer = 0;
+          updateStreamingWorld();
+          updateWorldModeHud();
+        }
       }
 
       // -----------------------------------------------------------------------
@@ -4611,10 +6383,16 @@
         p.life = 0.01;
         p.maxLife = 0.45 + Math.random() * 0.35;
         p.mesh.position.set(worldX + (Math.random() - 0.5) * 0.2, STATE.pos.y + 0.14, worldZ + (Math.random() - 0.5) * 0.2);
-        p.mesh.scale.setScalar(0.55);
-        p.mesh.material.opacity = Math.min(0.38, intensity * 0.28);
+        const isLooseRoadDust = STATE.offTrack && liveWeather.wetness < 0.32;
+        p.mesh.scale.setScalar(isLooseRoadDust ? 0.34 : 0.55);
+        p.mesh.material.color.setHex(isLooseRoadDust ? 0x9b8463 : 0xd1d5db);
+        p.mesh.material.opacity = Math.min(isLooseRoadDust ? 0.24 : 0.38, intensity * (isLooseRoadDust ? 0.19 : 0.28));
         p.mesh.visible = true;
-        p.vel.set((Math.random() - 0.5) * 1.4, 0.5 + Math.random() * 0.6, (Math.random() - 0.5) * 1.4);
+        p.vel.set(
+          (Math.random() - 0.5) * (isLooseRoadDust ? 0.85 : 1.4),
+          isLooseRoadDust ? 0.26 + Math.random() * 0.28 : 0.5 + Math.random() * 0.6,
+          (Math.random() - 0.5) * (isLooseRoadDust ? 0.85 : 1.4)
+        );
       }
 
       function updateSmokePool(dt) {
@@ -5099,6 +6877,13 @@
         windFilter: null,
         rainGain: null,
         rainFilter: null,
+        tunnelSend: null,
+        tunnelDelay: null,
+        tunnelFeedback: null,
+        tunnelReturnFilter: null,
+        tunnelReturnGain: null,
+        tunnelMixValue: 0,
+        tunnelMixApplied: -1,
         prevThrottle: 0,
 
         init() {
@@ -5322,6 +7107,55 @@
           rainSource.connect(this.rainFilter);
           this.rainFilter.connect(this.rainGain);
           this.rainGain.connect(this.masterGain);
+
+          // A compact filtered feedback-delay bus creates tunnel early
+          // reflections and a short tail without an expensive impulse response.
+          this.tunnelSend = this.ctx.createGain();
+          this.tunnelSend.gain.value = 0.0;
+          this.tunnelDelay = this.ctx.createDelay(0.75);
+          this.tunnelDelay.delayTime.value = 0.145;
+          this.tunnelFeedback = this.ctx.createGain();
+          this.tunnelFeedback.gain.value = 0.20;
+          this.tunnelReturnFilter = this.ctx.createBiquadFilter();
+          this.tunnelReturnFilter.type = 'lowpass';
+          this.tunnelReturnFilter.frequency.value = 1750;
+          this.tunnelReturnFilter.Q.value = 0.45;
+          this.tunnelReturnGain = this.ctx.createGain();
+          this.tunnelReturnGain.gain.value = 0.34;
+
+          this.tunnelSend.connect(this.tunnelDelay);
+          this.tunnelDelay.connect(this.tunnelReturnFilter);
+          this.tunnelReturnFilter.connect(this.tunnelReturnGain);
+          this.tunnelReturnGain.connect(this.masterGain);
+          this.tunnelDelay.connect(this.tunnelFeedback);
+          this.tunnelFeedback.connect(this.tunnelDelay);
+
+          // Parallel wet sends leave the dry engine/tyre sound intact.
+          [
+            this.engineGain,
+            this.gearWhineGain,
+            this.roadRumbleGain,
+            this.inductionGain,
+            this.tireNoiseGain,
+            this.tireScreechGain1,
+            this.tireScreechGain2,
+            this.rainGain
+          ].forEach((node) => {
+            if (node) node.connect(this.tunnelSend);
+          });
+          this.setTunnelMix(this.tunnelMixValue);
+        },
+
+        setTunnelMix(amount) {
+          const value = THREE.MathUtils.clamp(amount, 0, 1);
+          this.tunnelMixValue = value;
+          if (!this.ctx || !this.tunnelSend || Math.abs(value - this.tunnelMixApplied) < 0.015) return;
+          this.tunnelMixApplied = value;
+          const now = this.ctx.currentTime;
+          this.tunnelSend.gain.setTargetAtTime(value * 0.31, now, 0.16);
+          this.tunnelFeedback.gain.setTargetAtTime(0.12 + value * 0.13, now, 0.20);
+          this.tunnelReturnGain.gain.setTargetAtTime(0.12 + value * 0.25, now, 0.20);
+          this.tunnelReturnFilter.frequency.setTargetAtTime(value > 0.5 ? 1480 : 2600, now, 0.22);
         },
 
         ensureUnlocked() {
@@ -5556,6 +7390,9 @@
         STATE.steerAngle = 0;
         STATE.driftAngle = 0;
         STATE.trackSlope = startSample.slope || 0;
+        STATE.inTunnelBranch = false;
+        STATE.inTunnel = false;
+        if (typeof AudioEngine !== 'undefined') AudioEngine.setTunnelMix(0);
         STATE.onSpeedBreaker = false;
         STATE.lastBreakerSampleIdx = -1;
         STATE.breakerSpringPos = 0;
@@ -5600,6 +7437,19 @@
       }
 
       function stepVehiclePhysics(dt) {
+        if (WORLD_MODE.mode !== 'driving') {
+          STATE.throttle = 0;
+          STATE.brake = 0;
+          STATE.throttleSmoothed = 0;
+          STATE.handbrake = 0;
+          STATE.drsActive = false;
+          STATE.speedMS = 0;
+          STATE.forwardSpeed = 0;
+          STATE.lateralSpeed = 0;
+          STATE.vel.set(0, 0, 0);
+          return;
+        }
+
         const rawUp = STATE.keys.up ? 1 : 0;
         const rawDown = STATE.keys.down ? 1 : 0;
         const rawLeft = STATE.keys.left ? 1 : 0;
@@ -5681,10 +7531,39 @@
         const signedLatOffset = relX * closestSample.right.x + relZ * closestSample.right.z;
         const distFromCenter = Math.abs(signedLatOffset);
         const halfTrack = closestSample.halfWidth;
+        const branch = closestSample.tunnelBranch;
+        const branchLateral = branch ? signedLatOffset * branch.side : 0;
+        const branchInner = branch ? branch.centerOffset - branch.halfWidth : Infinity;
+        const branchOuter = branch ? branch.centerOffset + branch.halfWidth : -Infinity;
+        // The branch's inner edge begins just outside the main carriageway.
+        // Do not widen this test back across the main road during merge frames;
+        // that previously made the main lane intermittently inherit tunnel depth.
+        const branchDriveableInner = branch ? branchInner : Infinity;
+        const inTunnelBranch = !!(
+          branch &&
+          branchLateral >= branchDriveableInner - 0.12 &&
+          branchLateral <= branchOuter
+        );
+        STATE.inTunnelBranch = inTunnelBranch;
+        STATE.inTunnel = inTunnelBranch && !!branch.inTunnel;
+        let tunnelBranchDepth = inTunnelBranch && branch ? (branch.depth || 0) : 0;
+        let tunnelBranchGrade = 0;
+        if (inTunnelBranch && branch) {
+          const prevSample = trackSamples[Math.max(0, bestIdx - 1)];
+          const nextSample = trackSamples[Math.min(trackSamples.length - 1, bestIdx + 1)];
+          const prevDepth = prevSample && prevSample.tunnelBranch ? (prevSample.tunnelBranch.depth || 0) : 0;
+          const nextDepth = nextSample && nextSample.tunnelBranch ? (nextSample.tunnelBranch.depth || 0) : 0;
+          tunnelBranchGrade = Math.atan2(-(nextDepth - prevDepth), SAMPLE_STRIDE * 2);
+        }
         const onMedianCurb = closestSample.dividerHalfWidth > 0.15 && distFromCenter < (closestSample.dividerHalfWidth + 0.35);
 
-        STATE.onCurb = onMedianCurb || (distFromCenter > (halfTrack - 0.6) && distFromCenter < (halfTrack + 1.45));
-        STATE.offTrack = !closestSample.isBridge && distFromCenter >= (halfTrack + 1.45);
+        STATE.onCurb = !inTunnelBranch && (
+          onMedianCurb ||
+          (distFromCenter > (halfTrack - 0.6) && distFromCenter < (halfTrack + 1.45))
+        );
+        STATE.offTrack = !closestSample.isBridge &&
+          distFromCenter >= (halfTrack + 1.45) &&
+          !inTunnelBranch;
         // Detect a speed breaker by longitudinal distance along its sample,
         // not Euclidean distance from the road centre. This works in either
         // carriageway even when the car is laterally offset from the spline.
@@ -5860,6 +7739,15 @@
           exhaustFlameLeft.material.opacity = Math.max(0, exhaustFlameLeft.material.opacity - dt * 12);
           exhaustFlameRight.material.opacity = exhaustFlameLeft.material.opacity;
         }
+        // Tie the existing boost/KERS bar to a sustained dual-exhaust flame pulse.
+        // This is game-generated nitro-style VFX; the supplied GLB has no baked
+        // animation tracks or animated nitrous system of its own.
+        if (exhaustFlameLeft && exhaustFlameRight && STATE.throttleSmoothed > 0.55) {
+          const nitroVisual = THREE.MathUtils.clamp((STATE.boostBar - 0.42) * 1.75, 0, 0.78) *
+            THREE.MathUtils.clamp((STATE.throttleSmoothed - 0.45) * 1.9, 0, 1);
+          exhaustFlameLeft.material.opacity = Math.max(exhaustFlameLeft.material.opacity, nitroVisual);
+          exhaustFlameRight.material.opacity = exhaustFlameLeft.material.opacity;
+        }
 
         // Logical Engine Torque Curve & Gear Multiplication so gears pull progressively instead of instantly maxing out
         const normRPM = (STATE.rpm - CONFIG.idleRPM) / (CONFIG.maxRPM - CONFIG.idleRPM);
@@ -5969,8 +7857,35 @@
 
         // Smooth C1 continuous spline elevation & slope interpolation so climbing up/down bridge ramps NEVER shakes!
         const splineSurface = sampleSplineElevationAndSlope(bestIdx, STATE.pos.x, STATE.pos.z);
-        STATE.pos.y = splineSurface.y + STATE.breakerRoadLift;
-        STATE.trackSlope += (splineSurface.slope - STATE.trackSlope) * Math.min(1, dt * 16);
+        let effectiveTunnelDepth = tunnelBranchDepth;
+        let effectiveTunnelGrade = tunnelBranchGrade;
+        if (inTunnelBranch) {
+          const movedX = STATE.pos.x - closestSample.pt.x;
+          const movedZ = STATE.pos.z - closestSample.pt.z;
+          const movedAlong = movedX * closestSample.tangent.x + movedZ * closestSample.tangent.z;
+          const depthIndex = THREE.MathUtils.clamp(
+            bestIdx + movedAlong / SAMPLE_STRIDE,
+            0,
+            trackSamples.length - 1
+          );
+          const depthIndex0 = Math.floor(depthIndex);
+          const depthIndex1 = Math.min(trackSamples.length - 1, depthIndex0 + 1);
+          const depthFrac = depthIndex - depthIndex0;
+          const depthSample0 = trackSamples[depthIndex0];
+          const depthSample1 = trackSamples[depthIndex1];
+          const d0 = depthSample0 && depthSample0.tunnelBranch ? (depthSample0.tunnelBranch.depth || 0) : 0;
+          const d1 = depthSample1 && depthSample1.tunnelBranch ? (depthSample1.tunnelBranch.depth || 0) : 0;
+          effectiveTunnelDepth = THREE.MathUtils.lerp(d0, d1, depthFrac);
+
+          const depthPrevSample = trackSamples[Math.max(0, depthIndex0 - 1)];
+          const depthNextSample = trackSamples[Math.min(trackSamples.length - 1, depthIndex0 + 1)];
+          const dp = depthPrevSample && depthPrevSample.tunnelBranch ? (depthPrevSample.tunnelBranch.depth || 0) : d0;
+          const dn = depthNextSample && depthNextSample.tunnelBranch ? (depthNextSample.tunnelBranch.depth || 0) : d1;
+          effectiveTunnelGrade = Math.atan2(-(dn - dp), SAMPLE_STRIDE * 2);
+        }
+        STATE.pos.y = splineSurface.y - effectiveTunnelDepth + STATE.breakerRoadLift;
+        const effectiveRoadSlope = splineSurface.slope + effectiveTunnelGrade;
+        STATE.trackSlope += (effectiveRoadSlope - STATE.trackSlope) * Math.min(1, dt * 16);
 
         // Clean, zero-invisible-wall collision resolution:
         // 1) Smooth guardrail & divided bridge median containment along spline right-vector
@@ -6098,6 +8013,13 @@
         const rrX = STATE.pos.x + newRightX * 0.92 - newFwdX * 1.36;
         const rrZ = STATE.pos.z + newRightZ * 0.92 - newFwdZ * 1.36;
 
+        if (STATE.offTrack && liveWeather.wetness < 0.32 && STATE.speedMS > 2.0) {
+          if (Math.random() < 0.18) {
+            spawnTireSmoke(rlX, rlZ, 0.72);
+            spawnTireSmoke(rrX, rrZ, 0.72);
+          }
+        }
+
         if (STATE.slipRatio > 0.24 && STATE.speedMS > 2.5 && !STATE.offTrack) {
           if (Math.random() < 0.75) {
             spawnTireSmoke(rlX, rlZ, STATE.slipRatio);
@@ -6158,17 +8080,17 @@
           headLightLeft.intensity = 2.2 + nightLevel * 4.5;
           headLightRight.intensity = 2.2 + nightLevel * 4.5;
         }
-        porscheHeadlightMaterials.forEach((material) => {
+        alfaHeadlightMaterials.forEach((material) => {
           material.emissiveIntensity = headlampLevel;
         });
 
-        porscheRearLightMaterials.forEach((material) => {
+        alfaRearLightMaterials.forEach((material) => {
           material.emissiveIntensity = isBraking ? 4.8 : 1.35;
         });
-        porscheBrakeLightPoints.forEach((light) => {
+        alfaBrakeLightPoints.forEach((light) => {
           light.intensity = isBraking ? 1.55 : 0.32;
         });
-        porscheReverseLightPoints.forEach((light) => {
+        alfaReverseLightPoints.forEach((light) => {
           light.intensity = STATE.gear === -1 ? 1.65 : 0.0;
         });
 
@@ -6189,45 +8111,34 @@
           wheelSpinMeshes[idx].rotation.x += wheelSpinStep;
         });
 
-        if (porscheWheelRig) {
-          // The GLB's Root node maps its local Z to game-world up, X to the
-          // wheel axle and local Z rotation to vertical steering. Each wheel
-          // now has its own hub pivot rather than steering the whole axle pair.
-          porscheWheelSpinAngle += wheelSpinStep;
+        if (alfaWheelRig.length) {
+          // Alfa model game-space axes: X = wheel axle, Y = vertical, Z = forward.
+          // Each tyre has a separate steering hub and spin pivot.
+          alfaWheelSpinAngle += wheelSpinStep;
           const wheelSuspensionTravel =
-            (STATE.onCurb ? curbJitter * 0.22 : 0) -
-            STATE.breakerSpringPos * 0.42 +
-            STATE.breakerRoadLift * 0.20;
+            (STATE.onCurb ? curbJitter * 0.18 : 0) -
+            STATE.breakerSpringPos * 0.34 +
+            STATE.breakerRoadLift * 0.18;
 
-          const animateWheelSide = (rig, isFront) => {
-            if (!rig) return;
-            rig.pivot.rotation.x = porscheWheelSpinAngle;
-            if (isFront) {
-              rig.pivot.rotation.z = visualFrontWheelSteer + PORSCHE_FRONT_TOE_CORRECTION;
-            }
-            rig.pivot.position.z = rig.baseZ + wheelSuspensionTravel;
-          };
-
-          if (porscheWheelRig.front) {
-            animateWheelSide(porscheWheelRig.front.left, true);
-            animateWheelSide(porscheWheelRig.front.right, true);
-          }
-          if (porscheWheelRig.rear) {
-            animateWheelSide(porscheWheelRig.rear.left, false);
-            animateWheelSide(porscheWheelRig.rear.right, false);
-          }
+          alfaWheelRig.forEach((wheel) => {
+            wheel.spinPivot.rotation.x = alfaWheelSpinAngle;
+            wheel.steeringPivot.rotation.y = wheel.front ? visualFrontWheelSteer : 0;
+            wheel.steeringPivot.position.y = wheel.baseY + wheelSuspensionTravel;
+          });
         }
 
         const sunRadius = 115;
         const azRad = (liveWeather.sunAzimuth * Math.PI) / 180;
         // Align directional shadow caster with the exact 3D Sun direction so shadows match the visible Sun!
+        const lightFocus = getWorldFocusPosition();
         dirLight.position.set(
-          STATE.pos.x + Math.sin(azRad) * sunRadius,
+          lightFocus.x + Math.sin(azRad) * sunRadius,
           Math.max(36, liveWeather.sunElevation * 1.15),
-          STATE.pos.z + Math.cos(azRad) * sunRadius
+          lightFocus.z + Math.cos(azRad) * sunRadius
         );
-        dirLight.target.position.copy(STATE.pos);
+        dirLight.target.position.copy(lightFocus);
 
+        AudioEngine.setTunnelMix(STATE.inTunnel ? 1 : (STATE.inTunnelBranch ? 0.48 : 0));
         AudioEngine.update(
           STATE.rpm,
           STATE.throttleSmoothed,
@@ -6248,6 +8159,34 @@
       let smoothedCamSlope = 0;
 
       function updateCamera(dt) {
+        if (WORLD_MODE.mode === 'onFoot' || WORLD_MODE.mode === 'exitTransition' || WORLD_MODE.mode === 'enterTransition') {
+          const actorPosition = getCoolManWorldPosition();
+          const actorHeading = (WORLD_MODE.mode === 'onFoot') ? FOOT_PLAYER.heading : STATE.heading;
+          const aspect = window.innerWidth / Math.max(1, window.innerHeight);
+          const portraitFactor = aspect < 1.0 ? THREE.MathUtils.clamp((1.0 - aspect) * 2.2, 0, 1.35) : 0;
+          const distance = 4.25 + portraitFactor * 1.2;
+          const targetCamera = new THREE.Vector3(
+            actorPosition.x - Math.sin(actorHeading) * distance,
+            actorPosition.y + 2.0 + portraitFactor * 0.25,
+            actorPosition.z - Math.cos(actorHeading) * distance
+          );
+          const targetLook = new THREE.Vector3(
+            actorPosition.x + Math.sin(actorHeading) * 0.9,
+            actorPosition.y + 1.05,
+            actorPosition.z + Math.cos(actorHeading) * 0.9
+          );
+          camCurrentPos.lerp(targetCamera, Math.min(1, dt * 5.5));
+          camCurrentLook.lerp(targetLook, Math.min(1, dt * 6.5));
+          camera.position.copy(camCurrentPos);
+          camera.lookAt(camCurrentLook);
+          const footFov = 58 + portraitFactor * 12;
+          if (Math.abs(camera.fov - footFov) > 0.05) {
+            camera.fov += (footFov - camera.fov) * Math.min(1, dt * 5);
+            camera.updateProjectionMatrix();
+          }
+          return;
+        }
+
         // Critically damped camera heading & slope relative to the car chassis so there is ZERO frame-to-frame distance jitter!
         let headingDiff = STATE.heading - smoothedCamHeading;
         while (headingDiff > Math.PI) headingDiff -= Math.PI * 2;
@@ -6423,19 +8362,48 @@
         }
         domLapCount.textContent = String(STATE.overtakeCount).padStart(2, '0');
 
-        const currSample = trackSamples[STATE.lastTrackIndex] || trackSamples[0];
+        const hudTrackIndex = (WORLD_MODE.mode === 'onFoot' || WORLD_MODE.mode === 'exitTransition' || WORLD_MODE.mode === 'enterTransition')
+          ? FOOT_PLAYER.trackIndex
+          : STATE.lastTrackIndex;
+        const currSample = trackSamples[hudTrackIndex] || trackSamples[0];
         const onElevatedBridge = currSample && currSample.isBridge && !STATE.offTrack;
         const onDividedRoad = currSample && currSample.dividerHalfWidth > 0.2 && !STATE.offTrack;
-        domSurface.textContent = STATE.onSpeedBreaker
-          ? 'BUMP STRIP'
-          : (onElevatedBridge
+        domSurface.textContent = STATE.inTunnel
+          ? 'ALPINE TUNNEL'
+          : (STATE.inTunnelBranch
+            ? 'TUNNEL LINK'
+            : (STATE.onSpeedBreaker
+              ? 'BUMP STRIP'
+              : (onElevatedBridge
             ? (onDividedRoad ? 'DIVIDED BRIDGE' : 'BRIDGE DECK')
             : (STATE.offTrack
               ? 'RUNOFF TURF'
-              : (STATE.onCurb ? 'APEX CURB' : (onDividedRoad ? 'DIVIDED HWY' : (liveWeather.wetness > 0.5 ? 'WET ASPHALT' : 'ASPHALT')))));
+                : (STATE.onCurb ? 'APEX CURB' : (onDividedRoad ? 'DIVIDED HWY' : (liveWeather.wetness > 0.5 ? 'WET ASPHALT' : 'ASPHALT')))))));
 
-        const chunkBiomeNames = ['DIV HWY S1', 'BRIDGE N S2', 'BRIDGE S S3', 'TUNNEL S4', 'PARKWAY S5'];
-        domSector.textContent = currSample ? chunkBiomeNames[currSample.biomeType] : 'S1';
+        const chunkBiomeNames = [
+          'DIV HWY S1',
+          'BRIDGE N S2',
+          'BRIDGE S S3',
+          'TUNNEL S4',
+          'PARKWAY S5',
+          'ALPINE TOWN',
+          'LAGO AZZURRO',
+          'PORTO VECCHIO'
+        ];
+        domSector.textContent = STATE.inTunnel
+          ? 'ALPINE TUNNEL'
+          : (STATE.inTunnelBranch
+            ? 'TUNNEL LINK'
+            : (currSample ? (chunkBiomeNames[currSample.biomeType] || 'OPEN WORLD') : 'S1'));
+        const modeTitle = document.getElementById('world-mode-title');
+        if (modeTitle && WORLD_MODE.mode === 'driving') {
+          const region = STATE.inTunnel
+            ? 'ALPINE BYPASS TUNNEL'
+            : (STATE.inTunnelBranch
+              ? 'ALPINE TUNNEL LINK'
+              : (currSample ? (chunkBiomeNames[currSample.biomeType] || 'OPEN WORLD') : 'PROVING GROUND'));
+          modeTitle.textContent = `DRIVING · ${region}`;
+        }
 
         domIndTCS.className = STATE.slipRatio > 0.35
           ? 'px-1.5 py-0.5 rounded bg-amber-500/30 text-amber-300 text-center'
@@ -6477,6 +8445,34 @@
         minimapCtx.lineWidth = 4.5;
         minimapCtx.stroke();
 
+        // Show the separate Alpine bypass lane as a second, amber route line.
+        minimapCtx.beginPath();
+        let branchStarted = false;
+        for (let i = startDraw; i <= endDraw; i += 2) {
+          const sample = trackSamples[i];
+          if (!sample.tunnelBranch) {
+            branchStarted = false;
+            continue;
+          }
+          const lanePoint = sample.pt.clone().addScaledVector(
+            sample.right,
+            sample.tunnelBranch.side * sample.tunnelBranch.centerOffset
+          );
+          const mx = cx + (lanePoint.x - STATE.pos.x) * scale;
+          const my = cy + (lanePoint.z - STATE.pos.z) * scale;
+          if (!branchStarted) {
+            minimapCtx.moveTo(mx, my);
+            branchStarted = true;
+          } else {
+            minimapCtx.lineTo(mx, my);
+          }
+        }
+        minimapCtx.strokeStyle = 'rgba(245, 190, 92, 0.92)';
+        minimapCtx.lineWidth = 2.3;
+        minimapCtx.setLineDash([4, 3]);
+        minimapCtx.stroke();
+        minimapCtx.setLineDash([]);
+
         // Highlight Divided Bridge and Speed Breakers on Live GPS Radar
         for (let i = startDraw; i <= endDraw; i += 2) {
           const s = trackSamples[i];
@@ -6512,8 +8508,23 @@
         AudioEngine.ensureUnlocked();
         const code = e.code;
 
+        if (code === 'Escape' && gameSessionStarted) {
+          e.preventDefault();
+          toggleGameMenu();
+          return;
+        }
+
         if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(code)) {
           e.preventDefault();
+        }
+
+        if (code === 'KeyF' && !e.repeat) {
+          toggleVehicleAndFootMode();
+          return;
+        }
+        if (code === 'KeyG' && !e.repeat) {
+          triggerCoolManSalute();
+          return;
         }
 
         if (code === 'KeyW' || code === 'ArrowUp') STATE.keys.up = true;
@@ -6521,16 +8532,18 @@
         if (code === 'KeyA' || code === 'ArrowLeft') STATE.keys.left = true;
         if (code === 'KeyD' || code === 'ArrowRight') STATE.keys.right = true;
         if (code === 'ShiftLeft' || code === 'ShiftRight') STATE.keys.shift = true;
-        if (code === 'Space') {
+        if (code === 'Space' && WORLD_MODE.mode === 'driving') {
           STATE.keys.space = true;
           if (document.activeElement && document.activeElement !== document.body) {
             document.activeElement.blur();
           }
         }
-        if (code === 'KeyE') shiftUp();
-        if (code === 'KeyQ') shiftDown();
+        if (WORLD_MODE.mode === 'driving') {
+          if (code === 'KeyE') shiftUp();
+          if (code === 'KeyQ') shiftDown();
+          if (code === 'KeyR') resetVehicleToStart();
+        }
         if (code === 'KeyC') cycleCamera();
-        if (code === 'KeyR') resetVehicleToStart();
         if (code === 'KeyL') toggleHeadlights();
       });
 
@@ -6615,6 +8628,48 @@
       bindTouchButton('touch-ebrake', 'space');
       bindTouchButton('touch-boost', 'shift');
 
+      function bindFootButton(id, keyName) {
+        const element = document.getElementById(id);
+        if (!element) return;
+        const start = (event) => {
+          event.preventDefault();
+          AudioEngine.ensureUnlocked();
+          if (keyName === 'run') WORLD_MODE.runTouch = true;
+          else STATE.keys[keyName] = true;
+        };
+        const end = (event) => {
+          event.preventDefault();
+          if (keyName === 'run') WORLD_MODE.runTouch = false;
+          else STATE.keys[keyName] = false;
+        };
+        element.addEventListener('touchstart', start, { passive: false });
+        element.addEventListener('touchend', end, { passive: false });
+        element.addEventListener('touchcancel', end, { passive: false });
+        element.addEventListener('mousedown', start);
+        element.addEventListener('mouseup', end);
+        element.addEventListener('mouseleave', end);
+      }
+      bindFootButton('foot-forward', 'up');
+      bindFootButton('foot-back', 'down');
+      bindFootButton('foot-left', 'left');
+      bindFootButton('foot-right', 'right');
+      bindFootButton('foot-run', 'run');
+      document.getElementById('foot-interact').addEventListener('click', toggleVehicleAndFootMode);
+      document.getElementById('foot-salute').addEventListener('click', triggerCoolManSalute);
+
+      const gameMenuToggle = document.getElementById('btn-game-menu');
+      const gameMenuPanel = document.getElementById('game-menu-panel');
+      if (gameMenuToggle) gameMenuToggle.addEventListener('click', () => toggleGameMenu());
+      document.getElementById('game-menu-close').addEventListener('click', closeGameMenu);
+      document.getElementById('game-menu-resume').addEventListener('click', closeGameMenu);
+      document.getElementById('game-menu-home').addEventListener('click', returnToHomeScreen);
+      document.getElementById('game-menu-exit').addEventListener('click', exitGameToBrowser);
+      document.addEventListener('pointerdown', (event) => {
+        if (!gameMenuPanel || gameMenuPanel.classList.contains('hidden')) return;
+        if (gameMenuPanel.contains(event.target) || (gameMenuToggle && gameMenuToggle.contains(event.target))) return;
+        closeGameMenu();
+      });
+
       const steerPad = document.getElementById('touch-steer-pad');
       const steerThumb = document.getElementById('touch-steer-thumb');
       const steerReadout = document.getElementById('touch-steer-Readout');
@@ -6674,7 +8729,7 @@
           headLightRight.visible = true;
         }
         headLightMaterial.emissiveIntensity = 2.2;
-        porscheHeadlightMaterials.forEach((material) => {
+        alfaHeadlightMaterials.forEach((material) => {
           material.emissiveIntensity = 2.0;
         });
         document.getElementById('btn-lights').classList.add('active');
@@ -6839,10 +8894,16 @@
         } catch (error) {
           console.warn('[GT Proving Ground] Audio unlock deferred until user interaction.', error);
         }
+        gameSessionStarted = true;
         const menu = document.getElementById('main-menu');
         if (menu) {
           menu.classList.add('opacity-0', 'pointer-events-none');
-          window.setTimeout(() => { menu.style.display = 'none'; }, 720);
+          window.setTimeout(() => {
+            menu.style.display = 'none';
+            updateWorldModeHud();
+          }, 720);
+        } else {
+          updateWorldModeHud();
         }
       });
 
@@ -6893,7 +8954,19 @@
         }
 
         stepDynamicWeather(dt);
+        updateOnFoot(dt);
         stepVehiclePhysics(dt);
+        if (coolManMixer) coolManMixer.update(dt);
+        if (WORLD_MODE.mode !== 'driving') {
+          const footFocus = getWorldFocusPosition();
+          const azimuth = (liveWeather.sunAzimuth * Math.PI) / 180;
+          dirLight.target.position.copy(footFocus);
+          dirLight.position.set(
+            footFocus.x + Math.sin(azimuth) * 115,
+            Math.max(36, liveWeather.sunElevation * 1.15),
+            footFocus.z + Math.cos(azimuth) * 115
+          );
+        }
         updateCelestialSky();
         updateWindLeavesAndDust(dt, now * 0.001);
         updateAICars(dt);
@@ -6916,11 +8989,16 @@
         ensureSamplesUpTo(SAMPLES_PER_CHUNK * 4);
         updateStreamingWorld();
         buildGTCar();
-        loadUpdatedPorscheModel();
+        loadUpdatedAlfaModel();
+        loadCoolManCharacter();
         buildAICars();
         applyEnvironmentState(0, 0, true);
         resetVehicleToStart();
         smoothedCamHeading = STATE.heading;
+        FOOT_PLAYER.position.copy(STATE.pos);
+        FOOT_PLAYER.heading = STATE.heading;
+        FOOT_PLAYER.trackIndex = STATE.lastTrackIndex;
+        updateWorldModeHud();
         lastFrameTime = performance.now();
         animateLoop(lastFrameTime);
       };
